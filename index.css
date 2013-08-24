@@ -1,0 +1,48 @@
+/*
+     markdown-site-template 0.1
+     http://aplib.github.io/markdown-site-template/
+     (c) 2013 vadim baklanov
+     License: MIT
+*/
+
+
+.fixed-top-navbar {
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%;
+    /*min-height: 40px;*/
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+    border: 1px solid #e7e7e7;
+    padding-left: 32px;
+}
+
+.fixed-top-navbar ul {
+    display:table-row;
+    padding-left: 32px;
+}
+
+.fixed-top-navbar li {
+    display: table-cell;
+    margin:12px;
+}
+
+.fixed-top-navbar li:hover {
+    background-color: #e7e7e7;
+}
+.fixed-top-navbar a {
+    padding:12px;
+    display: table-cell;
+}
+.fixed-top-navbar a:hover {
+    color: grey;
+    text-decoration: none;
+}
+
+.header {
+    padding:16px 32px 16px 32px;
+}
+
+.content {
+    padding:16px 32px 16px 32px;
+}
