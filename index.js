@@ -7,7 +7,28 @@
 //
 // require marked.js, controls.js, doT.js, jquery.js
 
+// marked.js support GitHub Flavored Markdown see on https://github.com/chjj/marked/wiki
+// For enable GitHub Flavored Markdown uncommented next options code lines:
 
+//// Set default options except highlight which has no default
+//marked.setOptions({
+//  gfm: true,
+////  highlight: function (code, lang, callback) {
+////    pygmentize({ lang: lang, format: 'html' }, code, function (err, result) {
+////      if (err) return callback(err);
+////      callback(null, result.toString());
+////    });
+////  },
+//  tables: true,
+//  breaks: false,
+//  pedantic: false,
+//  sanitize: true,
+//  smartLists: true,
+//  smartypants: false,
+//  langPrefix: 'lang-'
+//});
+    
+    
 window.addEventListener('load', function()
 {
     // content and page structure
