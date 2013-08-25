@@ -46,8 +46,7 @@ window.addEventListener('load', function()
                     }
                     else
                         number = numbers[frame] = (numbers[frame] || -1) +1;
-                    frame = frame + (number ? number : '');
-                    body.add(frame+':div', {class:frame, $text:marked(text)});
+                    body.add(frame+':div', {class:frame, id:frame + (number ? number : ''), $text:marked(text)});
                 }
             }
         }
@@ -69,8 +68,8 @@ window.addEventListener('load', function()
     if (fixed_top_navbar)
         $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
     
-    if (left_side_column && content)
-        content.element.style['padding-left'] = '0';
+//    if (left_side_column && content)
+//        content.element.style['padding-left'] = '0';
     
     if (content && (left_side_column || right_side_column))
          $(content.element).css('width', 100 - (left_side_column ? 25 : 0) - (right_side_column ? 25 : 0) + '%');
