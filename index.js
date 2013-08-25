@@ -64,16 +64,15 @@ window.addEventListener('load', function()
     var footer = body.footer;
     var fixed_bottom_footer = body['fixed-bottom-footer'];
     
-    
+    // body padding on fixed-top-navbar
     if (fixed_top_navbar)
         $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
     
-//    if (left_side_column && content)
-//        content.element.style['padding-left'] = '0';
-    
+    // columns width
     if (content && (left_side_column || right_side_column))
          $(content.element).css('width', 100 - (left_side_column ? 25 : 0) - (right_side_column ? 25 : 0) + '%');
 
+    // body padding on fixed-bottom-footer
     if (fixed_bottom_footer)
         $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
 });

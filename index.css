@@ -94,7 +94,7 @@
     border-top: 1px solid #e7e7e7;
     background-color: #f8f8f8;
     /*margin-left: 32px;*/
-    padding: 12px;
+/*    padding: 12px;*/
     clear: both;
     -moz-box-shadow: 0 1444px 0 1444px #f8f8f8;
     -webkit-box-shadow: 0 1444px 0 1444px #f8f8f8;
@@ -102,5 +102,12 @@
 }
 .footer li {
     list-style: none;
+    float:left;
+    padding:20px;
 }
-
+.footer li:last-child {
+    float:right;
+}
+.footer li:first-child {
+    float:left;
+}
