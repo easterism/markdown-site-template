@@ -6,3 +6,5 @@ Very easy content editing and management structure of the site (the site can be 
 Demo:
 http://aplib.github.io/markdown-site-template
 (in development)
+
+The contribution of the designer, css-themes are welcome

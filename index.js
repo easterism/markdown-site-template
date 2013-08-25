@@ -43,4 +43,11 @@ window.addEventListener('load', function()
         var $ftn = $(ftn.element), $body = $(document.body);
         $body.css("padding-top", (parseInt($body.css("padding-top")) + $ftn.height()) + 'px');
     }
+    
+    var fbf = body['fixed-bottom-footer'];
+    if (fbf)
+    {
+        var $fbf = $(fbf.element), $body = $(document.body);
+        $body.css("padding-bottom", (parseInt($body.css("padding-bottom")) + 2*$fbf.height()) + 'px');
+    }
 });

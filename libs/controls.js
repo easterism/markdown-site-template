@@ -169,25 +169,31 @@ controls.typeRegister(__type, ' + name + ');';
     // >> HTML cache
     
     // Caching outerHTML() innerHTML() calculations Optionally only for controls with the set HashControl prop
-    // Caсhe dated for one day removed
-    controls.html_cache = localStorage.getItem('html_cache');
-    var html_cache_date = parseInt(localStorage.getItem('html_cache_date'));
-    if ((!controls.html_cache && !html_cache_date) || (Date.now().valueOf() - html_cache_date) > 86400000)
+    // Cache dated for one day removed
+    try
     {
-        // Initial state of cache
-        localStorage.setItem('html_cache', '');
-        localStorage.setItem('html_cache_date', Date.now().valueOf());
-        controls.html_cache = {};
-    }
-    controls.html_cache_modified = false;
-        setInterval(function()
+        controls.html_cache = localStorage.getItem('html_cache');
+        var html_cache_date = parseInt(localStorage.getItem('html_cache_date'));
+
+    
+        if ((!controls.html_cache && !html_cache_date) || (Date.now().valueOf() - html_cache_date) > 86400000)
         {
-            if (controls.html_cache_modified)
+            // Initial state of cache
+            localStorage.setItem('html_cache', '');
+            localStorage.setItem('html_cache_date', Date.now().valueOf());
+            controls.html_cache = {};
+        }
+        controls.html_cache_modified = false;
+            setInterval(function()
             {
-                localStorage.setItem('html_cache');
-                controls.html_cache_modified = false;
-            }
-        }, 10000);
+                if (controls.html_cache_modified)
+                {
+                    localStorage.setItem('html_cache');
+                    controls.html_cache_modified = false;
+                }
+            }, 10000);
+    }
+    catch (e) {}
     
 // >> Events
     
@@ -415,63 +421,75 @@ controls.typeRegister(__type, ' + name + ');';
     
     controls.control_prototype = new function()
     {
-        this.__defineGetter__('$', function() { return (this._element) ? $(this._element) : $('#' + this.id); });
-        
-        this.__defineGetter__('name', function() { return this._name; });
-        this.__defineSetter__('name', function(value)
+        Object.defineProperty(this, "$",
         {
-            if (IDENTIFIERS.indexOf(',' + value + ',') >= 0)
-                throw new SyntaxError('Invalid name "' + value + '"!');
-            
-            var name = this._name;
-            if (value !== name)
+            enumerable: true, 
+            get: function() { return (this._element) ? $(this._element) : $('#' + this.id); }
+        });
+        
+        Object.defineProperty(this, "name",
+        {
+            enumerable: true, 
+            get: function() { return this._name; },
+            set: function(value)
             {
-                this._name = value;
-                
-                var parent = this._parent;
-                if (parent)
+                if (IDENTIFIERS.indexOf(',' + value + ',') >= 0)
+                    throw new SyntaxError('Invalid name "' + value + '"!');
+
+                var name = this._name;
+                if (value !== name)
                 {
-                    if (name && parent.hasOwnProperty(name) && parent[name] === this)
-                        delete parent[name];
-                    
-                    if (value)
-                        parent[value] = this;
+                    this._name = value;
+
+                    var parent = this._parent;
+                    if (parent)
+                    {
+                        if (name && parent.hasOwnProperty(name) && parent[name] === this)
+                            delete parent[name];
+
+                        if (value)
+                            parent[value] = this;
+                    }
                 }
             }
         });
         
         // The associated element of control
-        this.__defineGetter__('element', function() { return this._element; });
-        this.__defineSetter__('element', function(attach_to_element)
+        Object.defineProperty(this, "element",
         {
-            if (arguments.length === 0)
-                return this._element;
-            
-            var element = this._element;
-            if (attach_to_element !== element)
+            enumerable: true,
+            get: function() { return this._element; },
+            set: function(attach_to_element)
             {
-                this._element = attach_to_element;
-                
-                var events = this.events;
-                if (events)
-                for(var event_type in events)
+                if (arguments.length === 0)
+                    return this._element;
+
+                var element = this._element;
+                if (attach_to_element !== element)
                 {
-                    var event = events[event_type];
-                    if (event.is_dom_event)
+                    this._element = attach_to_element;
+
+                    var events = this.events;
+                    if (events)
+                    for(var event_type in events)
                     {
-                        // remove event raiser from detached element
+                        var event = events[event_type];
+                        if (event.is_dom_event)
+                        {
+                            // remove event raiser from detached element
 
-                        if (element)
-                            element.removeEventListener(event.event, event.raise, event.capture);
+                            if (element)
+                                element.removeEventListener(event.event, event.raise, event.capture);
 
-                        // add event raiser as listener for attached element
+                            // add event raiser as listener for attached element
 
-                        if (attach_to_element)
-                            attach_to_element.addEventListener(event.event, event.raise, event.capture);
+                            if (attach_to_element)
+                                attach_to_element.addEventListener(event.event, event.raise, event.capture);
+                        }
                     }
+
+                    this.raise('element', attach_to_element);
                 }
-                
-                this.raise('element', attach_to_element);
             }
         });
         
@@ -517,8 +535,12 @@ controls.typeRegister(__type, ' + name + ');';
                 this.raise('parent', this);
             }
         }
-        this.__defineGetter__('parent', function() { return this._parent; });
-        this.__defineSetter__('parent', setParent);
+        Object.defineProperty(this, "parent",
+        {
+            enumerable: true,
+            get: function() { return this._parent; },
+            set: setParent
+        });
         
         Object.defineProperty(this, 'wrapper',
         {
@@ -556,8 +578,8 @@ controls.typeRegister(__type, ' + name + ');';
             }
         });
         
-        this.__defineGetter__('first', function() { return this.controls[0]; });
-        this.__defineGetter__('last', function() { return this.controls[this.controls.length-1]; });
+        Object.defineProperty(this, 'first', function() { return this.controls[0]; });
+        Object.defineProperty(this, 'last', function() { return this.controls[this.controls.length-1]; });
 
         // default html template
         this.outer_template = doT.template('<div{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}</div>');

@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>Simple Markdown site template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv='cache-control' content='public,max-age=86400'>
     <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
@@ -16,11 +15,7 @@
 </head>
 <body>
     
-<!--fixed-top-navbar
-* [Home](index.html)
-* [Page1](page1.html)
-* [Page2](page1.html)
--->
+
 
 <!--header
 # Simple Markdown site template
@@ -38,6 +33,61 @@ And all the possibilities this template has not yet been demonstrated. Will be l
 
 
 [see on GitHub](https://github.com/aplib/markdown-site-template)
+
+## Installation
+
+Required files:
+* index.html
+* index.css
+* index.js
+* libs/
+
+New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing blocks of content as needed, for example the addition of a navigation bar:
+
+    <!--fixed-top-navbar
+    * [Home](index.html)
+    * [Page1](page1.html)
+    * [Page2](page1.html)
+    -­­­->
+
+
+### Pre-defined block names:
+
+* content (marked text) - the main contents of the site
+* fixed-top-navbar (list) - top horizontal navigation bar fixed at the upper edge of the page
+* footer - footer at the bottom of the page
+* fixed-bottom-footer (list)) - fixed footer for copyright, powered etc notes
+
+### content
+the main contents of the site
+
+### footer
+footer at the bottom of the page
+
+### fixed-top-navbar
+top horizontal navigation bar fixed at the upper edge of the page
+
+### fixed-bottom-footer
+
+    <!--fixed-bottom-footer
+    * © 2013 copyright notes here
+    * other notes
+    * last item right-aligned
+    -­­­->
+
 -->
+
+<!--fixed-top-navbar
+* [Home](index.html)
+* [Page1](page1.html)
+* [Page2](page1.html)
+-->
+
+<!--footer
+* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT
+* simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)
+-->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>
 </html>

@@ -5,6 +5,13 @@
      License: MIT
 */
 
+.header {
+    padding:16px 32px 16px 32px;
+}
+
+.content {
+    padding:16px 32px 16px 32px;
+}
 
 .fixed-top-navbar {
     position: fixed;
@@ -39,10 +46,33 @@
     text-decoration: none;
 }
 
-.header {
-    padding:16px 32px 16px 32px;
+.fixed-bottom-footer {
+    position: fixed;
+    left: 0; bottom: 0;
+    width: 100%;
+    background-color: #f8f8f8;
+    border: 1px solid #e7e7e7;
+    padding-left: 32px;
+}
+.fixed-bottom-footer ul {
+    padding: 0 16px 0 0px;
+}
+.fixed-bottom-footer li {
+    list-style: none;
+    float:left;
+    margin:10px;
+}
+.fixed-bottom-footer li:last-child {
+    float:right;
+}
+.fixed-bottom-footer li:first-child {
+    float:left;
 }
 
-.content {
-    padding:16px 32px 16px 32px;
+.footer {
+    padding-left: 32px;
 }
+.footer li {
+    list-style: none;
+}
+
