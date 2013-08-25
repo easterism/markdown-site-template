@@ -58,17 +58,23 @@ window.addEventListener('load', function()
     
     // patches
     
-    var ftn = body['fixed-top-navbar'];
-    if (ftn)
-    {
-        var $ftn = $(ftn.element), $body = $(document.body);
-        $body.css("padding-top", (parseInt($body.css("padding-top")) + $ftn.height()) + 'px');
-    }
+    var fixed_top_navbar = body['fixed-top-navbar'];
+    var left_side_column = body['left-side-column'];
+    var content = body.content;
+    var right_side_column = body['right-side-column'];
+    var footer = body.footer;
+    var fixed_bottom_footer = body['fixed-bottom-footer'];
     
-    var fbf = body['fixed-bottom-footer'];
-    if (fbf)
-    {
-        var $fbf = $(fbf.element), $body = $(document.body);
-        $body.css("padding-bottom", (parseInt($body.css("padding-bottom")) + 2*$fbf.height()) + 'px');
-    }
+    
+    if (fixed_top_navbar)
+        $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
+    
+    if (left_side_column && content)
+        content.element.style['padding-left'] = '0';
+    
+    if (content && (left_side_column || right_side_column))
+         $(content.element).css('width', 100 - (left_side_column ? 25 : 0) - (right_side_column ? 25 : 0) + '%');
+
+    if (fixed_bottom_footer)
+        $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
 });
