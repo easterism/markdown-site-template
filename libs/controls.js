@@ -893,7 +893,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 _this.events = events;
             }
             
-            var key = (capture) ? ('#' + type) : type;
+            var key = (capture) ? ('#'/*capture*/ + type) : type;
             var event = events[key];
             if (!event)
             {
@@ -986,10 +986,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 }
             }
             else
-            {
-                var key = '#' + name;
-                return (parameters.hasOwnProperty(key)) ? parameters[key] : parameters[name];
-            }
+                return parameters[name] || parameters['/'+name];
         };
         
         // set attribute value
@@ -1050,7 +1047,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 var parameters = this.parameters;
                 for(var prop in parameters)
                 {
-                    if (prop[0] === '#')
+                    if (prop[0] !== '/')
                     {
                         // not inheritable parameters
                         unheritable.push(prop.substr(1) + '=' + parameters[prop]);
@@ -1083,7 +1080,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
 
                 var parent_parameters = parent.parameters;
                 for(var prop in parent_parameters)
-                if (prop.indexOf('#') !== 0)
+                if (prop.indexOf('/') === 0)
                     parameters[prop] = parent_parameters[prop];
             }
             
@@ -1311,7 +1308,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
             var this_parameters = this.parameters;
             var parameters = {};
             for(var prop in this_parameters)
-            if (prop[0] !== '#')
+            if (prop[0] === '/')
                 parameters[prop] = this_parameters[prop];
             
             // resolve constructor
@@ -1556,7 +1553,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                             if (parvalue === undefined)
                                 parvalue = true;
                                 
-                            parameters[parname] = parvalue;
+                            parameters['/' + parname] = parvalue;
                         }
                     }
                 }
@@ -1578,7 +1575,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                             if (parvalue === undefined)
                                 parvalue = true;
                             
-                            parameters['#' + parname] = parvalue;
+                            parameters[parname] = parvalue;
                         }
                     }
                 }
@@ -2440,7 +2437,7 @@ controls.typeRegister(\'controls.%%NAME%%\', %%NAME%%);\n';
             var level = '1';
             var parameters = this.parameters;
             for(var prop in parameters)
-            if (prop === '#level' || prop === 'level')
+            if (prop === 'level' || prop === '/level')
                 level = parameters[prop];
             
             this.level = level;
@@ -2519,7 +2516,7 @@ controls.typeRegister(\'controls.%%NAME%%\', %%NAME%%);\n';
             var floatvalue;
             
             for(var prop in parameters)
-            if (prop === 'float' || prop === '#float')
+            if (prop === 'float' || prop === '/float')
                 floatvalue = parameters[prop];
             
             if (floatvalue)
