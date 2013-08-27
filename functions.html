@@ -39,21 +39,28 @@ $msgbox#danger(This is an example danger message!)$msgbox
 $msgbox#warning(<button type="button" class="close" data-dismiss="alert"   
 aria-hidden="true">×</button><h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)$msgbox
 
-### CSS-transforms
+### CSS styles
 
 #### static
-static applied effects, example:
+static applied style, example:
+
+```$static#padding=16px;border=dodgerblue solid 2px;(### Markdown here
+This is an example apply css style)$static```
+
+$static#padding=16px;border=dodgerblue solid 2px;(### Markdown here
+This is an example apply css style)$static
+
 
 ```$static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static```
-<br />
+
 $static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static
 
 
 #### hover
-effects applied if mouse over element, example:
+style applied if mouse over element, example:
 
 ```$hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover```
-<br />
+
 $hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover
 
 ### CSS-transforms functions

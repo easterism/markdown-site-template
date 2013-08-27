@@ -41,33 +41,33 @@
     controls.typeRegister('msgbox', msgbox);
 
     
-    // transforms
+    // built-in static css effects
+    
+    var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
     function parse_effects(_this, par, att)
     {
-        var over = {}, leave = {},
-                transforms = ['matrix','translate','translateX','translateY','scale','scaleX','scaleY','rotate','skewX','skewY','matrix3d',
-                'translate3d','translateZ','scale3d','scaleZ','rotate3d','rotateX','rotateY','rotateZ','perspective'];
+        var over = {};
 
         var transform = '';
-        for(var prop in transforms) {
-            var fname = transforms[prop], fpars = par[fname];
+        for(var prop in par)
+        if (transforms.indexOf(prop) < 0)
+            over[prop] = par[prop];
+        else {
+            var fname = prop, fpars = par[fname];
+            if (fpars && transform)
+                transform += ' ';
             if (fpars)
-                transform += ' ' + fname +'(' + fpars + ')';
+                transform += fname +'(' + fpars + ')';
             if (transform) {
                 over.transform = transform;
-                leave.transform = 'none';
             }
         }
-        if (par.origin) {
-            over['transform-origin'] = par.origin.split(/(top)|(right)|(bottom)|(left)|(cals)|(center)/g).join(' ').trim();
-            leave['transform-origin'] = '50% 50% 0';
-        }
+        if (par.origin)
+            over['transform-origin'] = par.origin;
         
         _this.over = over;
-        _this.leave = leave;
     }
         
-    // built-in static effects
     function static(par, att)
     {
         att.$text = marked(att.$text);
@@ -91,7 +91,31 @@
     controls.typeRegister('static', static);
     
     
-    // built-in mouse over effects
+    // hover - built-in mouse over effects
+    
+    function hover_mouseenter(_this) {
+        var element = _this.element;
+        var $q = $(element);
+        var restore = _this.restore;
+        var over = _this.over;
+        for(var prop in over)
+        {
+            if (!restore[prop])
+                restore[prop] = $q.css(prop);
+            $q.css(prop, over[prop]);
+        }
+    }
+    function hover_mouseleave(_this) {
+        var $q = $(_this.element);
+        var restore = _this.restore;
+        for(var prop in restore) {
+            var restoreval = restore[prop];
+            if (restoreval !== undefined) {
+                $q.css(prop, restoreval);
+                restore[prop] = undefined;
+            }
+        }
+    }
     function hover(par, att)
     {
         att.$text = marked(att.$text);
@@ -100,19 +124,25 @@
         this.style('display:inline-block;');
 
         parse_effects(this, par, att);
-        var over = this.over, leave = this.leave;
-        
-        this.listen('mousemove', function() {
-            var $q = $(this.element);
-            
-            for(var prop in over)
-                $q.css(prop, over[prop]);
+        this.restore = {};
+        this.listen('element', function()
+        {
+            var element = this._element;
+            if (element)
+            {
+                var _this = this;
+                var $q = $(element);
+                $q.mouseenter(function()
+                {
+                    hover_mouseenter(_this);
+                });
+                $q.mouseleave(function()
+                {
+                    hover_mouseleave(_this);
+                });
+            }
         });
-        this.listen('mouseout', function() {
-            var $q = $(this.element);
-            for(var prop in leave)
-                $q.css(prop, leave[prop]);
-        });
+    
     };
     hover.prototype = controls.control_prototype;
     controls.typeRegister('hover', hover);
@@ -140,7 +170,7 @@ window.addEventListener('load', function()
                     
                     // modules usage: $wiki( wiki markup text )$wiki $latex( latex markup text )$latex   (must be loaded appropriate .js module)
                     
-                    var text = text.split(/(\$\S{1,255}(#\S{1,255})?\([\s\S]*?\)\$\S{1,255})/g);
+                    var text = text.split(/(\$\S{1,999}#[\s\S]{0,999}?\([\s\S]*?\)\$\S{1,999})/g);
                     if (text.length > 1) {
                         var cframe = body.add(frame+':div', {class:frame, id:frame + (number ? number : '')});
                         var buffered_text = '';
