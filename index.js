@@ -58,7 +58,7 @@
             }
         }
         if (par.origin) {
-            over['transform-origin'] = par.origin.split(/(top)|(right)|(bottom)|(left)|(cals)|(center)/g).join(' ');
+            over['transform-origin'] = par.origin.split(/(top)|(right)|(bottom)|(left)|(cals)|(center)/g).join(' ').trim();
             leave['transform-origin'] = '50% 50% 0';
         }
         
