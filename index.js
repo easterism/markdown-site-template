@@ -23,7 +23,13 @@
 
 (function()
 {
-
+    function escape(par, att)
+    {
+        controls.controlInitialize(this, 'escape', par, att);
+    };
+    escape.prototype = controls.control_prototype;
+    controls.typeRegister('escape', escape);
+    
     // built-in message box
     // 
     function msgbox(par, att)
@@ -165,7 +171,7 @@ window.addEventListener('load', function()
                     
                     // modules usage: $wiki( wiki markup text )$wiki $latex( latex markup text )$latex   (must be loaded appropriate .js module)
                     
-                    var text = text.split(/(\$\S{1,999}#[\s\S]{0,999}?\([\s\S]*?\)\$\S{1,999})/g);
+                    var text = text.split(/(\$\S{1,256}(?:#.*)?\([\s\S]*?\)\$\S{1,256})/gm);
                     if (text.length > 1) {
                         var cframe = body.add(frame+':div', {class:frame, id:frame + (number ? number : '')});
                         var buffered_text = '';
