@@ -45,8 +45,9 @@
     function parse_effects(_this, par, att)
     {
         var over = {}, leave = {},
-                transforms = ['matrix','translate','scale','rotate','skew','matrix3d',
-                'translate3d','scale3d','rotate3d','perspective'];
+                transforms = ['matrix','translate','translateX','translateY','scale','scaleX','scaleY','rotate','skewX','skewY','matrix3d',
+                'translate3d','translateZ','scale3d','scaleZ','rotate3d','rotateX','rotateY','rotateZ','perspective'];
+
         var transform = '';
         for(var prop in transforms) {
             var fname = transforms[prop], fpars = par[fname];
