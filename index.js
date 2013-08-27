@@ -21,62 +21,108 @@
 //  tables: true,  breaks: false,  pedantic: false,  sanitize: true,  smartLists: true,  smartypants: false,  langPrefix: 'lang-'
 //});
 
-
-
-// built-in message box
-// 
-function msgbox(parameters, attributes)
+(function()
 {
-    controls.controlInitialize(this, 'msgbox', parameters, attributes);
-    
-    var style = 'warning';
-    if (parameters.info) style = 'info';
-    if (parameters.warning) style = 'warning';
-    if (parameters.danger) style = 'danger';
-    this.class('alert alert-block alert-' + style + ' fade in');
-    this.style('display:inline-block;float:none;');
-};
-msgbox.prototype = controls.control_prototype;
-controls.typeRegister('msgbox', msgbox);
 
-// built-in mouse over effects
-function mouseover(parameters, attributes)
-{
-    attributes.$text = marked(attributes.$text);
-    
-    controls.controlInitialize(this, 'mouseover', parameters, attributes, mouseover.outer_template);
-    this.style('display:inline-block;');
+    // built-in message box
+    // 
+    function msgbox(par, att)
+    {
+        controls.controlInitialize(this, 'msgbox', par, att);
 
-    var over = {}, leave = {}, scale = parameters.scale, origin = parameters.origin;
-    if (origin) origin = origin.split(/(top)|(right)|(bottom)|(left)|(cals)|(center)/g).join(' ');
-    if (scale) {
-        over.transform = 'scale(' + scale + ', ' + scale + ')';
-        over['transform-origin'] = origin ? origin : 'left';
-        leave.transform = 'scale(1,1)';
+        var style = 'warning';
+        if (par.info) style = 'info';
+        if (par.warning) style = 'warning';
+        if (par.danger) style = 'danger';
+        this.class('alert alert-block alert-' + style + ' fade in');
+        this.style('display:inline-block;float:none;');
+    };
+    msgbox.prototype = controls.control_prototype;
+    controls.typeRegister('msgbox', msgbox);
+
+    
+    // transforms
+    function parse_effects(_this, par, att)
+    {
+        var over = {}, leave = {},
+                transforms = ['matrix','translate','scale','rotate','skew','matrix3d',
+                'translate3d','scale3d','rotate3d','perspective'];
+        var transform = '';
+        for(var prop in transforms) {
+            var fname = transforms[prop], fpars = par[fname];
+            if (fpars)
+                transform += ' ' + fname +'(' + fpars + ')';
+            if (transform) {
+                over.transform = transform;
+                leave.transform = 'none';
+            }
+        }
+        if (par.origin) {
+            over['transform-origin'] = par.origin.split(/(top)|(right)|(bottom)|(left)|(cals)|(center)/g).join(' ');
+            leave['transform-origin'] = '50% 50% 0';
+        }
+        
+        _this.over = over;
+        _this.leave = leave;
     }
-    
-    this.listen('mousemove', function()
+        
+    // built-in static effects
+    function static(par, att)
     {
-        var $q = $(this.element);
-        for(var prop in over)
-            $q.css(prop, over[prop]);
-    });
-    this.listen('mouseout', function()
-    {
-        var $q = $(this.element);
-        for(var prop in leave)
-            $q.css(prop, leave[prop]);
-    });
-};
-mouseover.prototype = controls.control_prototype;
-controls.typeRegister('mouseover', mouseover);
+        att.$text = marked(att.$text);
 
+        controls.controlInitialize(this, 'static', par, att, static.outer_template);
+        this.style('display:inline-block;');
 
+        parse_effects(this, par, att);
+        
+        this.listen('element', function() {
+            var element = this.element;
+            if (element)
+            {
+                var $q = $(this.element);
+                for(var prop in this.over)
+                    $q.css(prop, this.over[prop]);
+            }
+        });
+    };
+    static.prototype = controls.control_prototype;
+    controls.typeRegister('static', static);
     
+    
+    // built-in mouse over effects
+    function hover(par, att)
+    {
+        att.$text = marked(att.$text);
+
+        controls.controlInitialize(this, 'hover', par, att, hover.outer_template);
+        this.style('display:inline-block;');
+
+        parse_effects(this, par, att);
+        var over = this.over, leave = this.leave;
+        
+        this.listen('mousemove', function() {
+            var $q = $(this.element);
+            
+            for(var prop in over)
+                $q.css(prop, over[prop]);
+        });
+        this.listen('mouseout', function() {
+            var $q = $(this.element);
+            for(var prop in leave)
+                $q.css(prop, leave[prop]);
+        });
+    };
+    hover.prototype = controls.control_prototype;
+    controls.typeRegister('hover', hover);
+
+})();
+
+var body;
 window.addEventListener('load', function()
 {
     // content and page structure
-    var body = controls.create('body'), numbers = {};
+    body = controls.create('body'), numbers = {};
     $(document.body).contents().each(function() {
         if (this.nodeType === 8 && this.nodeValue) {
             var val = this.nodeValue, match = val.match(/^\S*/);
@@ -160,9 +206,10 @@ window.addEventListener('load', function()
     
     if (fixed_top_navbar)
     {
-        // current page
-        fixed_top_navbar.$.addClass('navbar navbar-default');
+        // apply styles
+        fixed_top_navbar.$.addClass('navbar navbar-default navbar-fixed-top');
         fixed_top_navbar.$.find('ul').addClass('nav navbar-nav');
+        // activate current page
         fixed_top_navbar.$.find('ul li a').each(function(i,e) {
             if (e.href === window.location.href) 
                 $(e.parentNode).addClass('active');

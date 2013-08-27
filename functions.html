@@ -39,11 +39,45 @@ $msgbox#danger(This is an example danger message!)$msgbox
 $msgbox#warning(<button type="button" class="close" data-dismiss="alert"   
 aria-hidden="true">×</button><h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)$msgbox
 
-### mouseover
-#### scale
-```$mouseover#scale=2,origin=left(This is an example scaled text!)$mouseover```
+### CSS-transforms
+
+#### static
+static applied effects, example:
+
+```$static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static```
 <br />
-$mouseover#scale=2,origin=left(This is an example scaled text!)$mouseover
+$static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static
+
+
+#### hover
+effects applied on mouse move over, example:
+
+```$hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover```
+<br />
+$hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover
+
+### CSS-transforms functions
+
+* matrix(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+* translate(12px, 50%)
+* translateX(2em)
+* translateY(3in)
+* scale(2, 0.5)
+* scaleX(2)
+* scaleY(0.5)
+* rotate(0.5turn)
+* skewX(30deg)
+* skewY(1.07rad)
+* matrix3d(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0)
+* translate3d(12px, 50%, 3em)
+* translateZ(2px)
+* scale3d(2.5, 1.2, 0.3)
+* scaleZ(0.3)
+* rotate3d(1, 2.0, 3.0, 10deg)
+* rotateX(10deg)
+* rotateY(10deg)
+* rotateZ(10deg)
+* perspective(17px)
 
 -->
 
