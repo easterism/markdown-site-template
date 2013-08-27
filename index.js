@@ -79,8 +79,7 @@
         
         this.listen('element', function() {
             var element = this.element;
-            if (element)
-            {
+            if (element) {
                 var $q = $(this.element);
                 for(var prop in this.over)
                     $q.css(prop, this.over[prop]);
@@ -98,8 +97,7 @@
         var $q = $(element);
         var restore = _this.restore;
         var over = _this.over;
-        for(var prop in over)
-        {
+        for(var prop in over) {
             if (!restore[prop])
                 restore[prop] = $q.css(prop);
             $q.css(prop, over[prop]);
@@ -132,12 +130,10 @@
             {
                 var _this = this;
                 var $q = $(element);
-                $q.mouseenter(function()
-                {
+                $q.mouseenter(function() {
                     hover_mouseenter(_this);
                 });
-                $q.mouseleave(function()
-                {
+                $q.mouseleave(function() {
                     hover_mouseleave(_this);
                 });
             }
@@ -146,7 +142,6 @@
     };
     hover.prototype = controls.control_prototype;
     controls.typeRegister('hover', hover);
-
 })();
 
 var body;
@@ -178,19 +173,20 @@ window.addEventListener('load', function()
                             var frag = text[i];
                             if (!frag) continue;
                             if (frag[0] === '$') {
-                                var parpos = frag.indexOf('(');
-                                var amptag = frag.substr(0, parpos);
-                                var cname = frag.substr(1, parpos - 1);
-                                var numberpos = amptag.indexOf('#');
-                                var finalamptag = (numberpos >= 0) ? amptag.substr(0, numberpos) : amptag;
+                                var parpos = frag.indexOf('('),
+                                    amptag = frag.substr(0, parpos),
+                                    cname = frag.substr(1, parpos - 1),
+                                    numberpos = amptag.indexOf('#'),
+                                    finalamptag = (numberpos >= 0) ? amptag.substr(0, numberpos) : amptag;
                                 
                                 if (frag.slice(-finalamptag.length - 1) === ')' + finalamptag) {
                                     var inner_text = frag.substr(amptag.length + 1, frag.length -2 -amptag.length -finalamptag.length)
                                     // lookup control
                                     try {
+                                        // pass inner text to control
                                         var control = controls.create(cname, {$text: inner_text});
                                         if (control) {
-                                            if (buffered_text) {
+                                            if (buffered_text) { // flush buffer
                                                 cframe.add('p', {$text:marked(buffered_text)});
                                                 buffered_text = '';
                                             }
@@ -201,7 +197,7 @@ window.addEventListener('load', function()
                                     // lookup markup parse function
                                     var markup_func = this[amptag] || window[amptag]; 
                                     if (markup_func) {
-                                        if (buffered_text) {
+                                        if (buffered_text) { // flush buffer
                                             cframe.add('p', {$text:marked(buffered_text)});
                                             buffered_text = '';
                                         }
