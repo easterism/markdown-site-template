@@ -24,16 +24,17 @@ Incredible simple but powerful site template
 
 <!--content
 
-I'm not offering a writing text with these features. Although, if you for example you are writing a something complicated then the features can be helpful. The functions on this page is an example of how to insert sophisticated dynamic content on the site. Code functions $msgbox $static and $hover you can see in the file index.js is just a few lines and no magic. Compare that to this example so far easier than it is in any CMS.
+The functions on this page is an example of how to insert sophisticated dynamic content on the site. Code functions $msgbox $static and $hover you can see in the file index.js is just a few lines and no magic. Compare that to this example so far easier than it is in any CMS.
 
 ## Additional functions
 
 ### msgbox
 
-```$msgbox#alert(This is an example alert message!)$msgbox```
-$msgbox#warning(This is an example alert message!)$msgbox
-$msgbox#info(This is an example info message!)$msgbox
-$msgbox#danger(This is an example danger message!)$msgbox
+```$msgbox#warning(This is an example alert message!)$msgbox```
+
+alert $msgbox#warning(This is an example alert message!)$msgbox
+info message $msgbox#info(This is an example info message!)$msgbox
+danger message $msgbox#danger(This is an example danger message!)$msgbox
 
 ```$msgbox#warning(<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>```
 ```<h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)$msgbox```
@@ -59,9 +60,9 @@ $static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, 
 #### hover
 style applied if mouse over element, example:
 
-```$hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover```
+```$hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover```
 
-$hover#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover
+$hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover
 
 ### CSS-transforms functions
 

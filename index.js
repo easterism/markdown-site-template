@@ -21,14 +21,44 @@
 //  tables: true,  breaks: false,  pedantic: false,  sanitize: true,  smartLists: true,  smartypants: false,  langPrefix: 'lang-'
 //});
 
+var $exportText_data__ = {};
+function $exportText(name, content_func)
+{
+    var content = content_func.toString().trim();
+    var asterpos = content.indexOf('*');
+    $exportText_data__[name] = content.substr(asterpos + 1, content.length - asterpos - 4);
+}
+
 (function()
 {
-    function escape(par, att)
+    function $escape(par, att)
     {
         controls.controlInitialize(this, 'escape', par, att);
     };
-    escape.prototype = controls.control_prototype;
-    controls.typeRegister('escape', escape);
+    $escape.prototype = controls.control_prototype;
+    controls.typeRegister('escape', $escape);
+    
+    
+    function $import(parameters, attributes)
+    {
+        controls.controlInitialize(this, 'import', parameters, attributes, $import.outer_template);
+        
+        this.getContent = function()
+        {
+            var content_id = this.attributes.$text;
+            if (content_id)
+            {
+                var content_text = $exportText_data__[content_id.trim()];
+                if (content_text)
+                    return marked(content_text);
+            }
+            
+            return '';
+        };
+    };
+    $import.prototype = controls.control_prototype;
+    $import.outer_template = doT.template('<span{{=it.printAttributes()}}>{{=it.getContent()}}</span>');
+    controls.typeRegister('import', $import);
     
     // built-in message box
     // 
@@ -78,7 +108,7 @@
     {
         att.$text = marked(att.$text);
 
-        controls.controlInitialize(this, 'static', par, att, static.outer_template);
+        controls.controlInitialize(this, 'static', par, att);
         this.style('display:inline-block;');
 
         parse_effects(this, par, att);
@@ -124,7 +154,7 @@
     {
         att.$text = marked(att.$text);
 
-        controls.controlInitialize(this, 'hover', par, att, hover.outer_template);
+        controls.controlInitialize(this, 'hover', par, att);
         this.style('display:inline-block;');
 
         parse_effects(this, par, att);
@@ -144,127 +174,143 @@
                 });
             }
         });
-    
     };
     hover.prototype = controls.control_prototype;
     controls.typeRegister('hover', hover);
 })();
 
-var body;
-window.addEventListener('load', function()
+
+(function()
 {
-    // content and page structure
-    body = controls.create('body'), numbers = {};
-    $(document.body).contents().each(function() {
-        if (this.nodeType === 8 && this.nodeValue) {
-            var val = this.nodeValue, match = val.match(/^\S*/);
-            if (match) {
-                var name = match[0], text = ((name) ? val.substr(name.length+1) : val).trim(), frame = name || 'fill';
-                if (text) {
-                    var number = frame.match(/[0-9]+$/); // frame name ends with number
-                    if (number) {
-                        number = number[0];
-                        frame = frame.substr(0, frame.length - number.length);
-                    }
-                    else
-                        number = numbers[frame] = (numbers[frame] || -1) +1;
-                    
-                    // modules usage: $wiki( wiki markup text )$wiki $latex( latex markup text )$latex   (must be loaded appropriate .js module)
-                    
-                    var text = text.split(/(\$\S{1,256}(?:#.*)?\([\s\S]*?\)\$\S{1,256})/gm);
-                    if (text.length > 1) {
-                        var cframe = body.add(frame+':div', {class:frame, id:frame + (number ? number : '')});
-                        var buffered_text = '';
-                        for(var i = 0, c = text.length; i < c; i++) {
-                            var frag = text[i];
-                            if (!frag) continue;
-                            if (frag[0] === '$') {
-                                var parpos = frag.indexOf('('),
-                                    amptag = frag.substr(0, parpos),
-                                    cname = frag.substr(1, parpos - 1),
-                                    numberpos = amptag.indexOf('#'),
-                                    finalamptag = (numberpos >= 0) ? amptag.substr(0, numberpos) : amptag;
-                                
-                                if (frag.slice(-finalamptag.length - 1) === ')' + finalamptag) {
-                                    var inner_text = frag.substr(amptag.length + 1, frag.length -2 -amptag.length -finalamptag.length)
-                                    // lookup control
-                                    try {
-                                        // pass inner text to control
-                                        var control = controls.create(cname, {$text: inner_text});
-                                        if (control) {
-                                            if (buffered_text) { // flush buffer
-                                                cframe.add('p', {$text:marked(buffered_text)});
-                                                buffered_text = '';
-                                            }
-                                            cframe.add(control);
-                                        }
-                                        continue;
-                                    } catch (e) {  }
-                                    // lookup markup parse function
-                                    var markup_func = this[amptag] || window[amptag]; 
-                                    if (markup_func) {
-                                        if (buffered_text) { // flush buffer
-                                            cframe.add('p', {$text:marked(buffered_text)});
-                                            buffered_text = '';
-                                        }
-                                        cframe.add('p', {$text: markup_func(inner_text)});
-                                        continue;
+    // These elements are are not attached, childs are attached
+    var head = controls.create('head'), body = controls.create('body');
+    
+    // process text element
+    function processElement(collection, collnode, element) {
+        var val = element.nodeValue, match = val.match(/^\S*/);
+        if (match) {
+            var frame = match[0], text = ((frame) ? val.substr(frame.length+1) : val);
+            // skip unnamed for compatibility
+            if (frame && text) {
+                // replace text element
+                var text = text.split(/(\$\S{1,256}(?:#.*)?\([\s\S]*?\)\$\S{1,256})/gm);
+                var cframe = collection.add(frame+':div', {class:frame});
+                var buffered_text = '';
+                for(var i = 0, c = text.length; i < c; i++) {
+                    var frag = text[i];
+                    if (!frag) continue;
+                    if (frag[0] === '$') {
+                        var parpos = frag.indexOf('('),
+                            amptag = frag.substr(0, parpos),
+                            cname = frag.substr(1, parpos - 1),
+                            numberpos = amptag.indexOf('#'),
+                            finalamptag = (numberpos >= 0) ? amptag.substr(0, numberpos) : amptag;
+
+                        if (frag.slice(-finalamptag.length - 1) === ')' + finalamptag) {
+                            var inner_text = frag.substr(amptag.length + 1, frag.length -2 -amptag.length -finalamptag.length);
+                            // lookup control
+                            try {
+                                // pass inner text to control
+                                var control = controls.create(cname, {$text: inner_text});
+                                if (control) {
+                                    if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) { // flush buffer
+                                        cframe.add('container', {$text:marked(buffered_text)});
+                                        buffered_text = '';
                                     }
+                                    cframe.add(control);
                                 }
+                                continue;
+                            } catch (e) {  }
+                            // lookup markup parse function
+                            var markup_func = this[amptag] || window[amptag]; 
+                            if (markup_func) {
+                                if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) { // flush buffer
+                                    cframe.add('container', {$text:marked(buffered_text)});
+                                    buffered_text = '';
+                                }
+                                cframe.add('container', {$text: markup_func(inner_text)});
+                                continue;
                             }
-                            buffered_text += frag;
                         }
-                        if (buffered_text)
-                            cframe.add('p', {$text:marked(buffered_text)});
                     }
-                    else // only markdown
-                        body.add(frame+':div', {class:frame, $text:marked(text[0])});
+                    buffered_text += frag;
                 }
+                if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) // flush buffer
+                    cframe.add('container', {$text:marked(buffered_text)});
+
+                cframe.createElement(element, 2);
+                collnode.removeChild(element);
             }
         }
-    });
-
-    body.attach();
-    body.refresh();
-    
-    // patches
-    
-    var fixed_top_navbar = body['fixed-top-navbar'];
-    var left_side_bar = body['left-side-bar'];
-    var left_side_column = body['left-side-column'];
-    var content = body.content;
-    var right_side_bar = body['right-side-bar'];
-    var right_side_column = body['right-side-column'];
-    var footer = body.footer;
-    var fixed_bottom_footer = body['fixed-bottom-footer'];
-
-    if (fixed_top_navbar)
-    {
-        // apply styles
-        fixed_top_navbar.$.addClass('navbar navbar-default navbar-fixed-top');
-        fixed_top_navbar.$.find('ul').addClass('nav navbar-nav');
-        // activate current page
-        fixed_top_navbar.$.find('ul li a').each(function(i,e) {
-            if (e.href === window.location.href) 
-                $(e.parentNode).addClass('active');
-        });
-        // body padding
-        $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
+    }
+    function processNode(collection, collnode) {
+        
+        if (!collnode)
+            return;
+        
+        // iterate texts
+        var nodes = collnode.childNodes, buffer = [];
+        for(var i = 0, c = nodes.length; i < c; i++)
+            buffer[i] = nodes[i];
+        for(var i = 0, c = buffer.length; i < c; i++)
+        {
+            var element = buffer[i];
+            if (element.nodeType === 8 && element.nodeValue)
+                processElement(collection, collnode, element);
+        }
     }
     
-    // columns
-    if (content && (left_side_column || right_side_column))
-        content.class((left_side_column && right_side_column) ? 'col-sm-4' : 'col-sm-8');
-    if (left_side_column)
-        left_side_column.class('col-sm-4');
-    if (right_side_column)
-        right_side_column.class('col-sm-4');
+    processNode(head, document.head);
+    var timer = setInterval(function()
+    {
+        processNode(body, document.body);
+    }, 100);
+    window.addEventListener('load', function()
+    {
+        processNode(head, document.head);
+        processNode(body, document.body);
+        clearInterval(timer);
         
-    // sidebars
-    if (content && (left_side_bar || right_side_bar))
-         $(content.element).css('width', 100 - ((left_side_bar || left_side_column) ? 25 : 0) - ((right_side_bar || right_side_column) ? 25 : 0) + '%');
 
-    // body padding on fixed-bottom-footer
-    if (fixed_bottom_footer)
-        $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
-});
+        // patches
+
+        var fixed_top_navbar = body['fixed-top-navbar'];
+        var left_side_bar = body['left-side-bar'];
+        var left_side_column = body['left-side-column'];
+        var content = body.content;
+        var right_side_bar = body['right-side-bar'];
+        var right_side_column = body['right-side-column'];
+        var footer = body.footer;
+        var fixed_bottom_footer = body['fixed-bottom-footer'];
+
+        if (fixed_top_navbar)
+        {
+            // apply styles
+            fixed_top_navbar.$.addClass('navbar navbar-default navbar-fixed-top');
+            fixed_top_navbar.$.find('ul').addClass('nav navbar-nav');
+            // activate current page
+            fixed_top_navbar.$.find('ul li a').each(function(i,e) {
+                if (e.href === window.location.href) 
+                    $(e.parentNode).addClass('active');
+            });
+            // body padding
+            $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
+        }
+
+        // columns
+        if (content && (left_side_column || right_side_column))
+            content.class((left_side_column && right_side_column) ? 'col-sm-4' : 'col-sm-8');
+        if (left_side_column)
+            left_side_column.class('col-sm-4');
+        if (right_side_column)
+            right_side_column.class('col-sm-4');
+
+        // sidebars
+        if (content && (left_side_bar || right_side_bar))
+             $(content.element).css('width', 100 - ((left_side_bar || left_side_column) ? 25 : 0) - ((right_side_bar || right_side_column) ? 25 : 0) + '%');
+
+        // body padding on fixed-bottom-footer
+        if (fixed_bottom_footer)
+            $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
+     });
+})();
