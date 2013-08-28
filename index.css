@@ -6,13 +6,6 @@
 */
 
 .fixed-top-navbar {
-    position: fixed;
-    left: 0; top: 0;
-    width: 100%;
-    /*min-height: 40px;*/
-    margin-bottom: 20px;
-    background-color: #f8f8f8;
-    border: 1px solid #e7e7e7;
     padding-left: 32px;
 }
 
@@ -31,14 +24,32 @@
     display: inline-block;
 }
 
-.right-side-column {
+.right-side-bar {
     float:right;
     display: inline-block;
     width: 25%;
     padding:20px 20px 20px 8px;
 }
 
+
 .left-side-column {
+    float:left;
+    display: inline-block;
+    min-width: 200px;
+    padding:20px 8px 20px 26px;
+}
+.right-side-column {
+    float:right;
+    display: inline-block;
+    min-width: 200px;
+    padding:20px 20px 20px 8px;
+}
+@media (max-width: 768px) {
+    .right-side-column {
+        float:left;
+    }
+}
+.left-side-bar {
     float:left;
     display: inline-block;
     width: 25%;

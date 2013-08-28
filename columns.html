@@ -22,21 +22,37 @@
 Incredible simple but powerful site template
 -->
 
-<!--content
-
-## JavaScript
-
-To format the text, you can use the JavaScript function. Insert the text in brackets formed any tags ```$func_name(formatted text here)$func_name``` from this the function will be called with the inner text as parameter and result will be displayed on the page.
-
-To place dynamic content should be used control for the library controls.js. Insert the text in brackets formed any tags ```$control_name(parameter text here)$control_name``` and the control will be created with the inner text as $text attribute.
-
-
-## External modules
-
-When connecting modules formatting or dynamic content would be good to placed in the folder 'mods/', and then add them to the head html page. The modules contain controls for the library controls.js good to be named starts with $ symbol that would distinguish them from the library on which they are based.
-
+<!--left-side-column
+$static#padding=16px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(This page contains left and right side columns. Columns layout is adaptive.  
+Section names: left-side-column, right-side-column)$static
 -->
 
+<!--content
+Added them so lines:
+
+    <!--right-side-column
+    Navigation:
+
+    * [Home](index.html)
+      * [Installation](index.html#Installation)
+      * [Pre-defined block names](index.html#pre-defined-block-names-)
+    * [Columns](columns.html)
+    * [Functions](functions.html)
+    * [Modules](modules.html)
+    -­­­->
+-->
+
+
+<!--right-side-column
+Navigation:
+
+* [Home](index.html)
+  * [Installation](index.html#Installation)
+  * [Pre-defined block names](index.html#pre-defined-block-names-)
+* [Columns](columns.html)
+* [Functions](functions.html)
+* [Modules](modules.html)
+-->
 
 <!--fixed-top-navbar
 * [Home](index.html)
@@ -47,7 +63,7 @@ When connecting modules formatting or dynamic content would be good to placed in
 
 <!--footer
 * © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT
-* Free download simple markdown site template [from GitHub](https://github.com/aplib/markdown-site-template)
+* simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)
 -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>

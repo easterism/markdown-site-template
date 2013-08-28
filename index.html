@@ -50,7 +50,7 @@ Required files:
 * index.js
 * libs/
 
-New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing blocks of content as needed, for example the addition of a navigation bar:
+New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing named sections of content as needed, for example the addition of a navigation bar:
 
     <!--fixed-top-navbar
     * [Home](index.html)
@@ -59,7 +59,7 @@ New pages are added by copying the file 'page template.html'. After adding to ed
     -­­­->
 
 
-## Pre-defined block names:
+## Pre-defined section names:
 
 * left-side-column - left side column
 * content (marked text) - the main contents of the site
@@ -69,8 +69,11 @@ New pages are added by copying the file 'page template.html'. After adding to ed
 * footer - footer at the bottom of the page for copyright, powered etc notes
 * fixed-bottom-footer (list)) - footer fixed at the bottom edge of the page
 
+### left-side-bar
+left side bar
+
 ### left-side-column
-left side column
+adaptive left side column
 
 ### content
 the main contents of the site
@@ -78,8 +81,11 @@ the main contents of the site
 ### text-box
 padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
 
+### right-side-bar
+right side bar
+
 ### right-side-column
-right side column
+adaptive right side column
 
 ### fixed-top-navbar
 Top horizontal navigation bar fixed at the upper edge of the page. See example in section Installation.
@@ -105,7 +111,7 @@ For supporting GitHub Flavored Markdown you can edit index.js and uncomment opti
 
 <!--fixed-top-navbar
 * [Home](index.html)
-* [Three columns page](three-columns-demo.html)
+* [Columns](columns.html)
 * [Functions](functions.html)
 * [Modules](modules.html)
 -->

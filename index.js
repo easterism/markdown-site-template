@@ -230,13 +230,14 @@ window.addEventListener('load', function()
     // patches
     
     var fixed_top_navbar = body['fixed-top-navbar'];
+    var left_side_bar = body['left-side-bar'];
     var left_side_column = body['left-side-column'];
     var content = body.content;
+    var right_side_bar = body['right-side-bar'];
     var right_side_column = body['right-side-column'];
     var footer = body.footer;
     var fixed_bottom_footer = body['fixed-bottom-footer'];
-    
-    
+
     if (fixed_top_navbar)
     {
         // apply styles
@@ -251,9 +252,17 @@ window.addEventListener('load', function()
         $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
     }
     
-    // columns width
+    // columns
     if (content && (left_side_column || right_side_column))
-         $(content.element).css('width', 100 - (left_side_column ? 25 : 0) - (right_side_column ? 25 : 0) + '%');
+        content.class((left_side_column && right_side_column) ? 'col-sm-4' : 'col-sm-8');
+    if (left_side_column)
+        left_side_column.class('col-sm-4');
+    if (right_side_column)
+        right_side_column.class('col-sm-4');
+        
+    // sidebars
+    if (content && (left_side_bar || right_side_bar))
+         $(content.element).css('width', 100 - ((left_side_bar || left_side_column) ? 25 : 0) - ((right_side_bar || right_side_column) ? 25 : 0) + '%');
 
     // body padding on fixed-bottom-footer
     if (fixed_bottom_footer)
