@@ -292,7 +292,7 @@ function $exportText(name, content_func)
             var loc = window.location.href.toLowerCase();
             fixed_top_navbar.$.find('ul li a').each(function(i,a) {
                 var href = a.href.toLowerCase();
-                if (loc.split(href).concat(href.split(loc)).some(function(frag){return ('index.htm,index.html'.indexOf(frag) >= 0); }))
+                if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
                     $(a.parentNode).addClass('active');
             });
             // body padding
