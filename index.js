@@ -289,9 +289,11 @@ function $exportText(name, content_func)
             fixed_top_navbar.$.addClass('navbar navbar-default navbar-fixed-top');
             fixed_top_navbar.$.find('ul').addClass('nav navbar-nav');
             // activate current page
-            fixed_top_navbar.$.find('ul li a').each(function(i,e) {
-                if (e.href === window.location.href) 
-                    $(e.parentNode).addClass('active');
+            var loc = window.location.href.toLowerCase();
+            fixed_top_navbar.$.find('ul li a').each(function(i,a) {
+                var href = a.href.toLowerCase();
+                if (loc.split(href).concat(href.split(loc)).some(function(frag){return ('index.htm,index.html'.indexOf(frag) >= 0); }))
+                    $(a.parentNode).addClass('active');
             });
             // body padding
             $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
