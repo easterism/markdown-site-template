@@ -12,22 +12,23 @@
     <script src="libs/marked.js"></script>
     <link rel="stylesheet" href="index.css">
     <script src="index.js"></script>
+    <script src="texts.js"></script>
 </head>
 <body>
-    
 
+<!--fixed-top-navbar $import(navigation)$import -->    <!-- >>> navigation bar, header and footer content imported from texts.js <<< -->
+<!--header $import(header)$import-->
 
-<!--header
-# Simple Markdown site template
-Incredible simple but powerful site template
--->
 
 <!--left-side-column
+
 $static#padding=16px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(This page contains left and right side columns. The layout of the columns is adaptive.  
 Section names: left-side-column, right-side-column)$static
+
 -->
 
 <!--content
+
 Added them so lines:
 
     <!--right-side-column
@@ -40,10 +41,12 @@ Added them so lines:
     * [Functions](functions.html)
     * [Modules](modules.html)
     -­­­->
+
 -->
 
 
 <!--right-side-column
+
 Navigation:
 
 * [Home](index.html)
@@ -52,19 +55,11 @@ Navigation:
 * [Columns](columns.html)
 * [Functions](functions.html)
 * [Modules](modules.html)
+
 -->
 
-<!--fixed-top-navbar
-* [Home](index.html)
-* [Columns](columns.html)
-* [Functions](functions.html)
-* [Modules](modules.html)
--->
 
-<!--footer
-* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT
-* simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)
--->
+<!--footer $import(footer)$import-->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>

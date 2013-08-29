@@ -12,15 +12,12 @@
     <script src="libs/marked.js"></script>
     <link rel="stylesheet" href="index.css">
     <script src="index.js"></script>
+    <script src="texts.js"></script>
 </head>
 <body>
-    
 
-
-<!--header
-# Simple Markdown site template
-Incredible simple but powerful site template
--->
+<!--fixed-top-navbar $import(navigation)$import -->    <!-- >>> navigation bar, header and footer content imported from texts.js <<< -->
+<!--header $import(header)$import-->
 
 <!--content
 
@@ -38,17 +35,7 @@ When connecting modules formatting or dynamic content would be good to placed in
 -->
 
 
-<!--fixed-top-navbar
-* [Home](index.html)
-* [Columns](columns.html)
-* [Functions](functions.html)
-* [Modules](modules.html)
--->
-
-<!--footer
-* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT
-* Free download simple markdown site template [from GitHub](https://github.com/aplib/markdown-site-template)
--->
+<!--footer $import(footer)$import-->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>

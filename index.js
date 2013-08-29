@@ -48,12 +48,16 @@ function $exportText(name, content_func)
             var content_id = this.attributes.$text;
             if (content_id)
             {
-                var content_text = $exportText_data__[content_id.trim()];
+                content_id = content_id.trim();
+                var content_text = $exportText_data__[content_id];
                 if (content_text)
                     return marked(content_text);
+                else
+                    return '&#60;' + content_id + '?&#62;';
+                    
             }
             
-            return '';
+            return '&#60; ?&#62;';
         };
     };
     $import.prototype = controls.control_prototype;
@@ -273,6 +277,8 @@ function $exportText(name, content_func)
         
 
         // patches
+        
+        $('table').addClass('table table-bordered table-stripped');
 
         var fixed_top_navbar = body['fixed-top-navbar'];
         var left_side_bar = body['left-side-bar'];
@@ -285,7 +291,7 @@ function $exportText(name, content_func)
 
         if (fixed_top_navbar)
         {
-            // apply styles
+            // apply bootstrap classes to navbar
             fixed_top_navbar.$.addClass('navbar navbar-default navbar-fixed-top');
             fixed_top_navbar.$.find('ul').addClass('nav navbar-nav');
             // activate current page
