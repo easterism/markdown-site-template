@@ -306,12 +306,12 @@ function $exportText(name, content_func)
         }
 
         // columns
-        if (content && (left_side_column || right_side_column))
-            content.class((left_side_column && right_side_column) ? 'col-sm-4' : 'col-sm-8');
-        if (left_side_column)
-            left_side_column.class('col-sm-4');
-        if (right_side_column)
-            right_side_column.class('col-sm-4');
+//        if (content && (left_side_column || right_side_column))
+//            content.class((left_side_column && right_side_column) ? 'col-sm-4' : 'col-sm-8');
+//        if (left_side_column)
+//            left_side_column.class('col-sm-4');
+//        if (right_side_column)
+//            right_side_column.class('col-sm-4');
 
         // sidebars
         if (content && (left_side_bar || right_side_bar))
