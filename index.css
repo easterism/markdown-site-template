@@ -135,12 +135,14 @@
     .right-side-column {
         display: block;
         padding:25px 25px 25px 27px;
+        width: 50%;
     }
 }
 @media (max-width: 768px) {
     .left-side-column {
         display: block;
         padding:25px 25px 25px 27px;
+        width: auto;
     }
     .content {
         display: block;
@@ -151,6 +153,7 @@
     .right-side-column {
         display: block;
         padding:25px 25px 25px 27px;
+        width: auto;
     }
 }
 .fixed-bottom-footer {
