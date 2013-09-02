@@ -60,7 +60,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 //  ID,position,quality,width,height,commands
 //  where position,quality - optional
 //
-var quality_enum = ['small','medium','large','hd720','hd1080','highres','default'];
+var quality_enum = ['tiny','small','medium','large','hd720','hd1080','highres','default'];
 function CYouTubeIFramePlayer(parameters, attributes)
 {
     controls.controlInitialize(this, 'YouTube.Player', parameters, attributes, CYouTubeIFramePlayer.outer_template);
@@ -155,21 +155,20 @@ function CYouTubeIFramePlayer(parameters, attributes)
     {
         if (!player && typeof YT !== 'undefined' && YT.Player)
         {
-            var params =
+            var params = controls.extend({}, this.parameters);
+            controls.extend(params,
             {
-                videoId:    videoID,
-                start:      position || '0',
-                quality:    quality  || 'large',
-                width:      width    || '640',
-                height:     height   || '390',
-                origin: 'http://aplib.github.io/', // ???
+                videoId: videoID,
+                width: width    || '640',
+                height: height   || '390',
+                origin: params.origin || $$DOCUMENT.root,
                 events:
                 {
                   'onReady': onPlayerReady.bind(this),
                   'onStateChange': onPlayerStateChange.bind(this)
                 }
-            };
-            
+            });
+
             if (command)
             {
                 if (command.indexOf('play') >= 0)
@@ -217,6 +216,15 @@ function CYouTubeIFramePlayer(parameters, attributes)
 //        {
 //            setTimeout(function() { event.target.playVideo(); }, 999);
 //        }
+        if (quality)
+            player.setPlaybackQuality(quality);
+        if (position)
+        {
+            // seekTo starts playing
+            player.seekTo(position);
+            if (!this.parameters.autoplay && (!command || command.indexOf('play') < 0))
+                player.pauseVideo();
+        }
     }
     
     // player's state changes callback
