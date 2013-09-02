@@ -2,28 +2,15 @@
 <html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>Simple Markdown site template</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script src="libs/doT.js"></script>
-    <script src="libs/controls.js"></script>
-    <script src="libs/marked.js"></script>
-    <link rel="stylesheet" href="index.css">
-    <script src="index.js"></script>
-    <script src="texts.js"></script>
+    <title>Simple Markdown site template - columns</title>
+    <script src="document.root.min.js"></script>
 </head>
 <body>
 
-<!--fixed-top-navbar $import(navigation)$import -->    <!-- >>> navigation bar, header and footer content imported from texts.js <<< -->
-<!--header $import(header)$import-->
-
-
 <!--left-side-column
 
-$static#padding=16px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(This page contains left and right side columns. The layout of the columns is adaptive.  
-Section names: left-side-column, right-side-column)$static
+%static#padding=16px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(This page contains left and right side columns. The layout of the columns is adaptive.  
+Section names: left-side-column, right-side-column)%static
 
 -->
 
@@ -39,7 +26,6 @@ Added them so lines:
       * [Pre-defined section names](index.html#pre-defined-section-names-)
     * [Columns](columns.html)
     * [Functions](functions.html)
-    * [Modules](modules.html)
     -­­­->
 
 -->
@@ -54,12 +40,11 @@ Navigation:
   * [Pre-defined section names](index.html#pre-defined-section-names-)
 * [Columns](columns.html)
 * [Functions](functions.html)
-* [Modules](modules.html)
+
 
 -->
 
-
-<!--footer $import(footer)$import-->
+<!--footer {{=footer}}-->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>

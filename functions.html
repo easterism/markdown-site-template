@@ -2,65 +2,53 @@
 <html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>Simple Markdown site template</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script src="libs/doT.js"></script>
-    <script src="libs/controls.js"></script>
-    <script src="libs/marked.js"></script>
-    <link rel="stylesheet" href="index.css">
-    <script src="index.js"></script>
-    <script src="texts.js"></script>
+    <title>Simple Markdown site template - Functions</title>
+    <script src="document.root.min.js"></script>
 </head>
 <body>
-
-<!--fixed-top-navbar $import(navigation)$import -->    <!-- >>> navigation bar, header and footer content imported from texts.js <<< -->
-<!--header $import(header)$import-->
 
 
 <!--content
 
-The functions on this page is an example of how to insert sophisticated dynamic content on the site. Code functions $msgbox $static and $hover you can see in the file index.js is just a few lines and no magic. Compare that to this example so far easier than it is in any CMS.
+The functions on this page is an example of how to insert sophisticated dynamic content on the site. Code functions %msgbox %static and %hover you can see in the file index.js is just a few lines and no magic. Compare that to this example so far easier than it is in any CMS.
 
 ## Additional functions
 
 ### msgbox
 
-```$msgbox#warning(This is an example alert message!)$msgbox```
+```%msgbox#warning(This is an example alert message!)%msgbox```
 
-alert $msgbox#warning(This is an example alert message!)$msgbox
-info message $msgbox#info(This is an example info message!)$msgbox
-danger message $msgbox#danger(This is an example danger message!)$msgbox
+alert %msgbox#warning(This is an example alert message!)%msgbox
+info message %msgbox#info(This is an example info message!)%msgbox
+danger message %msgbox#danger(This is an example danger message!)%msgbox
 
-```$msgbox#warning(<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>```
-```<h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)$msgbox```
+```%msgbox#warning(<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>```
+```<h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)%msgbox```
 
-$msgbox#warning(<button type="button" class="close" data-dismiss="alert"   
-aria-hidden="true">×</button><h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)$msgbox
+%msgbox#warning(<button type="button" class="close" data-dismiss="alert"   
+aria-hidden="true">×</button><h4>Oh no!</h4>I do not want to remember it all! Immediately remove it from here!)%msgbox
 
 ### CSS styles
 
 #### static
 static applied style, example:
 
-```$static#padding=16px;margin=4px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(### Markdown here
-This is an example apply css style)$static```
+```%static#padding=16px;margin=4px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(### Markdown here
+This is an example apply css style)%static```
 
-$static#padding=16px;margin=4px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(### Markdown here
-This is an example apply css style)$static
+%static#padding=16px;margin=4px;border-radius=4px;background-color=#fcf5b9;box-shadow=1px 1px 5px #888888(### Markdown here
+This is an example apply css style)%static
 
-```$static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static```
+```%static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)%static```
 
-$static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)$static
+%static#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)%static
 
 #### hover
 style applied if mouse over element, example:
 
-```$hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover```
+```%hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)%hover```
 
-$hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)$hover
+%hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``` *formatted*, **scaled** and ***rotated***)%hover
 
 ### CSS-transforms functions
 
@@ -88,7 +76,7 @@ $hover#scale=2,2;rotate=3deg;origin=left;transition=0.3s(This is an ```example``
 -->
 
 
-<!--footer $import(footer)$import-->
+<!--footer {{=footer}}-->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>Simple Markdown site template</title>
+    <script src="../document.root.min.js"></script>
+</head>
+<body>
+
+<!--content
+
+### YouTube player
+
+syntax: ```%YouTube.Player(ID,parameters)%YouTube.Player``` 
+
+location: [components/YouTube/%Player.js](YouTube/%Player.js)  
+
+%YouTube.Player(M7lc1UVf-VE,0,large,400,280)%YouTube.Player
+
+
+### Parameters
+
+* videoID {string}
+* start {number} - optional
+* quality {default,small,medium,large,hd720,hd1080,highres} - optional
+* width - optional, default value
+* height - optional, default value
+* command {play} - optional
+
+
+```%YouTube.Player(M7lc1UVf-VE)%YouTube.Player```
+
+```%YouTube.Player(M7lc1UVf-VE,226,large,400,280,play)%YouTube.Player```
+
+```%YouTube.Player#videoID=M7lc1UVf-VE,start=226,quality=large,width=400,height=280,command=play()%YouTube.Player```
+
+-->
+
+<!--right-side-column -->
+
+<!--footer {{=footer}}-->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>
