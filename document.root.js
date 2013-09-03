@@ -85,10 +85,12 @@ var $$DOCUMENT;
                 return head.lastChild;
             } catch(e) { console.log(e); }
         },
-        appendScript: function(src) {
+        appendScript: function(src, async) {
             scripts_count++;
             var script = document.createElement('script');
             script.src = src;
+            if (async)
+                script.async = true;
             script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
             script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
             document.head.appendChild(script);
@@ -15166,6 +15168,7 @@ InstallDots.prototype.compileAll = function() {
 // require marked.js, controls.js, doT.js, jquery.js
 
 (function() {
+    
     // built-in static css effects
     
     var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
@@ -15192,11 +15195,11 @@ InstallDots.prototype.compileAll = function() {
         _this.over = over;
     }
         
-    function CStatic(par, att) {
+    function Ccss(par, att) {
         
-//        att.$text = marked(att.$text);
+        att.$text = marked(att.$text);
 
-        controls.controlInitialize(this, 'static', par, att);
+        controls.controlInitialize(this, 'css', par, att);
         this.style('display:inline-block;');
 
         parse_effects(this, par, att);
@@ -15210,8 +15213,8 @@ InstallDots.prototype.compileAll = function() {
             }
         });
     };
-    CStatic.prototype = controls.control_prototype;
-    controls.typeRegister('static', CStatic);
+    Ccss.prototype = controls.control_prototype;
+    controls.typeRegister('css', Ccss);
     
     
     // hover - built-in mouse over effects
@@ -15242,7 +15245,7 @@ InstallDots.prototype.compileAll = function() {
     }
     function CHover(par, att) {
         
-//        att.$text = marked(att.$text);
+        att.$text = marked(att.$text);
 
         controls.controlInitialize(this, 'hover', par, att);
         this.style('display:inline-block;');
@@ -15295,8 +15298,7 @@ InstallDots.prototype.compileAll = function() {
         // load component asynchronously
         var component_js = $(document.head).children('script[src*="' + url +'"]:first')[0];
         if (!component_js) {
-            var component_js = document.createElement('script');
-            component_js.src = url;
+            var component_js = controls.extend(document.createElement('script'), {src:url, async:true});
             component_js.addEventListener('load', function() { stubs[original__type].forEach(function(stub){ stub.state = 1; }); stubs[original__type] = []; });
             component_js.addEventListener('error', function() { stubs[original__type].forEach(function(stub){ stub.state = -1; }); stubs[original__type] = []; });
             document.head.appendChild(component_js);

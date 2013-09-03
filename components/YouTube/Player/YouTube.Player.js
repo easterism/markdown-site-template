@@ -161,7 +161,7 @@ function CYouTubeIFramePlayer(parameters, attributes)
                 videoId: videoID,
                 width: width    || '640',
                 height: height   || '390',
-                origin: params.origin || $$DOCUMENT.root,
+                origin: params.origin || window.location.origin,
                 events:
                 {
                   'onReady': onPlayerReady.bind(this),

@@ -7,6 +7,7 @@ $$DOCUMENT.parseContent(function(){/*
 * [Home]({{=$$DOCUMENT.root}}index.html)
 * [Columns]({{=$$DOCUMENT.root}}columns.html)
 * [Components]({{=$$DOCUMENT.root}}index.html)
+ * [CSS]({{=$$DOCUMENT.root}}components/controls.css.html)
  * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
 
