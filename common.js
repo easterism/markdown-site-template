@@ -22,6 +22,7 @@ Incredible simple but powerful site template
 */});
 
 
+
 // another example of the creation section
 $$DOCUMENT.sections.header =
 '# Simple Markdown site template\n\

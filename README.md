@@ -15,7 +15,7 @@ Required files:
 * index.html
 * document.root.min.css
 * document.root.min.js
-* texts.js
+* common.js
 
 ## Addition components
 
@@ -32,4 +32,4 @@ document.root.js must be located in the root folder of the site. The site will n
 * doT.js
 * controls.js
 * marked.js
-* texts.js
+

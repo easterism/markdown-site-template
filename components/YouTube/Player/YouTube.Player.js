@@ -285,7 +285,6 @@ function CYouTubeIFramePlayer(parameters, attributes)
 CYouTubeIFramePlayer.prototype = controls.control_prototype;
 CYouTubeIFramePlayer.outer_template = controls.doT.template('<div{{=it.printAttributes()}}></div>\n');
 controls.typeRegister('YouTube.Player', CYouTubeIFramePlayer);
-controls.typeRegister('YTPlayer', CYouTubeIFramePlayer);
 
 
 // << control

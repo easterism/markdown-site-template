@@ -1,69 +1,99 @@
 
-var $$DOCUMENT =
-{
-    root: '', // document root path
-    js:   '', // document.root.js path
-    css:  '', // document.root.css path
-    
-    // Document named sections content
-    sections: {},
-    // Sections order
-    order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'footer', 'fixed-bottom-footer'],
-    // Texts and templates
-    vars: {},
-
-    // parse content values from function text object
-    parseContent:
-        function(name /*name optional*/, content) {
-            
-            if (!name)
-                return;
-            
-            var found_content = false;
-            
-            if (arguments.length === 1) {
-                var frags = name.toString().split(/(<!--\S+\s+)|(-->)/gm);
-                for(var i = 0, c = frags.length; i < c; i+=1) {
-                    var test = frags[i];
-                    if (test && test.substr(0,4) === '<!--') {
-                        // first '$' - var else section
-                        if (test[4] === '$') {
-                            // as var
-                            var varname = test.substr(4).trim();
-                            this.vars[varname] = frags[i+2];
-                        } else {
-                            // as section
-                            var section = test.substr(4).trim();
-                            this.sections[section] = frags[i+2];
-                        }
-                        found_content = true;
-                        i += 2;
-                    }
-                }
-            }
-            else if (arguments.length > 1) {
-                
-                if (typeof(content) === 'function') {
-                    var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
-                    content = content.substr(asterpos + 1, lastpos - asterpos - 1);
-                }
-                // first '$' - var else section
-                if (name[0] === '$')
-                    this.vars[name] = content;
-                else
-                    this.sections[name] = content;
-                
-                found_content = true;
-            }
-            return found_content;
-        },
-    
-    substs: []
-};
-
+var $$DOCUMENT;
 
 (function() {
+    
+    var scripts_count = 0, scripts_stated = 0, transformation_started;
+    function check_all_script() {
+        // document transformation start after the scripts loaded or failed
+        var transformation = $$DOCUMENT.transformation;
+        if (scripts_count === scripts_stated && !transformation_started && transformation) {
+            transformation_started = true;
+            transformation();
+        }
+    }
+    
+    // initialize $$DOCUMENT
+    
+    $$DOCUMENT =
+    {
+        root: '', // document root path
+        js:   '', // document.root.js path
+        css:  '', // document.root.css path
 
+        // Document named sections content
+        sections: {},
+        // Sections order
+        order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'footer', 'fixed-bottom-footer'],
+        // Texts and templates
+        vars: {},
+
+        // parse content values from function text object
+        parseContent:
+            function(name /*name optional*/, content) {
+
+                if (!name)
+                    return;
+
+                var found_content = false;
+
+                if (arguments.length === 1) {
+                    var frags = name.toString().split(/(<!--\S+\s+)|(-->)/gm);
+                    for(var i = 0, c = frags.length; i < c; i+=1) {
+                        var test = frags[i];
+                        if (test && test.substr(0,4) === '<!--') {
+                            // first '$' - var else section
+                            if (test[4] === '$') {
+                                // as var
+                                var varname = test.substr(4).trim();
+                                this.vars[varname] = frags[i+2];
+                            } else {
+                                // as section
+                                var section = test.substr(4).trim();
+                                this.sections[section] = frags[i+2];
+                            }
+                            found_content = true;
+                            i += 2;
+                        }
+                    }
+                }
+                else if (arguments.length > 1) {
+
+                    if (typeof(content) === 'function') {
+                        var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
+                        content = content.substr(asterpos + 1, lastpos - asterpos - 1);
+                    }
+                    // first '$' - var else section
+                    if (name[0] === '$')
+                        this.vars[name] = content;
+                    else
+                        this.sections[name] = content;
+
+                    found_content = true;
+                }
+                return found_content;
+            },
+
+        substs: [],
+
+        appendScript: function(src) {
+            scripts_count++;
+            var script = document.createElement('script');
+            script.src = src;
+            script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
+            script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
+            document.head.appendChild(script);
+        },
+        appendElement: function(tag, attr1, value1, attr2, value2) {
+            var element = document.createElement(tag);
+            element[attr1] = value1;
+            if (attr2) element[attr2] = value2;
+            document.head.appendChild(element);
+            return element;
+        }
+    };
+    
+    
     var nodes = document.head.childNodes;
     for(var i = 0, c = nodes.length; i < c; i++) {
         var node = nodes[i];
@@ -85,17 +115,9 @@ var $$DOCUMENT =
             }
         }
     }
-    
-    function addElement(tag, attr1, value1, attr2, value2) {
-        var element = document.createElement(tag);
-        element[attr1] = value1;
-        if (attr2) element[attr2] = value2;
-        document.head.appendChild(element);
-        return element;
-    }
 
-    addElement('meta', 'name', "viewport", 'content', "width=device-width, initial-scale=1.0");
-    addElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
+    $$DOCUMENT.appendElement('meta', 'name', "viewport", 'content', "width=device-width, initial-scale=1.0");
+    $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
 
 })();
 
@@ -15254,30 +15276,32 @@ InstallDots.prototype.compileAll = function() {
 
 (function() {
     
-    // document transformation start after the texts.js loaded or failed
-    var texts = document.createElement('script');
-    texts.src = $$DOCUMENT.root + "texts.js";
-    texts.addEventListener('load', transformation);
-    texts.addEventListener('error', transformation);
-    document.head.appendChild(texts);
-    
+    $$DOCUMENT.transformation = transformation;
+    $$DOCUMENT.appendScript($$DOCUMENT.root + "common.js");
    
     // These elements are are not attached, childs are attached
     var head = controls.create('head'), body = controls.create('body');
     $$DOCUMENT.head = head;
     $$DOCUMENT.body = body;
-
+    
+    var stubs = {};
     function stubResLoader(stub) {
-        // i here if stub
+        // here if stub
         var original__type = stub.parameters['#{__type}'].split('.');
-        var lookup = $$DOCUMENT.components + original__type[0] + '/' + original__type[1] + '.js';
+        var stublist = stubs[original__type];
+        if (!stublist) {
+            stublist = [];
+            stubs[original__type] = stublist;
+        }
+        stublist.push(stub);
+        var url = $$DOCUMENT.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
         // load component asynchronously
-        var component_js = $(document.head).children('script[src*="' + lookup +'"]:first')[0];
+        var component_js = $(document.head).children('script[src*="' + url +'"]:first')[0];
         if (!component_js) {
             var component_js = document.createElement('script');
-            component_js.src = lookup;
-            component_js.addEventListener('load', function() { stub.state = 1; component_js.state = 1; });
-            component_js.addEventListener('error', function() { stub.state = -1; });
+            component_js.src = url;
+            component_js.addEventListener('load', function() { stubs[original__type].forEach(function(stub){ stub.state = 1; }); stubs[original__type] = []; });
+            component_js.addEventListener('error', function() { stubs[original__type].forEach(function(stub){ stub.state = -1; }); stubs[original__type] = []; });
             document.head.appendChild(component_js);
         }
     }
@@ -15330,7 +15354,8 @@ InstallDots.prototype.compileAll = function() {
                         // pass inner text to control
                         var control = controls.createOrStub(cname, {$text: inner_text});
                         if (control) {
-                            if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) { // flush buffer
+                            // flush buffer
+                            if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) {
                                 $$DOCUMENT.addTextContainer(collection, buffered_text);
                                 buffered_text = '';
                             }
@@ -15350,8 +15375,9 @@ InstallDots.prototype.compileAll = function() {
             }
             buffered_text += frag;
         }
-
-        if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) // flush buffer
+        
+        // flush buffer
+        if (buffered_text && (buffered_text.length > 16 || buffered_text.trim()))
             $$DOCUMENT.addTextContainer(collection, buffered_text);
     };
     
