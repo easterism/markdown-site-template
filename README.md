@@ -15,13 +15,13 @@ Required files:
 * index.html
 * document.root.min.css
 * document.root.min.js
-* common.js
+* user.js
 
 ## Addition components
 
 Advanced formatting and special features are added to the document by connecting external components. To do this, copy the component and the necessary resources to the subfolder "components" in the root folder of the site, for example:
 
-* components\YouTube\Player.js
+* components\YouTube\YouTube.Player.js
 
 ## Explanations of the document.root.js
 
