@@ -77,7 +77,14 @@ var $$DOCUMENT;
             },
 
         substs: [],
-
+        
+        appendElement: function(tag, attr1, value1, attr2, value2) {
+            try {
+                var head = document.head;
+                head.insertAdjacentHTML('beforeend', '<' + tag + ' ' + attr1 + '="' + value1 + '" ' + attr2 + '="' + value2 + '"></' + tag + '>');
+                return head.lastChild;
+            } catch(e) { console.log(e); }
+        },
         appendScript: function(src) {
             scripts_count++;
             var script = document.createElement('script');
@@ -86,15 +93,18 @@ var $$DOCUMENT;
             script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
             document.head.appendChild(script);
         },
-        appendElement: function(tag, attr1, value1, attr2, value2) {
-            var element = document.createElement(tag);
-            element[attr1] = value1;
-            if (attr2) element[attr2] = value2;
-            document.head.appendChild(element);
-            return element;
+        appendMeta: function(attr1, value1, attr2, value2) {
+            document.head.insertAdjacentHTML('beforeend',
+                '<meta ' + attr1 + '="' + value1 + '" ' + ((arguments.length > 2) ? (attr2 + '="' + value2 + '" ') : '') + '/>');
+        },
+        appendCSS: function(id, css) {
+            var element = document.getElementById(id);
+            if (!element || element.tagName.toLowerCase() !== 'style')
+                document.head.insertAdjacentHTML('beforeend', '<style id="' + id + '">' + css + '</style>');
         }
     };
     
+    //name: window.location.pathname.split(/\/\\/g).pop() || 'index.html',
     
     var nodes = document.head.childNodes;
     for(var i = 0, c = nodes.length; i < c; i++) {
@@ -118,7 +128,7 @@ var $$DOCUMENT;
         }
     }
 
-    $$DOCUMENT.appendElement('meta', 'name', "viewport", 'content', "width=device-width, initial-scale=1.0");
+    $$DOCUMENT.appendMeta('name', "viewport", 'content', "width=device-width, initial-scale=1.0");
     $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
 
 })();
@@ -15156,24 +15166,6 @@ InstallDots.prototype.compileAll = function() {
 // require marked.js, controls.js, doT.js, jquery.js
 
 (function() {
-
-    // built-in message box
-    // 
-    function CMsgbox(par, att) {
-        
-        controls.controlInitialize(this, 'msgbox', par, att);
-
-        var style = 'warning';
-        if (par.info) style = 'info';
-        if (par.warning) style = 'warning';
-        if (par.danger) style = 'danger';
-        this.class('alert alert-block alert-' + style + ' fade in');
-        this.style('display:inline-block;float:none;');
-    };
-    CMsgbox.prototype = controls.control_prototype;
-    controls.typeRegister('msgbox', CMsgbox);
-
-    
     // built-in static css effects
     
     var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
@@ -15202,7 +15194,7 @@ InstallDots.prototype.compileAll = function() {
         
     function CStatic(par, att) {
         
-        att.$text = marked(att.$text);
+//        att.$text = marked(att.$text);
 
         controls.controlInitialize(this, 'static', par, att);
         this.style('display:inline-block;');
@@ -15250,7 +15242,7 @@ InstallDots.prototype.compileAll = function() {
     }
     function CHover(par, att) {
         
-        att.$text = marked(att.$text);
+//        att.$text = marked(att.$text);
 
         controls.controlInitialize(this, 'hover', par, att);
         this.style('display:inline-block;');
@@ -15312,18 +15304,16 @@ InstallDots.prototype.compileAll = function() {
     }
     
     // 3. process templates and create control
+    var marked_template = controls.doT.template('{{=it.attributes.$text}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
+    var marked_template_x2 = controls.doT.template('{{=it.getText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
     $$DOCUMENT.addTextContainer = function(control, text) {
-        if (text.indexOf('{{') < 0)
-            control.add('container', {$text:marked(text)});
-        else {
-            var container = control.add('container', {$text:text});
-            // get interpolated text method, process some {{=$$DOCUMENT.root}} templates
+        var container = control.add('container', {$text:text});
+        
+        if (text.indexOf('{{') >= 0) {
             container.getText = controls.doT.template(text);
-            // get interpolated and formatted text method
-            container.getMarkedText = function() { 
-                return marked(this.getText(this));
-            };
-            container.template(controls.doT.template('{{=it.getMarkedText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}'));
+            container.template(marked_template_x2);
+        } else {
+            container.template(marked_template);
         }
     };
     
@@ -15360,7 +15350,7 @@ InstallDots.prototype.compileAll = function() {
                         var control = controls.createOrStub(cname, {$text: inner_text});
                         if (control) {
                             // flush buffer
-                            if (buffered_text && (buffered_text.length > 16 || buffered_text.trim())) {
+                            if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/) {
                                 $$DOCUMENT.addTextContainer(collection, buffered_text);
                                 buffered_text = '';
                             }
@@ -15382,10 +15372,13 @@ InstallDots.prototype.compileAll = function() {
         }
         
         // flush buffer
-        if (buffered_text && (buffered_text.length > 16 || buffered_text.trim()))
+        if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/)
             $$DOCUMENT.addTextContainer(collection, buffered_text);
     };
     
+    function section_container_template(it)    {
+        return '<div' + it.printAttributes() +'>' + marked(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
+    }
     function transformation()
     {
         // write document
@@ -15398,6 +15391,7 @@ InstallDots.prototype.compileAll = function() {
                 if (name) {
                     
                     var section = body.add(name + ':div', {class:name});
+                    section.template(section_container_template);
                     $$DOCUMENT.processContent(section, content);
 
                     var fake = document.createElement('div');

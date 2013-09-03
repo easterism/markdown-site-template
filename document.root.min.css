@@ -221,3 +221,17 @@
 .table-bordered {
     display: table-cell; /* table width 100% -> content */
 }
+
+
+.stub-error { /* Stub box*/
+    display: inline-block;
+    width:18px;
+    height:18px;
+    border: silver solid 1px;
+}
+.stub-error:before {
+    content: "?";
+    font-size: small;
+    color: silver;
+    margin: 4px;
+}

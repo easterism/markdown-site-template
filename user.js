@@ -6,8 +6,8 @@ $$DOCUMENT.parseContent(function(){/*
 
 * [Home]({{=$$DOCUMENT.root}}index.html)
 * [Columns]({{=$$DOCUMENT.root}}columns.html)
-* [Functions]({{=$$DOCUMENT.root}}functions.html)
 * [Components]({{=$$DOCUMENT.root}}index.html)
+ * [Alert]({{=$$DOCUMENT.root}}components/controls.Alert.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
 
 -->
@@ -20,7 +20,6 @@ Incredible simple but powerful site template
 -->
 
 */});
-
 
 
 // another example of the creation section
