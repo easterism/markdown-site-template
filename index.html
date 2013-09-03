@@ -9,11 +9,11 @@
 
 <!--fixed-top-navbar
 
-* [Home](index.html)
-* [Columns](columns.html)
-* [Functions](functions.html)
-* [Components](index.html)
- * [YouTube Player](components/YouTube.Player.html)
+* [Home]({{=$$DOCUMENT.root}}index.html)
+* [Columns]({{=$$DOCUMENT.root}}columns.html)
+* [Components]({{=$$DOCUMENT.root}}index.html)
+ * [Alert]({{=$$DOCUMENT.root}}components/controls.Alert.html)
+ * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
 
 -->
 
@@ -37,7 +37,7 @@ One-two-three columns of your choice. With or without the navigation bar.
 
 %static#scale=2,2;rotate=3deg;origin=left(```Additional```)%static
 %static#scale=2,2;rotate=-3deg;origin=left;margin-left=104px;margin-right=164px;margin-top=32px;(***formatting options***)%static
-%msgbox#info(and elements)%msgbox
+%alert#info(and elements)%alert
 
 The best solution for writing documentation.
 See this page source!  
@@ -101,6 +101,7 @@ footer fixed at the bottom edge of the page
     -­­­->
 -->
 
+<!--right-side-column -->
 
 <!--footer
 * © 2013 [aplib](https://github.com/aplib) MIT
