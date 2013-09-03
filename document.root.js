@@ -20,7 +20,9 @@ var $$DOCUMENT;
         root: '', // document root path
         js:   '', // document.root.js path
         css:  '', // document.root.css path
-
+        
+        events: {},
+                
         // Document named sections content
         sections: {},
         // Sections order
@@ -15276,8 +15278,11 @@ InstallDots.prototype.compileAll = function() {
 
 (function() {
     
+    $$DOCUMENT.events.load = new controls.Event();
     $$DOCUMENT.transformation = transformation;
-    $$DOCUMENT.appendScript($$DOCUMENT.root + "common.js");
+    
+    // load user scripts:
+    $$DOCUMENT.appendScript($$DOCUMENT.root + "user.js");
    
     // These elements are are not attached, childs are attached
     var head = controls.create('head'), body = controls.create('body');
@@ -15501,7 +15506,10 @@ InstallDots.prototype.compileAll = function() {
             // body padding on fixed-bottom-footer
             if (fixed_bottom_footer)
                 $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
-         });
+        });
+        
+        // raise 'load' event
+        $$DOCUMENT.events.load.raise();
     }
 })();
 
