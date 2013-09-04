@@ -9,6 +9,7 @@ $$DOCUMENT.parseContent(function(){/*
 * [Components]({{=$$DOCUMENT.root}}index.html)
  * [CSS]({{=$$DOCUMENT.root}}components/controls.css.html)
  * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
+ * [Emoji]({{=$$DOCUMENT.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
 
 -->

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>gemoji component</title>
+    <script src="../document.root.js"></script>
+<script>
+    // place to user.js to enable gemoji on the whole site
+    function emoji(text) { return '%GitHub.gemoji(' + text + ')%GitHub.gemoji'; }
+    emoji.regex = /:[^\s\{}]{1,20}:(?!`)/g;
+    $$DOCUMENT.filters.push(emoji);
+</script>
+
+</head>
+<body>
+
+
+
+<!--content
+
+### Emoji
+
+syntax: ```:name:```  
+initialization: script in user.js (globally) or script on the page  
+script:
+
+    function emoji(text) { return '%GitHub.gemoji(' + text + ')%GitHub.gemoji'; }
+    emoji.regex = /:\S{1,20}:(?!`)/g;
+    $$DOCUMENT.filters.push(emoji);
+
+component: ```%GitHub.gemoji(' + text + ')%GitHub.gemoji```
+
+Here is conveniently view http://www.emoji-cheat-sheet.com/
+
+some example:
+
+:zero:  ```:zero:```
+:one:  ```:one:```
+:two:  ```:two:```
+:three:  ```:three:```
+:four:  ```:four:```
+:five:  ```:five:```
+:keycap_ten:  ```:keycap_ten:```  
+
+:arrow_forward:  ```:arrow_forward:```
+:arrow_right:  ```:arrow_right:```
+:arrow_upper_left:  ```:arrow_upper_left:```
+:arrow_heading_down:  ```:arrow_heading_down:```
+:arrow_up_down:  ```:arrow_up_down:```
+:abc:  ```:abc:```  
+
+:+1:  ```:+1:```
+:-1:  ```:-1:```
+:clock10:  ```:clock10:```
+:clock5:  ```:clock5:```
+:smile:  ```:smile:```
+:imp:  ```:imp:```  
+
+:copyright:  ```:copyright:```
+:registered:  ```:registered:```
+:tm:  ```:tm:```  
+  
+:vs:
+:warning:
+:wheelchair:
+:zap:
+:zzz:
+
+-->
+
+
+<!--footer {{=footer}}-->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>

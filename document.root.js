@@ -21,6 +21,7 @@ var $$DOCUMENT;
         js:   '', // document.root.js path
         css:  '', // document.root.css path
         
+        // Document events - 'load'
         events: {},
                 
         // Document named sections content
@@ -76,7 +77,7 @@ var $$DOCUMENT;
                 return found_content;
             },
 
-        substs: [],
+        filters: [],
         
         appendElement: function(tag, attr1, value1, attr2, value2) {
             try {
@@ -106,6 +107,14 @@ var $$DOCUMENT;
         }
     };
     
+    // #log-level=?
+    var hash = window.location.hash;
+    var log_level_pos = hash.indexOf('log-level=');
+    if (log_level_pos >= 0) {
+        console.log('document:' + window.location.href);
+        $$DOCUMENT.log_level = parseInt(hash[log_level_pos + 10]);
+    }
+    
     //name: window.location.pathname.split(/\/\\/g).pop() || 'index.html',
     
     var nodes = document.head.childNodes;
@@ -131,7 +140,8 @@ var $$DOCUMENT;
     }
 
     $$DOCUMENT.appendMeta('name', "viewport", 'content', "width=device-width, initial-scale=1.0");
-    $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
+    if ($$DOCUMENT.css)
+        $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
 
 })();
 
@@ -15336,14 +15346,15 @@ InstallDots.prototype.compileAll = function() {
     $$DOCUMENT.processContent = function(collection, content) {
             
         // 1. check substitutions
-        var substs = $$DOCUMENT.substs;
-        for(var i in substs) {
-            var subst = substs[i];
+        var filters = $$DOCUMENT.filters;
+        for(var i in filters) {
+            var subst = filters[i];
             content = content.replace(subst.regex, subst);
         }
 
         // 2. Look for components
         var content = content.split(/(%\S{1,128}(?:#.*)?\([^\(\)]*?\)%\S{1,128})/gm);
+        //var content = content.split(/((%\w{1,128})(?:#.*)?\([^\(\)]*?\)\1)/gm);
         // \([^\(\)]*?\) - exclude matching the parts of multiple patterns, error: a()a b()b -> a()b
 
         var buffered_text = '';
@@ -15403,6 +15414,8 @@ InstallDots.prototype.compileAll = function() {
             var sections = $$DOCUMENT.sections;
             for(var name in sections) {
                 var content = sections[name];
+                if ($$DOCUMENT.log_level)
+                    console.log('>section ' + name);
                 // skip unnamed for compatibility
                 if (name) {
                     
