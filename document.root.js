@@ -11158,30 +11158,38 @@ controls.typeRegister(__type, ' + name + ');';
     
     // Caching outerHTML() innerHTML() calculations Optionally only for controls with the set HashControl prop
     // Cache dated for one day removed
-    try
+    var _html_cache;
+    Object.defineProperty(controls, "html_cache",
     {
-        controls.html_cache = localStorage.getItem('html_cache');
-        var html_cache_date = parseInt(localStorage.getItem('html_cache_date'));
-
-    
-        if ((!controls.html_cache && !html_cache_date) || (Date.now().valueOf() - html_cache_date) > 86400000)
+        enumerable: true, 
+        get: function()
         {
-            // Initial state of cache
-            localStorage.setItem('html_cache', '');
-            localStorage.setItem('html_cache_date', Date.now().valueOf());
-            controls.html_cache = {};
-        }
-        controls.html_cache_modified = false;
-            setInterval(function()
+            if (!_html_cache)
+            try
             {
-                if (controls.html_cache_modified)
-                {
-                    localStorage.setItem('html_cache');
-                    controls.html_cache_modified = false;
-                }
-            }, 10000);
-    }
-    catch (e) {}
+                // init cache
+                _html_cache = localStorage.getItem('html_cache') || {cache_date:Date.now().valueOf()};
+                _html_cache.cache_date = parseInt(cache.cache_date) || 1;
+                    setInterval(function()
+                    {
+                        if ((Date.now().valueOf() - parseInt(_html_cache.cache_date)) > 86400000)
+                        {
+                            // clear cache
+                            _html_cache = {cache_date:Date.now().valueOf()};
+                            localStorage.setItem('html_cache', _html_cache);
+                        }
+
+                        if (_html_cache.modified)
+                            localStorage.setItem('html_cache', _html_cache);
+                        
+                        _html_cache.modified = false;
+                    }, 10000);
+            }
+            catch (e) {}
+            
+            return _html_cache;
+        }
+    });
     
 // >> Events
     
@@ -11592,22 +11600,25 @@ controls.typeRegister(__type, ' + name + ');';
                 var hash_value = hash_control.outerHTML(); // Avoid excess computing in hash control, see outerHTML()
                 var html;
                 var cache_id = this.id + 'inner';
+                var cache = controls.html_cache;
                 
                 if (hash_value === this.HashValue)
                 {
                     // hit hash, get html from cache
-                    html = controls.html_cache[cache_id];
+                    html = cache[cache_id];
                     if (!html)
                     {
                         html = this.inner_template(this);
-                        controls.html_cache[cache_id] = html;
+                        cache[cache_id] = html;
+                        cache.modified = true;
                     }
                 }
                 else
                 {
                     // if hash does not match then assembly html
                     html = this.inner_template(this);
-                    controls.html_cache[cache_id] = html;
+                    cache[cache_id] = html;
+                    cache.modified = true;
                     this.HashValue = hash_value;
                 }
                 
@@ -11652,22 +11663,25 @@ controls.typeRegister(__type, ' + name + ');';
                     var hash_value = hash_control.outerHTML(); // Avoid excess computing in hash control, see outerHTML()
                     var html;
                     var cache_id = this.id;
+                    var cache = controls.html_cache;
                     
                     if (hash_value === this.HashValue)
                     {
                         // hit hash, get html from cache
-                        html = controls.html_cache[cache_id];
+                        html = cache[cache_id];
                         if (!html)
                         {
                             html = this.outer_template(this);
-                            controls.html_cache[cache_id] = html;
+                            cache[cache_id] = html;
+                            cache.modified = true;
                         }
                     }
                     else
                     {
                         // if hash does not match then assembly html
                         html = this.outer_template(this);
-                        controls.html_cache[cache_id] = html;
+                        cache[cache_id] = html;
+                        cache.modified = true;
                         this.HashValue = hash_value;
                     }
                     
@@ -13416,7 +13430,7 @@ controls.typeRegister(\'controls.%%NAME%%\', %%NAME%%);\n';
     Heading.template = doT.template(
 '<h{{=it.level}}{{=it.printAttributes()}}>\
 {{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}\
-</h{{=it.level}}>\n');
+</h{{=it.level}}>');
     controls.typeRegister('controls.Heading', Heading);
     controls.typeAlias('controls.H1', 'controls.Heading#level=1');
     controls.typeAlias('controls.H2', 'controls.Heading#level=2');
@@ -13438,7 +13452,7 @@ controls.typeRegister(\'controls.%%NAME%%\', %%NAME%%);\n';
         controls.controlInitialize(this, 'controls.Frame', parameters, attributes, Frame.template);
     };
     Frame.prototype = controls.control_prototype;
-    Frame.template = doT.template('<iframe{{=it.printAttributes()}}></iframe>\n');
+    Frame.template = doT.template('<iframe{{=it.printAttributes()}}></iframe>');
     controls.typeRegister('controls.Frame', Frame);
     
 

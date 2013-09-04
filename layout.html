@@ -16,7 +16,9 @@ Section names: left-side-column, right-side-column)%css
 
 <!--content
 
-Added them so lines:
+%css#margin-top=-25px(## Layout)%css
+
+To display the corresponding section add named section in text of the page, like added to this page:
 
     <!--right-side-column
     Navigation:
@@ -24,9 +26,23 @@ Added them so lines:
     * [Home](index.html)
       * [Installation](index.html#Installation)
       * [Pre-defined section names](index.html#pre-defined-section-names-)
-    * [Columns](columns.html)
-    * [Functions](functions.html)
+    * [Layout](layout.html)
+    
     -­­­->
+
+### Default layout scheme
+
+<small>
+<table>
+<tr><td colspan="3">fixed-top-navbar</td></tr>
+<tr><td>left-side-column</td><td style="width:40%;padding-bottom:35%;">content</td><td>right-side-column</td></tr>
+<tr><td colspan="3">footer</td></tr>
+<tr><td colspan="3">fixed-bottom-footer</td></tr>
+</table>
+</small>
+
+
+Predefined layout scheme can be overridden by adding or renaming named sections and using CSS
 
 -->
 
@@ -38,8 +54,7 @@ Navigation:
 * [Home](index.html)
   * [Installation](index.html#Installation)
   * [Pre-defined section names](index.html#pre-defined-section-names-)
-* [Columns](columns.html)
-* [Functions](functions.html)
+* [Layout](layout.html)
 
 
 -->
