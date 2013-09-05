@@ -13296,6 +13296,10 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
         return object;
     };
     
+    controls.delay = function(func, delay)
+    {
+        return setTimeout(function() { return func.apply(null, Array.prototype.slice.call(arguments, 2)); }, delay);
+    };
     
     // Special /////////////////////////////////////////////////////////////////
     
@@ -15590,16 +15594,15 @@ InstallDots.prototype.compileAll = function() {
                     if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
                         $(a.parentNode).addClass('active');
                 });
-//                // body padding
-//                $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
             }
             
             function onresize() {
                 // body padding
+                var $b = $(document.body);
                 if (fixed_top_navbar)
-                    $(document.body).css('padding-top', fixed_top_navbar.element.clientHeight + 'px');
+                    $b.css('padding-top', (fixed_top_navbar.element.scrollHeight || fixed_top_navbar.element.clientHeight) + 'px');
                 if (fixed_bottom_footer)
-                    $(document.body).css('padding-bottom', fixed_bottom_footer.element.clientHeight + 'px');
+                    $b.css('padding-bottom', (fixed_bottom_footer.element.scrollHeight || fixed_bottom_footer.element.clientHeight) + 'px');
             }
             
             $(window).on('resize', onresize);
