@@ -15416,7 +15416,10 @@ InstallDots.prototype.compileAll = function() {
     };
     
     $$DOCUMENT.processContent = function(collection, content) {
-            
+        
+        if (!content)
+            return;
+        
         // 1. check substitutions
         var filters = $$DOCUMENT.filters;
         for(var i in filters) {
