@@ -29,7 +29,7 @@ Incredible simple but powerful site template
 // another example of creating a page section
 $$DOCUMENT.sections.header =
 '# Simple Markdown site template\n\
-####Incredible simple but powerful site template';
+###Incredible simple but powerful site template';
 
 
 // example of defining global variable for  <!--page-footer {{=footer}}-->  interpolation
