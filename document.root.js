@@ -15429,7 +15429,6 @@ InstallDots.prototype.compileAll = function() {
 
         // 2. Look for components
         var content = content.split(/(%\S{1,128}(?:#.*)?\([^\(\)]*?\)%\S{1,128})/gm);
-        //var content = content.split(/((%\w{1,128})(?:#.*)?\([^\(\)]*?\)\1)/gm);
         // \([^\(\)]*?\) - exclude matching the parts of multiple patterns, error: a()a b()b -> a()b
 
         var buffered_text = '';
@@ -15612,6 +15611,7 @@ InstallDots.prototype.compileAll = function() {
                     $b.css('padding-bottom', (fixed_bottom_footer.element.scrollHeight || fixed_bottom_footer.element.clientHeight) + 'px');
             }
             
+            patches();
             $(window).on('resize', onresize);
             onresize(); // before and after 'load' event
             
@@ -15621,8 +15621,10 @@ InstallDots.prototype.compileAll = function() {
             onresize(); // before and after 'load' event
             
             // IE BUG FIX(?):
-            controls.delay(patches, 5000)
-            controls.delay(onresize, 5000)
+            if (navigator.appVersion.indexOf("MSIE") > 0) {
+                controls.delay(patches, 1000); controls.delay(patches, 5000);
+                controls.delay(onresize, 1000); controls.delay(onresize, 5000);
+            }
         });
         
         
