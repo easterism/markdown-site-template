@@ -15503,7 +15503,7 @@ InstallDots.prototype.compileAll = function() {
                     body.attachAll();
 
                 }
-                sections[name] = undefined;
+                delete sections[name];
             }
         }
         
