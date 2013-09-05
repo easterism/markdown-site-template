@@ -15503,8 +15503,8 @@ InstallDots.prototype.compileAll = function() {
                     body.attachAll();
 
                 }
-                delete sections[name];
             }
+            $$DOCUMENT.sections = {};
         }
         
         var processed_nodes = [];
@@ -15551,10 +15551,14 @@ InstallDots.prototype.compileAll = function() {
         head.attachAll();
         if (processNode(head))
             processSections();
+        
         var timer = setInterval(function() {
-            if (processNode(body))
-                processSections();
+            processNode(body);
+            processSections();
+            patches();
+            onresize();
         }, 40);
+        
         window.addEventListener('load', function() {
             
             clearInterval(timer);
@@ -15562,7 +15566,7 @@ InstallDots.prototype.compileAll = function() {
             processSections();
             
 
-            // patches
+            // patches called multiple times
             function patches() {
                 
                 $('table').addClass('table table-bordered table-stripped');
@@ -15620,11 +15624,11 @@ InstallDots.prototype.compileAll = function() {
             
             onresize(); // before and after 'load' event
             
-            // IE BUG FIX(?):
-            if (navigator.appVersion.indexOf("MSIE") > 0) {
-                controls.delay(patches, 1000); controls.delay(patches, 5000);
-                controls.delay(onresize, 1000); controls.delay(onresize, 5000);
-            }
+//            // IE BUG FIX:
+//            if (navigator.appVersion.indexOf("MSIE") > 0) {
+//                controls.delay(patches, 1000); controls.delay(patches, 5000);
+//                controls.delay(onresize, 1000); controls.delay(onresize, 5000);
+//            }
         });
         
         
