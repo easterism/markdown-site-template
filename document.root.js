@@ -15612,6 +15612,9 @@ InstallDots.prototype.compileAll = function() {
             $$DOCUMENT.events.load.raise();
             
             onresize(); // before and after 'load' event
+            
+            // IE BUG FIX:
+            controls.delay(onresize, 120)
         });
         
         
