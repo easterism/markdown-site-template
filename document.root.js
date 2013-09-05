@@ -15601,8 +15601,10 @@ InstallDots.prototype.compileAll = function() {
             function onresize() {
                 // body padding
                 var $b = $(document.body);
+                var fixed_top_navbar = body['fixed-top-navbar'];
                 if (fixed_top_navbar)
                     $b.css('padding-top', (fixed_top_navbar.element.scrollHeight || fixed_top_navbar.element.clientHeight) + 'px');
+                var fixed_bottom_footer = body['fixed-bottom-footer'];
                 if (fixed_bottom_footer)
                     $b.css('padding-bottom', (fixed_bottom_footer.element.scrollHeight || fixed_bottom_footer.element.clientHeight) + 'px');
             }
