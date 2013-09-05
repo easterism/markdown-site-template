@@ -117,7 +117,7 @@
 }
 
 .header {
-    padding:32px 32px 16px 32px;
+    padding:25px 37px 25px 37px;
 }
 
 .text-box {
@@ -222,11 +222,11 @@
     display: table-cell; /* table width 100% -> content */
 }
 
-
-.stub-error { /* Stub box*/
+.stub { /* Stub box*/
     display: inline-block;
-    width:18px;
-    height:18px;
+}
+.stub-error {
+    width:18px; height:18px;
     border: silver solid 1px;
 }
 .stub-error:before {

@@ -1,5 +1,7 @@
 
-// example of using $$DOCUMENT.parse function to create sections
+$$DOCUMENT.mod('theme-switcher');
+
+// example of using $$DOCUMENT.parseContent function to create sections
 $$DOCUMENT.parseContent(function(){/*
 
 <!--fixed-top-navbar
@@ -24,10 +26,10 @@ Incredible simple but powerful site template
 */});
 
 
-// another example of the creation section
+// another example of creating a page section
 $$DOCUMENT.sections.header =
 '# Simple Markdown site template\n\
-Incredible simple but powerful site template';
+####Incredible simple but powerful site template';
 
 
 // example of defining global variable for  <!--page-footer {{=footer}}-->  interpolation

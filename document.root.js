@@ -1,7 +1,16 @@
 
-var $$DOCUMENT;
+var $$DOCUMENT,$$BROWSER;
 
 (function() {
+    
+    // initialize $$BROWSER
+    
+    $$BROWSER =
+    {
+    };
+    
+    
+    // initialize $$DOCUMENT
     
     var scripts_count = 0, scripts_stated = 0, transformation_started;
     function check_all_script() {
@@ -12,8 +21,6 @@ var $$DOCUMENT;
             transformation();
         }
     }
-    
-    // initialize $$DOCUMENT
     
     $$DOCUMENT =
     {
@@ -86,9 +93,26 @@ var $$DOCUMENT;
                 return head.lastChild;
             } catch(e) { console.log(e); }
         },
-        appendScript: function(src, async) {
+        removeElement: function(id) {
+            var element = document.getElementById(id);
+            if (element && element.parentNode === document.head)
+                document.head.removeChild(element);
+        },
+        appendScript: function(id, src, async) {
+            if (arguments.length === 1) {
+                async = src;
+                src = id;
+                id = undefined;
+            }
+            if (typeof src === 'boolean') {
+                async = src;
+                src = id;
+                id = undefined;
+            }
             scripts_count++;
             var script = document.createElement('script');
+            if (id)
+                script.id = id;
             script.src = src;
             if (async)
                 script.async = true;
@@ -100,10 +124,51 @@ var $$DOCUMENT;
             document.head.insertAdjacentHTML('beforeend',
                 '<meta ' + attr1 + '="' + value1 + '" ' + ((arguments.length > 2) ? (attr2 + '="' + value2 + '" ') : '') + '/>');
         },
+        // id {string} - optional, identifier
+        // css {string} - url or css
         appendCSS: function(id, css) {
-            var element = document.getElementById(id);
-            if (!element || element.tagName.toLowerCase() !== 'style')
-                document.head.insertAdjacentHTML('beforeend', '<style id="' + id + '">' + css + '</style>');
+            if (arguments.length < 2) {
+                css = id;
+                id = undefined;
+            }
+            var element = (id) ? document.getElementById(id) : undefined;
+            if (!element || element.parentNode !== document.head) {
+                if (css.indexOf('{') >= 0)
+                        document.head.insertAdjacentHTML('beforeend', '<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>');
+                else    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />');
+            }
+        },
+        
+        mods: {},
+        mod: function(group, names) {
+            if (arguments.length === 1)
+                names = group;
+            var mod_group = $$DOCUMENT.mods[group];
+            if (!mod_group) {
+                mod_group = [];
+                $$DOCUMENT.mods[group] = mod_group;
+            }
+            names.split(/ ,;/g).forEach(function(name) {
+                if (mod_group.indexOf(name) < 0) {
+                    var path = $$DOCUMENT.root + 'mods/' + name + '/' + name;
+                    $$DOCUMENT.appendCSS(group + '-' + name + '-css', path + '.css');
+                    $$DOCUMENT.appendScript(group + '-' + name + '-js', path + '.js');
+                    mod_group.push(name);
+                }
+            });
+        },
+        removeMod: function(group, names) {
+            var mod_group = $$DOCUMENT.mods[group];
+            if (mod_group) {
+                ((arguments.length === 1) ? mod_group : names.split(/ ,;/g)) .forEach(function(name) {
+                    var index = mod_group.indexOf(name);
+                    if (index >= 0) {
+                        $$DOCUMENT.removeElement(group + '-' + name + '-css');
+                        $$DOCUMENT.removeElement(group + '-' + name + '-js');
+                        mod_group.splice(index, 1);
+                    }
+                });
+            }
         }
     };
     
@@ -143,7 +208,7 @@ var $$DOCUMENT;
     if ($$DOCUMENT.css)
         $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
 
-})();
+}).call(this);
 
 
 
@@ -13334,13 +13399,16 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
         // try create control and replace stub on success
         this.tryReplace = function()
         {
-            var params = controls.extend({}, this.parameters), attrs = controls.extend({}, this.attributes);
+            var params = controls.extend({}, this.parameters),
+                attrs = controls.extend({}, this.attributes);
             for(var prop in this.parameters)
             if (prop.substr(0,2) === '#{')
                 delete params[prop];
             var control = controls.create(parameters['#{type}'], params, attrs);
-            if (control)
+            if (control) {
+                control.class(null, 'stub stub-loading stub-error');
                 this.replaceItself(control);
+            }
         };
     };
     Stub.prototype = controls.control_prototype;
@@ -15299,10 +15367,10 @@ InstallDots.prototype.compileAll = function() {
     
     $$DOCUMENT.events.load = new controls.Event();
     $$DOCUMENT.transformation = transformation;
-    
-    // load user scripts:
+
+    // load user.js script:
     $$DOCUMENT.appendScript($$DOCUMENT.root + "user.js");
-   
+    
     // These elements are are not attached, childs are attached
     var head = controls.create('head'), body = controls.create('body');
     $$DOCUMENT.head = head;
@@ -15522,17 +15590,28 @@ InstallDots.prototype.compileAll = function() {
                     if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
                         $(a.parentNode).addClass('active');
                 });
-                // body padding
-                $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
+//                // body padding
+//                $(document.body).css('padding-top', (parseInt('0' + document.body.style['padding-top']) + fixed_top_navbar.element.clientHeight) + 'px');
             }
-
-            // body padding on fixed-bottom-footer
-            if (fixed_bottom_footer)
-                $(document.body).css('padding-bottom', parseInt('0' + document.body.style['padding-bottom']) + 2 * fixed_bottom_footer.element.clientHeight + 'px');
+            
+            function onresize() {
+                // body padding
+                if (fixed_top_navbar)
+                    $(document.body).css('padding-top', fixed_top_navbar.element.clientHeight + 'px');
+                if (fixed_bottom_footer)
+                    $(document.body).css('padding-bottom', fixed_bottom_footer.element.clientHeight + 'px');
+            }
+            
+            $(window).on('resize', onresize);
+            onresize(); // before and after 'load' event
+            
+            // raise 'load' event
+            $$DOCUMENT.events.load.raise();
+            
+            onresize(); // before and after 'load' event
         });
         
-        // raise 'load' event
-        $$DOCUMENT.events.load.raise();
+        
     }
 })();
 
