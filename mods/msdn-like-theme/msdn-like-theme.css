@@ -9,6 +9,7 @@ body {
 
 h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
   font-family: 'Segoe UI','Lucida Grande',OpenSans-Regular,Verdana,Arial,"Helvetica Neue",Helvetica,sans-serif;
+  word-wrap: break-word;
 }
 
 h1,.h1 {
@@ -26,12 +27,27 @@ h2,.h2 {
     margin-top: 0;
 }
 
-h3,h4,.h3,.h4 {
-    color: #DB7100;
+h3,.h3 {
+    /*color: #DB7100;*/
     color: #1E75BB;
     font-size: 1.286em;
     font-weight: normal;
     margin: 0;
     padding-bottom: 5px;
     padding-top: 5px;
+}
+
+h4,.h4 {
+    color: #454545;
+    line-height: 1.45em;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 0;
+    margin-bottom: 5px;
+    margin-left: -1px;
+}
+
+
+.fixed-top-navbar > ul > li > a {
+    padding: 9px 15px;
 }
