@@ -15561,39 +15561,41 @@ InstallDots.prototype.compileAll = function() {
             
 
             // patches
+            function patches() {
+                
+                $('table').addClass('table table-bordered table-stripped');
 
-            $('table').addClass('table table-bordered table-stripped');
+                var fixed_top_navbar = body['fixed-top-navbar'];
+//                var left_side_column = body['left-side-column'];
+//                var content = body.content;
+//                var right_side_column = body['right-side-column'];
+//                var footer = body.footer;
+//                var fixed_bottom_footer = body['fixed-bottom-footer'];
 
-            var fixed_top_navbar = body['fixed-top-navbar'];
-    //        var left_side_column = body['left-side-column'];
-    //        var content = body.content;
-    //        var right_side_column = body['right-side-column'];
-    //        var footer = body.footer;
-            var fixed_bottom_footer = body['fixed-bottom-footer'];
+                if (fixed_top_navbar) {
+                    // apply bootstrap classes to navbar
+                    var $q = fixed_top_navbar.$;
+                    $q.addClass('navbar navbar-default navbar-fixed-top');
+                    //
+                    //$q.addClass('nav navbar-nav');
+                    var $s = $q.find('li ul');
+                    $s.addClass('dropdown-menu');
+                    var $p = $s.parent();
+                    $p.addClass('dropdown');
+                    var $a = $p.children('a');
+                    $a.addClass('dropdown-toggle');
+                    $a.attr('href', '#');
+                    $a.attr('data-toggle', 'dropdown');
+                    $a.each(function(i,e) { if (e.innerHTML.indexOf('<b class="caret"></b>') < 0) e.innerHTML += '<b class="caret"></b>'; });
 
-            if (fixed_top_navbar) {
-                // apply bootstrap classes to navbar
-                var $q = fixed_top_navbar.$;
-                $q.addClass('navbar navbar-default navbar-fixed-top');
-                //
-                //$q.addClass('nav navbar-nav');
-                var $s = $q.find('li ul');
-                $s.addClass('dropdown-menu');
-                var $p = $s.parent();
-                $p.addClass('dropdown');
-                var $a = $p.children('a');
-                $a.addClass('dropdown-toggle');
-                $a.attr('href', '#');
-                $a.attr('data-toggle', 'dropdown');
-                $a.each(function(i,e) { e.innerHTML += '<b class="caret"></b>'; });
-
-                   // activate current page
-                var loc = window.location.href.toLowerCase();
-                fixed_top_navbar.$.find('ul li a').each(function(i,a) {
-                    var href = a.href.toLowerCase();
-                    if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
-                        $(a.parentNode).addClass('active');
-                });
+                       // activate current page
+                    var loc = window.location.href.toLowerCase();
+                    fixed_top_navbar.$.find('ul li a').each(function(i,a) {
+                        var href = a.href.toLowerCase();
+                        if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
+                            $(a.parentNode).addClass('active');
+                    });
+                }
             }
             
             function onresize() {
@@ -15613,8 +15615,8 @@ InstallDots.prototype.compileAll = function() {
             
             onresize(); // before and after 'load' event
             
-            // IE BUG FIX:
-            controls.delay(onresize, 500)
+            // IE BUG FIX(?):
+            controls.delay(patches, 5000)
             controls.delay(onresize, 5000)
         });
         
