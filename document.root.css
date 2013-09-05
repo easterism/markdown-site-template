@@ -7001,6 +7001,9 @@ td.visible-print {
     -webkit-box-shadow: 0 1444px 0 1444px #f8f8f8;
     box-shadow: 0 1444px 0 1444px #f8f8f8;
 }
+.footer ul {
+    padding-right: 25px;
+}
 .footer li {
     list-style: none;
     float:left;
