@@ -98,7 +98,8 @@ var $$DOCUMENT,$$BROWSER;
             if (element && element.parentNode === document.head)
                 document.head.removeChild(element);
         },
-        appendScript: function(id, src, async) {
+        // only sync scripts
+        appendScript: function(id, src) {
             if (arguments.length === 1) {
                 async = src;
                 src = id;
@@ -114,8 +115,6 @@ var $$DOCUMENT,$$BROWSER;
             if (id)
                 script.id = id;
             script.src = src;
-            if (async)
-                script.async = true;
             script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
             script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
             document.head.appendChild(script);
@@ -15255,16 +15254,70 @@ InstallDots.prototype.compileAll = function() {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+//     
+//     controls.Alert.js by vb The control for displaying alerts
+//     control created (c) 2013 vadim baklanov http://aplib.github.io/markdown-site-template
+//     license: MIT
 //
-//     markdown-site-template 0.1
-//     http://aplib.github.io/markdown-site-template/
-//     (c) 2013 vadim baklanov
-//     License: MIT
-//
-// require marked.js, controls.js, doT.js, jquery.js
+// require controls.js
 
-(function() {
-    
+(function() { "use strict";
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CAlert;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CAlert; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+
+
+
+    // built-in message box
+    // 
+    function CAlert(par, att) {
+        
+        controls.controlInitialize(this, 'Alert', par, att);
+
+        var style = 'warning';
+        if (par.info) style = 'info';
+        if (par.warning) style = 'warning';
+        if (par.danger) style = 'danger';
+        this.class('alert alert-block alert-' + style + ' fade in');
+    };
+    CAlert.prototype = controls.control_prototype;
+    controls.typeRegister('Alert', CAlert);
+
+
+}).call(this);
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//     
+//     controls.css.js by vb The control for displaying alerts
+//     control created (c) 2013 vadim baklanov http://aplib.github.io/markdown-site-template
+//     license: MIT
+//
+// require controls.js
+
+(function() { "use strict";
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = Ccss;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return Ccss; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+
+
+
     // built-in static css effects
     
     var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
@@ -15365,9 +15418,25 @@ InstallDots.prototype.compileAll = function() {
     };
     CHover.prototype = controls.control_prototype;
     controls.typeRegister('hover', CHover);
-})();
 
-(function() {
+
+}).call(this);
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//     markdown-site-template 0.1
+//     http://aplib.github.io/markdown-site-template/
+//     (c) 2013 vadim baklanov
+//     License: MIT
+//
+// require marked.js, controls.js, doT.js, jquery.js
+
+(function() { "use strict";
     
     $$DOCUMENT.events.load = new controls.Event();
     $$DOCUMENT.transformation = transformation;
@@ -15534,22 +15603,26 @@ InstallDots.prototype.compileAll = function() {
             
             var sections = $$DOCUMENT.sections;
             for(var name in sections) {
-                var content = sections[name];
-                if ($$DOCUMENT.log_level)
-                    console.log('>section ' + name);
-                // skip unnamed for compatibility
-                if (name) {
-                    
-                    var section = body.add(name + ':div', {class:name});
-                    section.template(section_container_template);
-                    $$DOCUMENT.processContent(section, content);
+                try
+                {
+                    var content = sections[name];
+                    if ($$DOCUMENT.log_level)
+                        console.log('>section ' + name);
+                    // skip unnamed for compatibility
+                    if (name) {
 
-                    var fake = document.createElement('div');
-                    fake.innerHTML = section.outerHTML();
-                    document.body.appendChild(fake.firstChild);
-                    body.attachAll();
+                        var section = body.add(name + ':div', {class:name});
+                        section.template(section_container_template);
+                        $$DOCUMENT.processContent(section, content);
 
+                        var fake = document.createElement('div');
+                        fake.innerHTML = section.outerHTML();
+                        document.body.appendChild(fake.firstChild);
+                        body.attachAll();
+
+                    }
                 }
+                catch (e) { console.log(e); }
             }
             $$DOCUMENT.sections = {};
         }

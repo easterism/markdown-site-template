@@ -19,7 +19,7 @@ $$DOCUMENT.parseContent(function(){/*
 <!--header
 
 # Simple Markdown site template
-Incredible simple but powerful site template
+###Incredible simple but powerful site template
 
 -->
 
