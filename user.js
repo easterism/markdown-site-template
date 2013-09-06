@@ -34,7 +34,7 @@ $$DOCUMENT.sections.header =
 
 // example of defining global variable for  <!--page-footer {{=footer}}-->  interpolation
 var footer =
-'* © 2013 [aplib](https://github.com/aplib) MIT\n\
+'* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT\n\
 * simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)';
 
 
