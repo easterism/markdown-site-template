@@ -1,11 +1,11 @@
 
-var $$DOCUMENT,$$BROWSER;
+var $$DOCUMENT, $$ENVIRONMENT;
 
 (function() {
     
-    // initialize $$BROWSER
+    // initialize $$ENVIRONMENT
     
-    $$BROWSER =
+    $$ENVIRONMENT =
     {
     };
     
@@ -11055,9 +11055,9 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-require('./dot');
-require('./controls');
-window.marked = require('./marked');
+$$ENVIRONMENT.dot = require('./dot');
+$$ENVIRONMENT.controls = require('./controls');
+$$ENVIRONMENT.marked = require('./marked');
 },{"./controls":2,"./dot":3,"./marked":4}],2:[function(require,module,exports){
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -15278,6 +15278,10 @@ if (!controls) throw new TypeError('controls.js not found!');
     // 
     function CAlert(par, att) {
         
+        var marked = $$ENVIRONMENT.marked;
+        if (att.$text && marked)
+            att.$text = marked(att.$text);
+        
         controls.controlInitialize(this, 'Alert', par, att);
 
         var style = 'warning';
@@ -15346,7 +15350,9 @@ if (!controls) throw new TypeError('controls.js not found!');
         
     function Ccss(par, att) {
         
-        att.$text = marked(att.$text);
+        var marked = $$ENVIRONMENT.marked;
+        if (att.$text && marked)
+            att.$text = marked(att.$text);
 
         controls.controlInitialize(this, 'css', par, att);
         this.style('display:inline-block;');
@@ -15394,7 +15400,9 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     function CHover(par, att) {
         
-        att.$text = marked(att.$text);
+        var marked = $$ENVIRONMENT.marked;
+        if (att.$text && marked)
+            att.$text = marked(att.$text);
 
         controls.controlInitialize(this, 'hover', par, att);
         this.style('display:inline-block;');
@@ -15437,7 +15445,8 @@ if (!controls) throw new TypeError('controls.js not found!');
 // require marked.js, controls.js, doT.js, jquery.js
 
 (function() { "use strict";
-    
+    var marked = $$ENVIRONMENT.marked;
+            
     $$DOCUMENT.events.load = new controls.Event();
     $$DOCUMENT.transformation = transformation;
 
@@ -15497,45 +15506,50 @@ if (!controls) throw new TypeError('controls.js not found!');
         }
 
         // 2. Look for components
-        var content = content.split(/(%\S{1,128}(?:#.*)?\([^\(\)]*?\)%\S{1,128})/gm);
+        var content = content.split(/(%\S{1,128})((?:#.*)?\([\S\s]*?\)\1)/gm);
+        // todo replace \S [^\r\n\t @#\$%\^&\*\!~`\'\"\\|\/\?<>\{\}\[\]\(\)-_=\+]
         // \([^\(\)]*?\) - exclude matching the parts of multiple patterns, error: a()a b()b -> a()b
 
         var buffered_text = '';
         for(var i = 0, c = content.length; i < c; i++) {
             var frag = content[i];
             if (!frag) continue;
-            if (frag[0] === '%') {
-                var parpos = frag.indexOf('('),
-                    amptag = frag.substr(0, parpos),
-                    cname = frag.substr(1, parpos - 1),
-                    numberpos = amptag.indexOf('#'),
-                    finalamptag = (numberpos >= 0) ? amptag.substr(0, numberpos) : amptag;
+            if (i < c-1 && frag[0] === '%') {
+                var next = content[i+1];
+                if (next.slice(-frag.length - 1) === ')' + frag) {
+            
+                    var parpos = next.indexOf('('),
+                        params = next.substr(0, parpos),
+                        numberpos = params.indexOf('#'),
+                        tag = frag.substr(1);
 
-                if (frag.slice(-finalamptag.length - 1) === ')' + finalamptag) {
-                    var inner_text = frag.substr(amptag.length + 1, frag.length -2 -amptag.length -finalamptag.length);
+                    if (parpos >= 0 && (!params || numberpos === 0)) {
+                        var inner_text = next.substr(parpos + 1, next.length - frag.length - parpos - 2);
+                        i++;
 
-                    // lookup control
-                    try {
-                        // pass inner text to control
-                        var control = controls.createOrStub(cname, {$text: inner_text});
-                        if (control) {
-                            // flush buffer
-                            if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/) {
-                                $$DOCUMENT.addTextContainer(collection, buffered_text);
-                                buffered_text = '';
+                        // lookup control
+                        try {
+                            // pass inner text to control
+                            var control = controls.createOrStub(tag+params, {$text: inner_text});
+                            if (control) {
+                                // flush buffer
+                                if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/) {
+                                    $$DOCUMENT.addTextContainer(collection, buffered_text);
+                                    buffered_text = '';
+                                }
+
+                                collection.add(control);
+
+                                // create component loader
+                                if (control.isStub)
+                                    new stubResLoader(control);
                             }
+                            else
+                                collection.add('p', {$text:'&#60;' + tag + '?&#62;'});
 
-                            collection.add(control);
-
-                            // create component loader
-                            if (control.isStub)
-                                new stubResLoader(control);
-                        }
-                        else
-                            collection.add('p', {$text:'&#60;' + cname + '?&#62;'});
-
-                        continue;
-                    } catch (e) { console.log(e); } // error?
+                            continue;
+                        } catch (e) { console.log(e); } // error?
+                    }
                 }
             }
             buffered_text += frag;

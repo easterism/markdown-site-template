@@ -13,7 +13,8 @@ $$DOCUMENT.parseContent(function(){/*
  * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
  * [Emoji]({{=$$DOCUMENT.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
-
+ * [Mediawiki markup]({{=$$DOCUMENT.root}}components/wiki.instaview.html)
+ 
 -->
 
 <!--header
