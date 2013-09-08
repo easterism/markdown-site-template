@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Emoji component</title>
-    <script src="../document.root.js"></script>
+    <script src="../document.root.min.js"></script>
 <script>
     // place to user.js to enable gemoji on the whole site
     function emoji(text) { return '%GitHub.gemoji(' + text + ')%GitHub.gemoji'; }
@@ -20,10 +20,11 @@
 
 ## Emoji component
 <h3><a class="label label-default" href="http://aplib.github.io/markdown-site-template/components/GitHub.gemoji.zip">Download</a></h3>  
-location: components/GitHub/gemoji/  
 
-syntax: ```:name:```  
-initialization: script in user.js (globally) or script on the page  
+>syntax: ```:name:```  
+>location: components/GitHub/gemoji/  
+>initialization: script in user.js (globally) or script on the page  
+
 script:
 
     function emoji(text) { return '%GitHub.gemoji'+'(' + text + ')%GitHub.gemoji'; }
@@ -71,7 +72,6 @@ some example:
 -->
 
 <!--right-side-column -->
-<!--footer {{=footer}}-->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>

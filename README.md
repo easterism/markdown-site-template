@@ -19,7 +19,7 @@ Required files:
 
 ## Addition components
 
-Advanced formatting and special features are added to the document by connecting external components. To do this, copy the component and the necessary resources to the subfolder "components" in the root folder of the site, for example:
+Advanced formatting and special features can be added to the document. To do this, copy the component and the necessary resources to the subfolder "components" in the root folder, for example:
 
 * components\YouTube\YouTube.Player.js
 

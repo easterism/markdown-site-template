@@ -11,6 +11,7 @@ $$DOCUMENT.parseContent(function(){/*
 * [Components]({{=$$DOCUMENT.root}}index.html)
  * [CSS]({{=$$DOCUMENT.root}}components/controls.css.html)
  * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
+ * [Tabbed panel]({{=$$DOCUMENT.root}}components/controls.tabpanel.html)
  * [Emoji]({{=$$DOCUMENT.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
  * [Mediawiki markup]({{=$$DOCUMENT.root}}components/wiki.instaview.html)
@@ -26,15 +27,8 @@ $$DOCUMENT.parseContent(function(){/*
 
 */});
 
-
 // another example of creating a page section
-$$DOCUMENT.sections.header =
-'# Simple Markdown site template\n\
-###Incredible simple but powerful site template';
-
-
-// example of defining global variable for  <!--page-footer {{=footer}}-->  interpolation
-var footer =
+$$DOCUMENT.sections.footer =
 '* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT\n\
 * simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)';
 
