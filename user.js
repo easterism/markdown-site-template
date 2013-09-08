@@ -29,8 +29,8 @@ $$DOCUMENT.parseContent(function(){/*
 
 // another example of creating a page section
 $$DOCUMENT.sections.footer =
-'* © 2013 [aplib](https://github.com/aplib/markdown-site-template) MIT\n\
-* simple markdown site template by aplib [on GitHub](https://github.com/aplib/markdown-site-template)';
+'* © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT\n\
+* [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)';
 
 
 
