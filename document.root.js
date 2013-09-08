@@ -15690,6 +15690,101 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 
 ////////////////////////////////////////////////////////////////////////////////
+//     
+//     controls.tabpanel.js The control for displaying alerts
+//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     License: MIT
+//
+// require controls.js
+
+(function() { "use strict";
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CTabPanel;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CTabPanel; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+
+
+    function CTabPanel(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'tabpanel', parameters, attributes);
+        this.class('tabpanel');
+        
+        // subcontrols
+        var header = this.add('header:bootstrap.TabPanelHeader');
+        var content = this.add('content:bootstrap.TabPanelContent');
+        content.class('tabpanel-content');
+        
+        // place tabs on this.content panel
+        $$DOCUMENT.processContent(content, this.attributes.$text);
+        this.attributes.$text = '';
+        
+        var found_active = false;
+        for(var i = 0, c = content.controls.length; i < c; i++)
+        {
+            var tabpage = content.controls[i];
+            if (tabpage.__type === 'bootstrap.TabPage')
+            {
+                var tabheader = this.header.add('bootstrap.TabHeader', {$href:'#'+tabpage.id, $text:tabpage.Caption});
+                if (tabpage.parameters.active)
+                {
+                    found_active = true;
+                    tabheader.class('active');
+                    tabpage.class('active in');
+                }
+            }
+        }
+        
+        if (!found_active && header.controls.length)
+        {
+            header.controls[0].class('active');
+            content.controls[0].class('active in');
+        }
+    };
+    CTabPanel.prototype = controls.control_prototype;
+    controls.typeRegister('tabpanel', CTabPanel);
+    
+    
+    var marked_template = controls.doT.template('<div{{=it.printAttributes()}}>\
+{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}\
+{{=$$ENVIRONMENT.marked( it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>');
+    function tabpage_factory(parameters, attributes) {
+        
+        // create and customize bootstrap.TabPage
+        
+        // create control
+        var bootstrap_tabpage = controls.create('bootstrap.TabPage', parameters, attributes);
+        
+        // first #parameter name - tab caption
+        bootstrap_tabpage.Caption = Object.keys(parameters)[0];
+        
+        // Here: this control is wrapped with HTML and markup not be processed.
+        // To process the markup at this level:
+        
+        var this_text = bootstrap_tabpage.attributes.$text;
+        bootstrap_tabpage.attributes.$text = '';
+        $$DOCUMENT.processContent(bootstrap_tabpage, this_text);
+        
+        // process markup template:
+        bootstrap_tabpage.template(marked_template);
+
+        return bootstrap_tabpage;
+    }
+    controls.factoryRegister('tabpage', tabpage_factory);
+    
+
+}).call(this);
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 //
 //     markdown-site-template 0.1
 //     http://aplib.github.io/markdown-site-template/
