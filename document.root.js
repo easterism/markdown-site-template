@@ -15804,7 +15804,9 @@ else
 if (!controls) throw new TypeError('controls.js not found!');
 
 
-
+    var marked_template = controls.doT.template('<div{{=it.printAttributes()}}>\
+{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}\
+{{=$$ENVIRONMENT.marked( it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>');
     function CCollapse(parameters, attributes) {
         
         controls.controlInitialize(this, 'collapse', parameters, attributes);
@@ -15833,6 +15835,9 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         $$DOCUMENT.processContent(content, this.attributes.$text);
         this.attributes.$text = '';
+        
+        // process markup template:
+        content.template(marked_template);
     };
     CCollapse.prototype = controls.control_prototype;
     controls.typeRegister('collapse', CCollapse);
