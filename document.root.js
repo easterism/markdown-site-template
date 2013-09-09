@@ -11285,7 +11285,7 @@ function Bootstrap(controls)
     function TabPanelHeader(parameters, attributes)
     {
         controls.controlInitialize(this, 'bootstrap.TabPanelHeader', parameters, attributes, TabPanelHeader.template);
-        this.class('bootstrapTabPanelHeader nav nav-tabs');
+        this.class('nav nav-tabs tabpanel-header');
     };
     TabPanelHeader.prototype = bootstrap.control_prototype;
     TabPanelHeader.template = doT.template(
@@ -11300,7 +11300,7 @@ function Bootstrap(controls)
     function TabHeader(parameters, attributes)
     {
         controls.controlInitialize(this, 'bootstrap.TabHeader', parameters, attributes, TabHeader.template);
-        this.class('bootstrapTabHeader');
+        this.class('tab-header');
     };
     TabHeader.prototype = bootstrap.control_prototype;
     TabHeader.template = doT.template(
@@ -11311,15 +11311,15 @@ function Bootstrap(controls)
     controls.typeRegister('bootstrap.TabHeader', TabHeader);
     
     
-    // TabPanelContent
+    // TabPanelBody
     // 
-    function TabPanelContent(parameters, attributes)
+    function TabPanelBody(parameters, attributes)
     {
-        controls.controlInitialize(this, 'bootstrap.TabPanelContent', parameters, attributes);
-        this.class('bootstrapTabPanelContent tab-content');
+        controls.controlInitialize(this, 'bootstrap.TabPanelBody', parameters, attributes);
+        this.class('tab-content tabpanel-body');
     };
-    TabPanelContent.prototype = bootstrap.control_prototype;
-    controls.typeRegister('bootstrap.TabPanelContent', TabPanelContent);
+    TabPanelBody.prototype = bootstrap.control_prototype;
+    controls.typeRegister('bootstrap.TabPanelBody', TabPanelBody);
     
     
     // TabPage
@@ -11327,7 +11327,7 @@ function Bootstrap(controls)
     function TabPage(parameters, attributes)
     {
         controls.controlInitialize(this, 'bootstrap.TabPage', parameters, attributes);
-        this.class('bootstrapTabPage tab-pane fade');
+        this.class('tab-pane fade');
     };
     TabPage.prototype = bootstrap.control_prototype;
     controls.typeRegister('bootstrap.TabPage', TabPage);
@@ -15691,7 +15691,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 ////////////////////////////////////////////////////////////////////////////////
 //     
-//     controls.tabpanel.js The control for displaying alerts
+//     controls.tabpanel.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     License: MIT
 //
@@ -15716,17 +15716,17 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         // subcontrols
         var header = this.add('header:bootstrap.TabPanelHeader');
-        var content = this.add('content:bootstrap.TabPanelContent');
-        content.class('tabpanel-content');
+        var body = this.add('content:bootstrap.TabPanelBody', {class:'panel-body'});
+        
         
         // place tabs on this.content panel
-        $$DOCUMENT.processContent(content, this.attributes.$text);
+        $$DOCUMENT.processContent(body, this.attributes.$text);
         this.attributes.$text = '';
         
         var found_active = false;
-        for(var i = 0, c = content.controls.length; i < c; i++)
+        for(var i = 0, c = body.controls.length; i < c; i++)
         {
-            var tabpage = content.controls[i];
+            var tabpage = body.controls[i];
             if (tabpage.__type === 'bootstrap.TabPage')
             {
                 var tabheader = this.header.add('bootstrap.TabHeader', {$href:'#'+tabpage.id, $text:tabpage.Caption});
@@ -15742,7 +15742,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         if (!found_active && header.controls.length)
         {
             header.controls[0].class('active');
-            content.controls[0].class('active in');
+            body.controls[0].class('active in');
         }
     };
     CTabPanel.prototype = controls.control_prototype;
@@ -15776,6 +15776,67 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     controls.factoryRegister('tabpage', tabpage_factory);
     
+
+}).call(this);
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//     
+//     controls.collapse.js
+//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     License: MIT
+//
+// require controls.js
+
+(function() { "use strict";
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CCollapse;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CCollapse; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+
+
+
+    function CCollapse(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'collapse', parameters, attributes);
+        this.class('collapse-panel');
+        
+        var start_collapsed = false;
+        for(var prop in parameters) {
+            if (prop.substr(0,6) === 'panel-')
+                this.class('panel ' + prop);
+            else if (prop === 'panel') {
+                var propvalue = parameters[prop];
+                if (typeof propvalue === 'boolean') {
+                    if (propvalue) this.class('panel panel-default');
+                } else
+                    this.class('panel panel-' + propvalue);
+            }
+            else if ('collapsed'.indexOf(prop) >= 0)
+                start_collapsed = true;
+        }
+        
+        // subcontrols
+        var collapse = this.add('collapse:div', {class:'panel-collapse collapse collapse-body' + (start_collapsed ? '' : ' in')});
+        var content = collapse.add('div',{class:'panel-body'});
+        var header = this.insert(0, 'header:div', {class:'panel-heading collapse-header', 'data-toggle':'collapse', 'data-target':'#'+collapse.id,
+            $text:'<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>' });
+        
+        $$DOCUMENT.processContent(content, this.attributes.$text);
+        this.attributes.$text = '';
+    };
+    CCollapse.prototype = controls.control_prototype;
+    controls.typeRegister('collapse', CCollapse);
+
 
 }).call(this);
 

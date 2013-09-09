@@ -53,9 +53,10 @@ h4,.h4 {
 }
 
 /*controls.tabpanel*/
-.tabpanel-content {
-    margin-bottom: 25px;
-    padding: 22px 16px 4px 16px;
+.tabpanel-body {
+    /*margin-bottom: 25px;*/
+    /*padding: 22px 16px 4px 16px;*/
+    padding-bottom: 5px;
     border-left: #DDD solid 1px;
     border-right: #DDD solid 1px;
     border-bottom: #DDD solid 1px;

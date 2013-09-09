@@ -11,6 +11,7 @@ $$DOCUMENT.parseContent(function(){/*
 * [Components]({{=$$DOCUMENT.root}}index.html)
  * [CSS]({{=$$DOCUMENT.root}}components/controls.css.html)
  * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
+ * [Collapse]({{=$$DOCUMENT.root}}components/controls.collapse.html)
  * [Tabbed panel]({{=$$DOCUMENT.root}}components/controls.tabpanel.html)
  * [Emoji]({{=$$DOCUMENT.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
