@@ -1,221 +1,3 @@
-
-var $$DOCUMENT, $$ENVIRONMENT;
-
-(function() {
-    
-    // initialize $$ENVIRONMENT
-    
-    $$ENVIRONMENT =
-    {
-    };
-    
-    
-    // initialize $$DOCUMENT
-    
-    var scripts_count = 0, scripts_stated = 0, transformation_started;
-    function check_all_script() {
-        // document transformation start after the scripts loaded or failed
-        var transformation = $$DOCUMENT.transformation;
-        if (scripts_count === scripts_stated && !transformation_started && transformation) {
-            transformation_started = true;
-            transformation();
-        }
-    }
-    
-    $$DOCUMENT =
-    {
-        root: '', // document root path
-        js:   '', // document.root.js path
-        css:  '', // document.root.css path
-        
-        // Document events - 'load'
-        events: {},
-                
-        // Document named sections content
-        sections: {},
-        // Sections order
-        order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
-        // Texts and templates
-        vars: {},
-        // Document data access
-        index: {},
-
-        // parse content values from function text object
-        parseContent:
-            function(name /*name optional*/, content) {
-
-                if (!name)
-                    return;
-
-                var found_content = false;
-
-                if (arguments.length === 1) {
-                    var frags = name.toString().split(/(<!--\S+\s+)|(-->)/gm);
-                    for(var i = 0, c = frags.length; i < c; i+=1) {
-                        var test = frags[i];
-                        if (test && test.substr(0,4) === '<!--') {
-                            // first '$' - var else section
-                            if (test[4] === '$') {
-                                // as var
-                                var varname = test.substr(4).trim();
-                                this.vars[varname] = frags[i+2];
-                            } else {
-                                // as section
-                                var section = test.substr(4).trim();
-                                this.sections[section] = frags[i+2];
-                            }
-                            found_content = true;
-                            i += 2;
-                        }
-                    }
-                }
-                else if (arguments.length > 1) {
-
-                    if (typeof(content) === 'function') {
-                        var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
-                        content = content.substr(asterpos + 1, lastpos - asterpos - 1);
-                    }
-                    // first '$' - var else section
-                    if (name[0] === '$')
-                        this.vars[name] = content;
-                    else
-                        this.sections[name] = content;
-
-                    found_content = true;
-                }
-                return found_content;
-            },
-
-        filters: [],
-        
-        appendElement: function(tag, attr1, value1, attr2, value2) {
-            try {
-                var head = document.head;
-                head.insertAdjacentHTML('beforeend', '<' + tag + ' ' + attr1 + '="' + value1 + '" ' + attr2 + '="' + value2 + '"></' + tag + '>');
-                return head.lastChild;
-            } catch(e) { console.log(e); }
-        },
-        removeElement: function(id) {
-            var element = document.getElementById(id);
-            if (element && element.parentNode === document.head)
-                document.head.removeChild(element);
-        },
-        // only sync scripts
-        appendScript: function(id, src) {
-            if (arguments.length === 1) {
-                async = src;
-                src = id;
-                id = undefined;
-            }
-            if (typeof src === 'boolean') {
-                async = src;
-                src = id;
-                id = undefined;
-            }
-            scripts_count++;
-            var script = document.createElement('script');
-            if (id)
-                script.id = id;
-            script.src = src;
-            script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
-            script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
-            document.head.appendChild(script);
-        },
-        appendMeta: function(attr1, value1, attr2, value2) {
-            document.head.insertAdjacentHTML('beforeend',
-                '<meta ' + attr1 + '="' + value1 + '" ' + ((arguments.length > 2) ? (attr2 + '="' + value2 + '" ') : '') + ' />');
-        },
-        // id {string} - optional, identifier
-        // css {string} - url or css
-        appendCSS: function(id, css) {
-            if (arguments.length < 2) {
-                css = id;
-                id = undefined;
-            }
-            var element = (id) ? document.getElementById(id) : undefined;
-            if (!element || element.parentNode !== document.head) {
-                if (css.indexOf('{') >= 0)
-                        document.head.insertAdjacentHTML('beforeend', '<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>');
-                else    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />');
-            }
-        },
-        
-        mods: {},
-        mod: function(group, names) {
-            if (arguments.length === 1)
-                names = group;
-            var mod_group = $$DOCUMENT.mods[group];
-            if (!mod_group) {
-                mod_group = [];
-                $$DOCUMENT.mods[group] = mod_group;
-            }
-            names.split(/ ,;/g).forEach(function(name) {
-                if (mod_group.indexOf(name) < 0) {
-                    var path = $$DOCUMENT.root + 'mods/' + name + '/' + name;
-                    $$DOCUMENT.appendCSS(group + '-' + name + '-css', path + '.css');
-                    $$DOCUMENT.appendScript(group + '-' + name + '-js', path + '.js');
-                    mod_group.push(name);
-                }
-            });
-        },
-        removeMod: function(group, names) {
-            var mod_group = $$DOCUMENT.mods[group];
-            if (mod_group) {
-                ((arguments.length === 1) ? mod_group : names.split(/ ,;/g)) .forEach(function(name) {
-                    var index = mod_group.indexOf(name);
-                    if (index >= 0) {
-                        $$DOCUMENT.removeElement(group + '-' + name + '-css');
-                        $$DOCUMENT.removeElement(group + '-' + name + '-js');
-                        mod_group.splice(index, 1);
-                    }
-                });
-            }
-        }
-    };
-    
-    // #log-level=?
-    var hash = window.location.hash;
-    var log_level_pos = hash.indexOf('log-level=');
-    if (log_level_pos >= 0) {
-        console.log('document:' + window.location.href);
-        $$DOCUMENT.log_level = parseInt(hash[log_level_pos + 10]);
-    }
-    
-    //name: window.location.pathname.split(/\/\\/g).pop() || 'index.html',
-    
-    var nodes = document.head.childNodes;
-    for(var i = 0, c = nodes.length; i < c; i++) {
-        var node = nodes[i];
-        if (node.nodeType === 1 && node.tagName.toLowerCase() === 'script' && node.src) {
-             var src = node.src.toLowerCase();
-             if (src.slice(-20) === 'document.root.min.js') {
-                var root = src.substr(0, src.length - 20);
-                $$DOCUMENT.root = root;
-                $$DOCUMENT.js =   root + 'document.root.min.js';
-                $$DOCUMENT.css =  root + 'document.root.min.css';
-                $$DOCUMENT.components = root + 'components/';
-             }
-             else if (src.slice(-16) === 'document.root.js') {
-                var root = src.substr(0, src.length - 16);
-                $$DOCUMENT.root = root;
-                $$DOCUMENT.js =   root + 'document.root.js';
-                $$DOCUMENT.css =  root + 'document.root.css';
-                $$DOCUMENT.components = root + 'components/';
-            }
-        }
-    }
-
-    $$DOCUMENT.appendMeta('name', "viewport", 'content', "width=device-width, initial-scale=1.0");
-    if ($$DOCUMENT.css)
-        $$DOCUMENT.appendElement('link', 'rel', "stylesheet", 'href', $$DOCUMENT.css);
-
-}).call(this);
-
-
-
-
-
-
 /*!
  * jQuery JavaScript Library v2.0.3
  * http://jquery.com/
@@ -11056,7 +10838,237 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 
 
+var $$DOC, $$ENV, /*deprecated*/ $$DOCUMENT, $$ENVIRONMENT;
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+$$ENV =
+{
+    dot: require("./temp/dot"),
+    controls: require("controls"),
+    marked: require("./temp/marked"),
+    "bootstrap.controls": require("./temp/bootstrap.controls.js")
+};
+
+
+
+(function() {
+    
+    // initialize $$ENV
+    
+    controls.extend($$ENV,
+    {
+        // default control templates:
+        default_template: controls.doT.template(
+'<div{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>'),
+        default_inner_template: controls.doT.template(
+'{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}')
+    });
+    
+    
+    // initialize $$DOC
+    
+    var scripts_count = 0, scripts_stated = 0, transformation_started;
+    function check_all_script() {
+        // document transformation start after the scripts loaded or failed
+        var transformation = $$DOC.transformation;
+        if (scripts_count === scripts_stated && !transformation_started && transformation) {
+            transformation_started = true;
+            transformation();
+        }
+    }
+    
+    $$DOC =
+    {
+        root: '', // document root path
+        js:   '', // document.root.js path
+        css:  '', // document.root.css path
+        
+        // Document events - 'load'
+        events: {},
+                
+        // Document named sections content
+        sections: {},
+        // Sections order
+        order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
+        // Texts and templates
+        vars: {},
+        // Document data access
+        index: {},
+
+        // parse content values from function text object
+        parseContent:
+            function(name /*name optional*/, content) {
+
+                if (!name)
+                    return;
+
+                var found_content = false;
+
+                if (arguments.length === 1) {
+                    var frags = name.toString().split(/(<!--\S+\s+)|(-->)/gm);
+                    for(var i = 0, c = frags.length; i < c; i+=1) {
+                        var test = frags[i];
+                        if (test && test.substr(0,4) === '<!--') {
+                            // first '$' - var else section
+                            if (test[4] === '$') {
+                                // as var
+                                var varname = test.substr(4).trim();
+                                this.vars[varname] = frags[i+2];
+                            } else {
+                                // as section
+                                var section = test.substr(4).trim();
+                                this.sections[section] = frags[i+2];
+                            }
+                            found_content = true;
+                            i += 2;
+                        }
+                    }
+                }
+                else if (arguments.length > 1) {
+
+                    if (typeof(content) === 'function') {
+                        var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
+                        content = content.substr(asterpos + 1, lastpos - asterpos - 1);
+                    }
+                    // first '$' - var else section
+                    if (name[0] === '$')
+                        this.vars[name] = content;
+                    else
+                        this.sections[name] = content;
+
+                    found_content = true;
+                }
+                return found_content;
+            },
+
+        filters: [],
+        
+        appendElement: function(tag, attr1, value1, attr2, value2) {
+            try {
+                var head = document.head;
+                head.insertAdjacentHTML('beforeend', '<' + tag + ' ' + attr1 + '="' + value1 + '" ' + attr2 + '="' + value2 + '"></' + tag + '>');
+                return head.lastChild;
+            } catch(e) { console.log(e); }
+        },
+        removeElement: function(id) {
+            var element = document.getElementById(id);
+            if (element && element.parentNode === document.head)
+                document.head.removeChild(element);
+        },
+        // only sync scripts
+        appendScript: function(id, src) {
+            if (arguments.length === 1) {
+                async = src;
+                src = id;
+                id = undefined;
+            }
+            if (typeof src === 'boolean') {
+                async = src;
+                src = id;
+                id = undefined;
+            }
+            scripts_count++;
+            var script = document.createElement('script');
+            if (id)
+                script.id = id;
+            script.src = src;
+            script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
+            script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
+            document.head.appendChild(script);
+        },
+        appendMeta: function(attr1, value1, attr2, value2) {
+            document.head.insertAdjacentHTML('beforeend',
+                '<meta ' + attr1 + '="' + value1 + '" ' + ((arguments.length > 2) ? (attr2 + '="' + value2 + '" ') : '') + ' />');
+        },
+        // id {string} - optional, identifier
+        // css {string} - url or css
+        appendCSS: function(id, css) {
+            if (arguments.length < 2) {
+                css = id;
+                id = undefined;
+            }
+            var element = (id) ? document.getElementById(id) : undefined;
+            if (!element || element.parentNode !== document.head) {
+                if (css.indexOf('{') >= 0)
+                        document.head.insertAdjacentHTML('beforeend', '<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>');
+                else    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />');
+            }
+        },
+        
+        mods: {},
+        mod: function(group, names) {
+            if (arguments.length === 1)
+                names = group;
+            var mod_group = $$DOC.mods[group];
+            if (!mod_group) {
+                mod_group = [];
+                $$DOC.mods[group] = mod_group;
+            }
+            names.split(/ ,;/g).forEach(function(name) {
+                if (mod_group.indexOf(name) < 0) {
+                    var path = $$DOC.root + 'mods/' + name + '/' + name;
+                    $$DOC.appendCSS(group + '-' + name + '-css', path + '.css');
+                    $$DOC.appendScript(group + '-' + name + '-js', path + '.js');
+                    mod_group.push(name);
+                }
+            });
+        },
+        removeMod: function(group, names) {
+            var mod_group = $$DOC.mods[group];
+            if (mod_group) {
+                ((arguments.length === 1) ? mod_group : names.split(/ ,;/g)) .forEach(function(name) {
+                    var index = mod_group.indexOf(name);
+                    if (index >= 0) {
+                        $$DOC.removeElement(group + '-' + name + '-css');
+                        $$DOC.removeElement(group + '-' + name + '-js');
+                        mod_group.splice(index, 1);
+                    }
+                });
+            }
+        }
+    };
+    
+    // #log-level=?
+    var hash = window.location.hash;
+    var log_level_pos = hash.indexOf('log-level=');
+    if (log_level_pos >= 0) {
+        console.log('document:' + window.location.href);
+        $$DOC.log_level = parseInt(hash[log_level_pos + 10]);
+    }
+    
+    //name: window.location.pathname.split(/\/\\/g).pop() || 'index.html',
+    
+    var nodes = document.head.childNodes;
+    for(var i = 0, c = nodes.length; i < c; i++) {
+        var node = nodes[i];
+        if (node.nodeType === 1 && node.tagName.toLowerCase() === 'script' && node.src) {
+             var src = node.src.toLowerCase();
+             if (src.slice(-20) === 'document.root.min.js') {
+                var root = src.substr(0, src.length - 20);
+                $$DOC.root = root;
+                $$DOC.js =   root + 'document.root.min.js';
+                $$DOC.css =  root + 'document.root.min.css';
+                $$DOC.components = root + 'components/';
+             }
+             else if (src.slice(-16) === 'document.root.js') {
+                var root = src.substr(0, src.length - 16);
+                $$DOC.root = root;
+                $$DOC.js =   root + 'document.root.js';
+                $$DOC.css =  root + 'document.root.css';
+                $$DOC.components = root + 'components/';
+            }
+        }
+    }
+
+    $$DOC.appendMeta('name', "viewport", 'content', "width=device-width, initial-scale=1.0");
+    if ($$DOC.css)
+        $$DOC.appendElement('link', 'rel', "stylesheet", 'href', $$DOC.css);
+
+}).call(this);
+
+
+/*deprecated*/$$DOCUMENT = $$DOC; $$ENVIRONMENT = $$ENV;
+},{"./temp/bootstrap.controls.js":2,"./temp/dot":3,"./temp/marked":4,"controls":5}],2:[function(require,module,exports){
 ////////////////////////////////////////////////////////////////////////////////
 //     
 //     controls.bootstrap.js
@@ -11429,13 +11441,7 @@ else
 }
 }).call(this);
 
-},{"controls":5}],2:[function(require,module,exports){
-$$ENVIRONMENT.dot = require("./dot");
-     $$ENVIRONMENT.controls = require("controls");
-     $$ENVIRONMENT.marked = require("./marked");
-     $$ENVIRONMENT["bootstrap.controls"] = require("./bootstrap.controls.js");
-    
-},{"./bootstrap.controls.js":1,"./dot":3,"./marked":4,"controls":5}],3:[function(require,module,exports){
+},{"controls":5}],3:[function(require,module,exports){
 // doT.js
 // 2011, Laura Doktorova, https://github.com/olado/doT
 // Licensed under the MIT license.
@@ -12997,6 +13003,11 @@ controls.typeRegister(__type, ' + name + ');';
             var index = listeners.indexOf(listener);
             if (index >= 0)
                 listeners.splice(index, 2);
+        },
+        
+        clear: function()
+        {
+            this.listeners = [];
         }
 
 //        toJSON: function()
@@ -13331,9 +13342,10 @@ controls.typeRegister(__type, ' + name + ');';
             }
         });
         
-        Object.defineProperty(this, 'first', function() { return this.controls[0]; });
-        Object.defineProperty(this, 'last', function() { return this.controls[this.controls.length-1]; });
-
+        Object.defineProperty(this, 'length', { enumerable: true, get: function() { return this.controls.length; } });
+        Object.defineProperty(this, 'first',  { enumerable: true, get: function() { return this.controls[0]; } });
+        Object.defineProperty(this, 'last',   { enumerable: true, get: function() { return this.controls[this.controls.length-1]; } });
+        
         // default html template
         this.outer_template = doT.template('<div{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}</div>');
         // default inner html template
@@ -15500,7 +15512,7 @@ InstallDots.prototype.compileAll = function() {
 },{"./doT":6,"fs":8}],8:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
-},{}]},{},[2])
+},{}]},{},[1])
 ;
 
 
@@ -15555,12 +15567,8 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
         
     function Ccss(par, att) {
-        
-        var marked = $$ENVIRONMENT.marked;
-        if (att.$text && marked)
-            att.$text = marked(att.$text);
 
-        controls.controlInitialize(this, 'css', par, att);
+        controls.controlInitialize(this, 'css', par, att, $$ENV.default_template, $$ENV.default_inner_template);
         this.style('display:inline-block;');
 
         parse_effects(this, par, att);
@@ -15573,6 +15581,11 @@ if (!controls) throw new TypeError('controls.js not found!');
                     $q.css(prop, this.over[prop]);
             }
         });
+        
+        // process markup at this level
+        var this_text = this.text();
+        this.text('');
+        $$DOC.processContent(this, this_text);
     };
     Ccss.prototype = controls.control_prototype;
     controls.typeRegister('css', Ccss);
@@ -15606,7 +15619,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     function CHover(par, att) {
         
-        var marked = $$ENVIRONMENT.marked;
+        var marked = $$ENV.marked;
         if (att.$text && marked)
             att.$text = marked(att.$text);
 
@@ -15666,7 +15679,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     // 
     function CAlert(par, att) {
         
-        var marked = $$ENVIRONMENT.marked;
+        var marked = $$ENV.marked;
         if (att.$text && marked)
             att.$text = marked(att.$text);
         
@@ -15709,6 +15722,7 @@ else
 if (!controls) throw new TypeError('controls.js not found!');
 
 
+
     function CTabPanel(parameters, attributes) {
         
         controls.controlInitialize(this, 'tabpanel', parameters, attributes);
@@ -15720,11 +15734,11 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         
         // place tabs on this.content panel
-        $$DOCUMENT.processContent(body, this.attributes.$text);
+        $$DOC.processContent(body, this.attributes.$text);
         this.attributes.$text = '';
         
         var found_active = false;
-        for(var i = 0, c = body.controls.length; i < c; i++)
+        for(var i = 0, c = body.length; i < c; i++)
         {
             var tabpage = body.controls[i];
             if (tabpage.__type === 'bootstrap.TabPage')
@@ -15739,19 +15753,16 @@ if (!controls) throw new TypeError('controls.js not found!');
             }
         }
         
-        if (!found_active && header.controls.length)
+        if (!found_active && header.length)
         {
-            header.controls[0].class('active');
-            body.controls[0].class('active in');
+            header.first.class('active');
+            body.first.class('active in');
         }
     };
     CTabPanel.prototype = controls.control_prototype;
     controls.typeRegister('tabpanel', CTabPanel);
     
     
-    var marked_template = controls.doT.template('<div{{=it.printAttributes()}}>\
-{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}\
-{{=$$ENVIRONMENT.marked( it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>');
     function tabpage_factory(parameters, attributes) {
         
         // create and customize bootstrap.TabPage
@@ -15767,10 +15778,10 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         var this_text = bootstrap_tabpage.attributes.$text;
         bootstrap_tabpage.attributes.$text = '';
-        $$DOCUMENT.processContent(bootstrap_tabpage, this_text);
+        $$DOC.processContent(bootstrap_tabpage, this_text);
         
         // process markup template:
-        bootstrap_tabpage.template(marked_template);
+        bootstrap_tabpage.template($$ENV.default_template, $$ENV.default_inner_template);
 
         return bootstrap_tabpage;
     }
@@ -15804,40 +15815,37 @@ else
 if (!controls) throw new TypeError('controls.js not found!');
 
 
-    var marked_template = controls.doT.template('<div{{=it.printAttributes()}}>\
-{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}\
-{{=$$ENVIRONMENT.marked( it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>');
+   
     function CCollapse(parameters, attributes) {
         
         controls.controlInitialize(this, 'collapse', parameters, attributes);
-        this.class('collapse-panel');
         
-        var start_collapsed = false;
-        for(var prop in parameters) {
-            if (prop.substr(0,6) === 'panel-')
-                this.class('panel ' + prop);
-            else if (prop === 'panel') {
-                var propvalue = parameters[prop];
-                if (typeof propvalue === 'boolean') {
-                    if (propvalue) this.class('panel panel-default');
-                } else
-                    this.class('panel panel-' + propvalue);
-            }
-            else if ('collapsed'.indexOf(prop) >= 0)
-                start_collapsed = true;
-        }
+        var in_panel = this.parameter('panel');
+        var panel_class = (typeof in_panel === 'string') ? in_panel : undefined;
+        var start_collapsed = parameters.collapse || parameters.collapsed;
+        
+        for(var prop in parameters)
+        if (prop.substr(0,6) === 'panel-')
+            panel_class = prop;
+        
+        this.class('collapse-panel' + (in_panel || panel_class ? ' panel ' + (panel_class || 'panel-default') : ''));
         
         // subcontrols
         var collapse = this.add('collapse:div', {class:'panel-collapse collapse collapse-body' + (start_collapsed ? '' : ' in')});
-        var content = collapse.add('div',{class:'panel-body'});
-        var header = this.insert(0, 'header:div', {class:'panel-heading collapse-header', 'data-toggle':'collapse', 'data-target':'#'+collapse.id,
-            $text:'<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>' });
+        var content = collapse.add('div', {class:'panel-body'});
+        var header = this.insert(0, 'header:div',
+        {
+                    class: 'panel-heading collapse-header',
+            'data-toggle': 'collapse',
+            'data-target': '#'+collapse.id,
+                    $text: '<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>'
+        });
         
-        $$DOCUMENT.processContent(content, this.attributes.$text);
-        this.attributes.$text = '';
+        $$DOC.processContent(content, this.text());
+        this.text('');
         
         // process markup template:
-        content.template(marked_template);
+        content.template($$ENV.default_template, $$ENV.default_inner_template);
     };
     CCollapse.prototype = controls.control_prototype;
     controls.typeRegister('collapse', CCollapse);
@@ -15860,18 +15868,18 @@ if (!controls) throw new TypeError('controls.js not found!');
 // require marked.js, controls.js, doT.js, jquery.js
 
 (function() { "use strict";
-    var marked = $$ENVIRONMENT.marked;
+    var marked = $$ENV.marked;
             
-    $$DOCUMENT.events.load = new controls.Event();
-    $$DOCUMENT.transformation = transformation;
+    $$DOC.events.load = new controls.Event();
+    $$DOC.transformation = transformation;
 
     // load user.js script:
-    $$DOCUMENT.appendScript($$DOCUMENT.root + "user.js");
+    $$DOC.appendScript($$DOC.root + "user.js");
     
     // These elements are are not attached, childs are attached
     var head = controls.create('head'), body = controls.create('body');
-    $$DOCUMENT.head = head;
-    $$DOCUMENT.body = body;
+    $$DOC.head = head;
+    $$DOC.body = body;
     
     var stubs = {};
     function stubResLoader(stub) {
@@ -15883,7 +15891,7 @@ if (!controls) throw new TypeError('controls.js not found!');
             stubs[original__type] = stublist;
         }
         stublist.push(stub);
-        var url = $$DOCUMENT.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
+        var url = $$DOC.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
         // load component asynchronously
         var component_js = $(document.head).children('script[src*="' + url +'"]:first')[0];
         if (!component_js) {
@@ -15897,7 +15905,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     // 3. process templates and create control
     var marked_template = controls.doT.template('{{=it.attributes.$text}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
     var marked_template_x2 = controls.doT.template('{{=it.getText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
-    $$DOCUMENT.addTextContainer = function(control, text) {
+    $$DOC.addTextContainer = function(control, text) {
         var container = control.add('container', {$text:text});
         
         if (text.indexOf('{{') >= 0) {
@@ -15908,13 +15916,13 @@ if (!controls) throw new TypeError('controls.js not found!');
         }
     };
     
-    $$DOCUMENT.processContent = function(collection, content) {
+    $$DOC.processContent = function(collection, content) {
         
         if (!content)
             return;
         
         // 1. check substitutions
-        var filters = $$DOCUMENT.filters;
+        var filters = $$DOC.filters;
         for(var i in filters) {
             var subst = filters[i];
             content = content.replace(subst.regex, subst);
@@ -15949,7 +15957,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                             if (control) {
                                 // flush buffer
                                 if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/) {
-                                    $$DOCUMENT.addTextContainer(collection, buffered_text);
+                                    $$DOC.addTextContainer(collection, buffered_text);
                                     buffered_text = '';
                                 }
 
@@ -15972,7 +15980,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         // flush buffer
         if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/)
-            $$DOCUMENT.addTextContainer(collection, buffered_text);
+            $$DOC.addTextContainer(collection, buffered_text);
     };
     
     function section_container_template(it)    {
@@ -16027,9 +16035,9 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     function transformation()
     {
-        var sections = $$DOCUMENT.sections,
-            order = $$DOCUMENT.order,
-            log_level = $$DOCUMENT.log_level;
+        var sections = $$DOC.sections,
+            order = $$DOC.order,
+            log_level = $$DOC.log_level;
             
         // write document
         function processSections() {
@@ -16046,7 +16054,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                         // create control
                         var section_control = body.add(name + ':div', {class:name});
                         section_control.template(section_container_template);
-                        $$DOCUMENT.processContent(section_control, content);
+                        $$DOC.processContent(section_control, content);
                         sections[name] = section_control;
                         
                         // look for element position in dom
@@ -16080,7 +16088,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                 }
                 catch (e) { console.log(e); }
             }
-            $$DOCUMENT.sections = {};
+            $$DOC.sections = {};
         }
         
         var processed_nodes = [];
@@ -16110,7 +16118,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                     var name_match = child.nodeValue.match(/\S+(?=[\s\r\n])/);
                     if (name_match.length){
                         var name = name_match[0];
-                        if ($$DOCUMENT.parseContent(name, child.nodeValue.substr(name.length+1)))
+                        if ($$DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
                             fordelete.push(child);
                         else
                             processed_nodes.push(child);
@@ -16145,18 +16153,12 @@ if (!controls) throw new TypeError('controls.js not found!');
             $(window).on('resize', onresize);
             
             // raise 'load' event
-            $$DOCUMENT.events.load.raise();
+            var load_event = $$DOC.events.load;
+            load_event.raise();
+            load_event.clear();
             
             onresize(); // before and after 'load' event
-            
-//            // IE BUG FIX:
-//            if (navigator.appVersion.indexOf("MSIE") > 0) {
-//                controls.delay(patches, 1000); controls.delay(patches, 5000);
-//                controls.delay(onresize, 1000); controls.delay(onresize, 5000);
-//            }
         });
-        
-        
     }
 })();
 

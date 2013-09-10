@@ -1,21 +1,21 @@
 
-$$DOCUMENT.mod('theme-switcher');
+$$DOC.mod('theme-switcher');
 
-// example of using $$DOCUMENT.parseContent function to create sections
-$$DOCUMENT.parseContent(function(){/*
+// example of using $$DOC.parseContent function to create sections
+$$DOC.parseContent(function(){/*
 
 <!--fixed-top-navbar
 
-* [Home]({{=$$DOCUMENT.root}}index.html)
-* [Layout]({{=$$DOCUMENT.root}}layout.html)
-* [Components]({{=$$DOCUMENT.root}}index.html)
- * [CSS]({{=$$DOCUMENT.root}}components/controls.css.html)
- * [Alert]({{=$$DOCUMENT.root}}components/controls.alert.html)
- * [Collapse]({{=$$DOCUMENT.root}}components/controls.collapse.html)
- * [Tabbed panel]({{=$$DOCUMENT.root}}components/controls.tabpanel.html)
- * [Emoji]({{=$$DOCUMENT.root}}components/GitHub.gemoji.html)
- * [YouTube Player]({{=$$DOCUMENT.root}}components/YouTube.Player.html)
- * [Mediawiki markup]({{=$$DOCUMENT.root}}components/wiki.instaview.html)
+* [Home]({{=$$DOC.root}}index.html)
+* [Layout]({{=$$DOC.root}}layout.html)
+* [Components]({{=$$DOC.root}}index.html)
+ * [CSS]({{=$$DOC.root}}components/controls.css.html)
+ * [Alert]({{=$$DOC.root}}components/controls.alert.html)
+ * [Collapse]({{=$$DOC.root}}components/controls.collapse.html)
+ * [Tabbed panel]({{=$$DOC.root}}components/controls.tabpanel.html)
+ * [Emoji]({{=$$DOC.root}}components/GitHub.gemoji.html)
+ * [YouTube Player]({{=$$DOC.root}}components/YouTube.Player.html)
+ * [Mediawiki markup]({{=$$DOC.root}}components/wiki.instaview.html)
  
 -->
 
@@ -29,7 +29,7 @@ $$DOCUMENT.parseContent(function(){/*
 */});
 
 // another example of creating a page section
-$$DOCUMENT.sections.footer =
+$$DOC.sections.footer =
 '* © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT\n\
 * [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)';
 

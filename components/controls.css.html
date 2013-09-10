@@ -10,11 +10,15 @@
 
 <!--content
 
-### CSS
+## CSS
 
-#### static css style
+### static css style
 
->syntax: <code><span>%</span>css#styles(marked text)<span>%</span>css</code>  
+>syntax: <code><span>%</span>css#parameters(marked text)<span>%</span>css</code>  
+>parameters:  
+>* &lt;property name&gt;=&lt;property value&gt;; - set css property  
+>* block, inline, inline-block - set display CSS property, equivalent display=block, display=inline, display=inline-block. Default value inline-block.  
+>
 >location: built-in
 
  example:
@@ -30,10 +34,10 @@ This is an example apply css style)%css
 
 %css#scale=2,2;rotate=3deg;origin=left(This is an ```example``` *formatted*, **scaled** and ***rotated***)%css
 
-#### hover
+### hover
 
 style applied if mouse over element  
->syntax: <code><span>%</span>hover#styles(marked text)<span>%</span>hover</code>  
+>syntax: <code><span>%</span>hover#parameters(marked text)<span>%</span>hover</code>  
 >location: built-in
 
  example:
