@@ -10885,6 +10885,13 @@ $$ENV =
         
         // Document events - 'load'
         events: {},
+        onload: function(handler) {
+            var events = this.events;
+            var event = events.load;
+            if (!event)
+                events.load = event = new controls.Event();
+            event.addListener(handler);
+        },
                 
         // Document named sections content
         sections: {},
@@ -15531,27 +15538,27 @@ InstallDots.prototype.compileAll = function() {
 var controls;
 if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
     controls = require('controls');
-    module.exports = Ccss;
+    module.exports = CStatic;
 } else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return Ccss; });
+    define(['controls'], function(c) { controls = c; return CStatic; });
 else
     controls = this.controls;
 if (!controls) throw new TypeError('controls.js not found!');
-
-
-
+    
+    // breaking changes: static region inline block hover fill inside
+    
     // built-in static css effects
     
     var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
-    function parse_effects(_this, par, att) {
+    function parse_effects(_this, parameters, attributes) {
         var over = {};
 
         var transform = '';
-        for(var prop in par)
+        for(var prop in parameters)
         if (transforms.indexOf(prop) < 0)
-            over[prop] = par[prop];
+            over[prop] = parameters[prop];
         else {
-            var fname = prop, fpars = par[fname];
+            var fname = prop, fpars = parameters[fname];
             if (fpars && transform)
                 transform += ' ';
             if (fpars)
@@ -15560,18 +15567,18 @@ if (!controls) throw new TypeError('controls.js not found!');
                 over.transform = transform;
             }
         }
-        if (par.origin)
-            over['transform-origin'] = par.origin;
+        if (parameters.origin)
+            over['transform-origin'] = parameters.origin;
         
         _this.over = over;
     }
         
-    function Ccss(par, att) {
+    function CStatic(parameters, attributes) {
 
-        controls.controlInitialize(this, 'css', par, att, $$ENV.default_template, $$ENV.default_inner_template);
+        controls.controlInitialize(this, 'css', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
         this.style('display:inline-block;');
 
-        parse_effects(this, par, att);
+        parse_effects(this, parameters, attributes);
         
         this.listen('element', function() {
             var element = this.element;
@@ -15587,8 +15594,9 @@ if (!controls) throw new TypeError('controls.js not found!');
         this.text('');
         $$DOC.processContent(this, this_text);
     };
-    Ccss.prototype = controls.control_prototype;
-    controls.typeRegister('css', Ccss);
+    CStatic.prototype = controls.control_prototype;
+    controls.typeRegister('css', CStatic);
+    controls.typeRegister('static', CStatic);
     
     
     // hover - built-in mouse over effects
@@ -15617,17 +15625,14 @@ if (!controls) throw new TypeError('controls.js not found!');
             }
         }
     }
-    function CHover(par, att) {
-        
-        var marked = $$ENV.marked;
-        if (att.$text && marked)
-            att.$text = marked(att.$text);
+    function CHover(parameters, attributes) {
 
-        controls.controlInitialize(this, 'hover', par, att);
+        controls.controlInitialize(this, 'hover', parameters, attributes);
         this.style('display:inline-block;');
 
-        parse_effects(this, par, att);
+        parse_effects(this, parameters, attributes);
         this.restore = {};
+        
         this.listen('element', function() {
             var element = this._element;
             if (element)
@@ -15642,6 +15647,11 @@ if (!controls) throw new TypeError('controls.js not found!');
                 });
             }
         });
+        
+        // process markup at this level
+        var this_text = this.text();
+        this.text('');
+        $$DOC.processContent(this, this_text);
     };
     CHover.prototype = controls.control_prototype;
     controls.typeRegister('hover', CHover);
