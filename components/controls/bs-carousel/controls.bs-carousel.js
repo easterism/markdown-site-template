@@ -38,7 +38,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         $$DOC.processContent(inner, this.text());
         this.text('');
         
-        // remove not slides elements
+        // remove burrs
         for(var i = inner.length - 1; i >= 0; i--)
         if (inner.controls[i].__type !== 'controls.Div')
             inner.controls.splice(i, 1);

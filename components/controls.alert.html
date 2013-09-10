@@ -12,17 +12,35 @@
 
 ## Alert
 
->syntax:<code><span>%</span>alert#warning(&lt;h4&gt;This is an example alert message!&lt;/h4&gt;Lorem ipsum ...)%alert</code>  
+>syntax:<code><span>%</span>alert#warning(#### This is an example alert message!<br>
+Lorem ipsum ...)%alert</code>  
 >location: built-in
 
 #### warning
-%alert#warning(<h4>This is an example alert message!</h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
+%alert#warning(#### This is an example alert message!
+***
+Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum.
+1. Lorem ipsum
+2. Etiam rhoncus
+3. Nam pretium turpis et arcu
+)%alert
+
+#### link
+%alert#link(#### This is an example alert message!
+***
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
+
+#### success
+%alert#success(#### This is an example alert message!
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
 
 #### info
-%alert#info(<h4>This is an example info message!</h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
+%alert#info(#### This is an example alert message!
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
 
 #### danger
-%alert#danger(<h4>This is an example danger message!</h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
+%alert#danger(#### This is an example alert message!
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.)%alert
 
 
 <code><span>%</span>alert#danger(&lt;button type="button" class="close" data-dismiss="alert" aria-hidden="true"&gt;×&lt;/button&gt;<br>

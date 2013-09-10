@@ -15677,19 +15677,20 @@ if (!controls) throw new TypeError('controls.js not found!');
 
     // built-in message box
     // 
-    function CAlert(par, att) {
+    function CAlert(parameters, attributes) {
         
-        var marked = $$ENV.marked;
-        if (att.$text && marked)
-            att.$text = marked(att.$text);
-        
-        controls.controlInitialize(this, 'Alert', par, att);
+        controls.controlInitialize(this, 'Alert', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
 
-        var style = 'warning';
-        if (par.info) style = 'info';
-        if (par.warning) style = 'warning';
-        if (par.danger) style = 'danger';
+        var style = 'default';
+        var first_par = Object.keys(parameters)[0];
+        if ('link success primary info warning danger'.indexOf(first_par) >= 0)
+            style = first_par;
         this.class('alert alert-block alert-' + style + ' fade in');
+        
+        // process markup at this level
+        var this_text = this.text();
+        this.text('');
+        $$DOC.processContent(this, this_text);
     };
     CAlert.prototype = controls.control_prototype;
     controls.typeRegister('Alert', CAlert);
