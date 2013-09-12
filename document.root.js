@@ -10843,10 +10843,10 @@ var $$DOC, $$ENV, /*deprecated*/ $$DOCUMENT, $$ENVIRONMENT;
 
 $$ENV =
 {
-    dot: require("./temp/dot"),
-    controls: require("controls"),
-    marked: require("./temp/marked"),
-    "bootstrap.controls": require("./temp/bootstrap.controls.js")
+    dot: require('./temp/dot'),
+    controls: require('controls'),
+    marked: require('./temp/marked'),
+    'bootstrap.controls': require('./temp/bootstrap.controls.js')
 };
 
 
@@ -10858,9 +10858,9 @@ $$ENV =
     controls.extend($$ENV,
     {
         // default control templates:
-        default_template: controls.doT.template(
+        default_template: $$ENV.dot.template(
 '<div{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>'),
-        default_inner_template: controls.doT.template(
+        default_inner_template: $$ENV.dot.template(
 '{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}')
     });
     
@@ -10964,16 +10964,9 @@ $$ENV =
         },
         // only sync scripts
         appendScript: function(id, src) {
-            if (arguments.length === 1) {
-                async = src;
-                src = id;
-                id = undefined;
-            }
-            if (typeof src === 'boolean') {
-                async = src;
-                src = id;
-                id = undefined;
-            }
+            if (arguments.length === 1) { async = src; src = id; id = undefined; }
+            if (typeof src === 'boolean') { async = src; src = id; id = undefined; }
+            
             scripts_count++;
             var script = document.createElement('script');
             if (id)
@@ -10990,15 +10983,20 @@ $$ENV =
         // id {string} - optional, identifier
         // css {string} - url or css
         appendCSS: function(id, css) {
-            if (arguments.length < 2) {
-                css = id;
-                id = undefined;
-            }
+            if (arguments.length < 2) { css = id; id = undefined; }
+            // element by id
             var element = (id) ? document.getElementById(id) : undefined;
             if (!element || element.parentNode !== document.head) {
-                if (css.indexOf('{') >= 0)
-                        document.head.insertAdjacentHTML('beforeend', '<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>');
-                else    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />');
+                // append css
+                document.head.insertAdjacentHTML('beforeend',
+                    (css.indexOf('{') >= 0)
+                    ? ('<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>')
+                    : ('<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />'));
+            }
+            else {
+                // update css
+                if (element.innerHTML !== css)
+                    element.innerHTML = css;
             }
         },
         
@@ -12980,7 +12978,7 @@ controls.typeRegister(__type, ' + name + ');';
 //            for(var i = 0, c = listeners_data.length; i < c; i+=2)
 //            {
 //                var json_listener = listeners_data[i];
-//                var listener_func = (json_listener instanceof Function) ? json_listener : Function('event', json_listener);
+//                var listener_func = (typeof json_listener === 'function') ? json_listener : Function('event', json_listener);
 //                listeners.push(listener_func);
 //                listeners.push(listeners_data[i+1]);
 //            }
@@ -13797,7 +13795,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
             var event = force_event(this, type, capture);
             
             // listener as string acceptable:
-            var listener_func = (listener instanceof Function) ? listener : Function('event', listener);
+            var listener_func = (typeof listener === 'function') ? listener : Function('event', listener);
             
             event.addListener(call_this, listener_func);
             
@@ -14031,7 +14029,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
         
         this.style = function(_style)
         {
-            if (_style)
+            if (arguments.length)
             {
                 var attributes = this.attributes;
                 var style = attributes.style;
@@ -14117,7 +14115,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
             
             // normalize arguments
             
-            if (typeof(repeats) !== 'number')
+            if (typeof repeats !== 'number')
             {
                 this_arg = callback;
                 callback = attributes;
@@ -14125,7 +14123,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 repeats = 1;
             }
 
-            if (attributes instanceof Function)
+            if (typeof attributes === 'function')
             {
                 this_arg = callback;
                 callback = attributes;
@@ -14145,7 +14143,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 return result;
             }
             
-            if (typeof(type) === 'object')
+            if (typeof type === 'object')
             {
                 // it is a control?
                 var add_control = type;
@@ -14170,11 +14168,11 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
             
             // get inheritable parameters from this object for transfer to the created object
             
-            var this_parameters = this.parameters;
+            var inheritable_parameters = this.parameters;
             var parameters = {};
-            for(var prop in this_parameters)
+            for(var prop in inheritable_parameters)
             if (prop[0] === '/')
-                parameters[prop] = this_parameters[prop];
+                parameters[prop] = inheritable_parameters[prop];
             
             // resolve constructor
             var __type = parse_type(type, parameters/*, this.__type*/);
@@ -14205,14 +14203,17 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                 // prepare parameters and attributes
                 
                 var params = {};
-                for(var prop in parameters)
-//                if (parameters.hasOwnProperty(prop))
-                    params[prop] = parameters[prop];
-            
                 var attrs = {class:''};
+                
+                for(var prop in parameters)
+                {
+                    params[prop] = parameters[prop];
+                    if (prop[0] === '$')
+                        attrs[prop.substr(1)] = parameters[prop];
+                }
+                
                 if (attributes)
                 for(var prop in attributes)
-//                if (attributes.hasOwnProperty(prop))
                     attrs[prop] = attributes[prop];
             
                 // create control(s)
@@ -14313,7 +14314,7 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
     
     function extract_func_code(func)
     {
-        if (func instanceof Function)
+        if (typeof func === 'function')
         {
             func = func.toString();
             var first_par = func.indexOf('{');
@@ -14406,13 +14407,15 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                         parameter = parameter.split('=');
                         var parname = parameter[0];
                         var parvalue = parameter[1];
-                        if (parname || parvalue)
+                        if (parname)
                         {
                             if (parvalue === undefined)
                                 parvalue = true;
+                            else if (parvalue)
+                                parvalue = parvalue.trim();
                                 
                             // inheritable writed to parameters hash under '/'+parametername key
-                            parameters['/' + parname] = parvalue;
+                            parameters['/' + parname.trim()] = parvalue;
                         }
                     }
                 }
@@ -14429,12 +14432,14 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
                         parameter = parameter.split('=');
                         var parname = parameter[0];
                         var parvalue = parameter[1];
-                        if (parname || parvalue)
+                        if (parname)
                         {
                             if (parvalue === undefined)
                                 parvalue = true;
+                            else if (parvalue)
+                                parvalue = parvalue.trim();
                             
-                            parameters[parname] = parvalue;
+                            parameters[parname.trim()] = parvalue;
                         }
                     }
                 }
@@ -14586,6 +14591,10 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
         if (!attributes.class)
             attributes.class = '';
         
+        for(var prop in parameters)
+        if (prop[0] === '$')
+            attributes[prop.substr(1)] = parameters[prop];
+                
         // create object
         
         var new_control = (constructor.is_constructor) // constructor or factory method ?
@@ -15538,124 +15547,115 @@ InstallDots.prototype.compileAll = function() {
 var controls;
 if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
     controls = require('controls');
-    module.exports = CStatic;
+    module.exports = true;
 } else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CStatic; });
+    define(['controls'], function(c) { controls = c; return true; });
 else
     controls = this.controls;
 if (!controls) throw new TypeError('controls.js not found!');
     
-    // breaking changes: static region inline block hover fill inside
     
-    // built-in static css effects
     
     var transforms = ',matrix,translate,translateX,translateY,scale,scaleX,scaleY,rotate,skewX,skewY,matrix3d,translate3d,translateZ,scale3d,scaleZ,rotate3d,rotateX,rotateY,rotateZ,perspective,';
-    function parse_effects(_this, parameters, attributes) {
-        var over = {};
-
+    
+    // control + auto-css pair factory
+    function  Felement(__type, parameters, attributes, css) {
+        
+        var control = controls.create(__type, parameters, attributes);
+        control.template($$ENV.default_template, $$ENV.default_inner_template);
+        
+//        // generated css class name
+//        control.cssClassName = 'auto-' + control.id;
+        
+        // >> parse style from parameters 
+        
+        parameters = control.parameters;
+        var style = control.attributes.style || '';
         var transform = '';
-        for(var prop in parameters)
-        if (transforms.indexOf(prop) < 0)
-            over[prop] = parameters[prop];
-        else {
-            var fname = prop, fpars = parameters[fname];
-            if (fpars && transform)
-                transform += ' ';
-            if (fpars)
-                transform += fname +'(' + fpars + ')';
-            if (transform) {
-                over.transform = transform;
+        for(var name in parameters) {
+            if (name === 'origin' || name === 'transform-origin')
+                style += 'transform-origin:' + parameters.origin + ';-webkit-transform-origin:' + parameters.origin + ';-moz-transform-origin:' + parameters.origin + ';';
+            else if (transforms.indexOf(name.trim()) < 0)
+                style += name + ':' + parameters[name] + ';';
+            else {
+                if (transform)
+                    transform += ' ';
+                // translate=1,2 -> translate(1,2)
+                transform += name +'(' + parameters[name] + ')';
             }
         }
-        if (parameters.origin)
-            over['transform-origin'] = parameters.origin;
+        if (transform) {
+            if (style && style.slice(-1) !== ';')
+                style += ';';
+            style += 'transform:' + transform + ';-webkit-transform:' + transform + ';-moz-transform:' + transform + ';';
+        }
+        if (style) {
+//            style = '.' + control.cssClassName + '{' + style + '}';
+//            control.attributes.style = undefined;
+            control.attributes.style = style;
+        }
         
-        _this.over = over;
+        // << parse style from parameters
+        
+        
+//        // >> css text normalization
+//        
+//        if (css) {
+//            
+//            if (style)
+//                style += ' ';
+//                
+//            var classname = '.' + control.cssClassName;
+//            
+//            if (css.indexOf('{') < 0) {
+//                css = '.' + control.cssClassName + '{' + css + '}';
+//            } else if (css.indexOf(classname) < 0) {
+//                css = classname + css.trim();
+//            }
+//            
+//            style += css;
+//        }
+//        
+//        // << css text normalization
+//        
+//        if (style) {
+//            // build css element
+//            // style = style.replace(/;/g, ' !important;');
+//            
+//            $$DOC.appendCSS(control.cssClassName, style);
+//        }
+        
+        return control;
     }
         
-    function CStatic(parameters, attributes) {
-
-        controls.controlInitialize(this, 'css', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
-        this.style('display:inline-block;');
-
-        parse_effects(this, parameters, attributes);
-        
-        this.listen('element', function() {
-            var element = this.element;
-            if (element) {
-                var $q = $(this.element);
-                for(var prop in this.over)
-                    $q.css(prop, this.over[prop]);
-            }
-        });
-        
+    function process_inner_text(control) {
         // process markup at this level
-        var this_text = this.text();
-        this.text('');
-        $$DOC.processContent(this, this_text);
-    };
-    CStatic.prototype = controls.control_prototype;
-    controls.typeRegister('css', CStatic);
-    controls.typeRegister('static', CStatic);
-    
-    
-    // hover - built-in mouse over effects
-    
-    function hover_mouseenter(_this) {
-        
-        var element = _this.element;
-        var $q = $(element);
-        var restore = _this.restore;
-        var over = _this.over;
-        for(var prop in over) {
-            if (!restore[prop])
-                restore[prop] = $q.css(prop);
-            $q.css(prop, over[prop]);
+        var inner_text = control.attributes.$text;
+        if (inner_text)
+        {
+            $$DOC.processContent(control, inner_text);
+            control.attributes.$text = undefined;
         }
     }
-    function hover_mouseleave(_this) {
-        
-        var $q = $(_this.element);
-        var restore = _this.restore;
-        for(var prop in restore) {
-            var restoreval = restore[prop];
-            if (restoreval !== undefined) {
-                $q.css(prop, restoreval);
-                restore[prop] = undefined;
-            }
-        }
-    }
-    function CHover(parameters, attributes) {
 
-        controls.controlInitialize(this, 'hover', parameters, attributes);
-        this.style('display:inline-block;');
-
-        parse_effects(this, parameters, attributes);
-        this.restore = {};
-        
-        this.listen('element', function() {
-            var element = this._element;
-            if (element)
-            {
-                var _this = this;
-                var $q = $(element);
-                $q.mouseenter(function() {
-                    hover_mouseenter(_this);
-                });
-                $q.mouseleave(function() {
-                    hover_mouseleave(_this);
-                });
-            }
-        });
-        
-        // process markup at this level
-        var this_text = this.text();
-        this.text('');
-        $$DOC.processContent(this, this_text);
+    // styled block div factory
+    function Fblock(parameters, attributes) {
+        var control = Felement('div', parameters, attributes);
+        process_inner_text(control);
+//        control.class(control.cssClassName);
+        return control;
     };
-    CHover.prototype = controls.control_prototype;
-    controls.typeRegister('hover', CHover);
+    controls.factoryRegister('block', Fblock);
 
+
+    function Ftext(parameters, attributes) {
+        var control = Felement('span', parameters, attributes);
+        process_inner_text(control);
+//        control.class(control.cssClassName);
+        return control;
+    };
+    controls.factoryRegister('text', Ftext);
+    
 
 }).call(this);
 
@@ -15871,15 +15871,14 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-//     markdown-site-template 0.1
+//     markdown-site-template
 //     http://aplib.github.io/markdown-site-template/
 //     (c) 2013 vadim b.
 //     License: MIT
 //
-// require marked.js, controls.js, doT.js, jquery.js
+// require marked.js, controls.js, bootstrap.controls.js, doT.js, jquery.js
 
 (function() { "use strict";
-    var marked = $$ENV.marked;
             
     $$DOC.events.load = new controls.Event();
     $$DOC.transformation = transformation;
@@ -15914,16 +15913,17 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     
     // 3. process templates and create control
-    var marked_template = controls.doT.template('{{=it.attributes.$text}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
-    var marked_template_x2 = controls.doT.template('{{=it.getText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
+    var template = controls.doT.template('{{=it.getText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
     $$DOC.addTextContainer = function(control, text) {
+        
+        // container.outerHTML() returns text as is
         var container = control.add('container', {$text:text});
         
-        if (text.indexOf('{{') >= 0) {
+        // if text contains dot template compile getText function
+        var pos = text.indexOf('{{');
+        if (pos && text.indexOf('}}') > pos) {
             container.getText = controls.doT.template(text);
-            container.template(marked_template_x2);
-        } else {
-            container.template(marked_template);
+            container.template(template);
         }
     };
     
@@ -15995,7 +15995,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     
     function section_container_template(it)    {
-        return '<div' + it.printAttributes() +'>' + marked(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
+        return '<div' + it.printAttributes() +'>' + $$ENV.marked(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
     }
     // patches called multiple times
     function patches() {

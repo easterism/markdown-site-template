@@ -12,9 +12,59 @@
 
 ## CSS
 
-%alert#danger(
-breaking changes
+Specified CSS styles or transformation can be applied to any element of the document. To do this, it is possible to define and use CSS within the marked text.
+
+### style defining
+
+Define styles by using the &lt;style&gt;&lt;/style&gt; tag anywhere in the document. To access a nested elements using css selectors when defining style.  
+
+<code>
+&lt;style&gt;  
+&nbsp;.m41 { display:inline-block; box-shadow:1px 1px 4px #888888; }  
+&nbsp;.m41 h3 { color:#999; }  
+&lt;/style&gt;  
+</code>
+
+Use defined styles of specifying the name of the class when inserting component with a visual representation:  
+
+<code>
+*%*alert#warning;$class=m41(  
+&nbsp;*#*#*#* Markdown here  
+&nbsp;This is an example  
+)*%*alert
+</code>
+
+<style>
+.m41 { display:inline-block; padding-top:9px; box-shadow:1px 1px 4px #888888; }
+.m41 h3 { color:#999; }
+</style>
+%alert#warning;$class=m41(  
+### Markdown here
+This is an example
 )%alert
+
+
+To immediate insert style at a specific location you can use special component %block or %text:
+
+>syntax:  
+<code><span>%</span>block#parameters(marked text)<span>%</span>block</code>  
+<code><span>%</span>text#parameters(marked text)<span>%</span>text</code>  
+>parameters:  
+>* $class=&lt;classnames&gt; - set class attribute value  
+>* &lt;css property name&gt;=&lt;property value&gt;; - set css property value  
+>* &lt;transform function name&gt;=&lt;transform function parameters&gt;; - set css transformation  
+>* origin=&lt;transform origin value&gt; - set css transform origin  
+>
+>location: built-in
+
+<code>*%*block#display=inline-block; padding=12px 15px; margin=4px; border-radius=4px; background-color=#fcf5b9; box-shadow=1px 1px 4px #888888(<br>
+*#*#*#* Markdown here<br>
+This is an example)*%*block</code>
+
+%block#display=inline-block; rotate=13deg; padding=12px 15px; margin=4px; border-radius=4px; background-color=#fcf5b9; box-shadow=1px 1px 4px #888888(
+### Markdown here
+This is an example)%block
+
 
 -->
 
