@@ -17,6 +17,7 @@ $$DOC.parseContent(function(){/*
  * [Emoji]({{=$$DOC.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$$DOC.root}}components/YouTube.Player.html)
  * [Mediawiki markup]({{=$$DOC.root}}components/wiki.instaview.html)
+ * [MathJax]({{=$$DOC.root}}components/controls.math.html)
  
 -->
 

@@ -10850,18 +10850,23 @@ $$ENV =
 };
 
 
-
 (function() {
     
     // initialize $$ENV
+    
+    var marked = $$ENV.marked;
+    $$ENV.markedPostProcess = function(text) {
+        var formatted = marked(text);
+        return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
+    };
     
     controls.extend($$ENV,
     {
         // default control templates:
         default_template: $$ENV.dot.template(
-'<div{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>'),
+'<div{{=it.printAttributes()}}>{{=$$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>'),
         default_inner_template: $$ENV.dot.template(
-'{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}')
+'{{=$$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}')
     });
     
     
@@ -10963,17 +10968,26 @@ $$ENV =
                 document.head.removeChild(element);
         },
         // only sync scripts
-        appendScript: function(id, src) {
-            if (arguments.length === 1) { async = src; src = id; id = undefined; }
-            if (typeof src === 'boolean') { async = src; src = id; id = undefined; }
+        appendScript: function(id, src, callback) {
+            if (arguments.length === 1 || typeof src === 'function') { callback = src; src = id; id = undefined; }
             
             scripts_count++;
             var script = document.createElement('script');
             if (id)
                 script.id = id;
             script.src = src;
-            script.addEventListener('load', function() { scripts_stated++; check_all_script(); });
-            script.addEventListener('error', function() { scripts_stated++; check_all_script(); });
+            script.addEventListener('load', function() {
+                if (callback)
+                    callback(+1);
+                scripts_stated++;
+                check_all_script();
+            });
+            script.addEventListener('error', function() {
+                if (callback)
+                    callback(-1);
+                scripts_stated++;
+                check_all_script();
+            });
             document.head.appendChild(script);
         },
         appendMeta: function(attr1, value1, attr2, value2) {
@@ -13493,7 +13507,7 @@ controls.typeRegister(__type, ' + name + ');';
                 }
             }
             
-            if (outer_template)
+            if (inner_template)
             {
                 if (!this.hasOwnProperty("inner_template"))
                     Object.defineProperty(this, "inner_template", { configurable: true, enumerable: true, writable: true });
@@ -15543,16 +15557,7 @@ InstallDots.prototype.compileAll = function() {
 //
 // require controls.js
 
-(function() { "use strict";
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
+(function() { "use strict"; var controls = $$ENV.controls;
     
     
     
@@ -15562,7 +15567,6 @@ if (!controls) throw new TypeError('controls.js not found!');
     function  Felement(__type, parameters, attributes, css) {
         
         var control = controls.create(__type, parameters, attributes);
-        control.template($$ENV.default_template, $$ENV.default_inner_template);
         
 //        // generated css class name
 //        control.cssClassName = 'auto-' + control.id;
@@ -15641,15 +15645,19 @@ if (!controls) throw new TypeError('controls.js not found!');
     // styled block div factory
     function Fblock(parameters, attributes) {
         var control = Felement('div', parameters, attributes);
+        control.template($$ENV.default_template, $$ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
     };
     controls.factoryRegister('block', Fblock);
 
+    var span_template = $$ENV.dot.template(
+'<span{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</span>');
 
     function Ftext(parameters, attributes) {
         var control = Felement('span', parameters, attributes);
+        control.template(span_template, $$ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
@@ -15672,16 +15680,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 //
 // require controls.js
 
-(function() { "use strict";
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = CAlert;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CAlert; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
+(function() { "use strict"; var controls = $$ENV.controls;
 
 
 
@@ -15721,17 +15720,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 //
 // require controls.js
 
-(function() { "use strict";
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = CTabPanel;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CTabPanel; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-
+(function() { "use strict"; var controls = $$ENV.controls;
 
 
     function CTabPanel(parameters, attributes) {
@@ -15814,17 +15803,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 //
 // require controls.js
 
-(function() { "use strict";
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = CCollapse;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CCollapse; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-
+(function() { "use strict"; var controls = $$ENV.controls;
 
    
     function CCollapse(parameters, attributes) {
@@ -15995,7 +15974,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     
     function section_container_template(it)    {
-        return '<div' + it.printAttributes() +'>' + $$ENV.marked(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
+        return '<div' + it.printAttributes() +'>' + $$ENV.markedPostProcess(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
     }
     // patches called multiple times
     function patches() {
