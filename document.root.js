@@ -11070,7 +11070,6 @@ $$ENV =
     
     // Path
     // root - document root path
-    // relativeRoot - relative to root path
     // js - document.root.js path
     // css - document.root.css path
 
@@ -15756,12 +15755,9 @@ InstallDots.prototype.compileAll = function() {
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//     
 //     controls.Alert.js The control for displaying alerts
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
-//
 // require controls.js
 
 (function() { "use strict"; var controls = $$ENV.controls;
