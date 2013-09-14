@@ -4,9 +4,11 @@
     <meta charset="utf-8">
     <title>Simple Markdown site template</title>
     <script src="document.root.min.js"></script>
+    
     <script>
-document.write("<h1>document</h1>");
-</script>
+        var first = document.getElementsByTagName('script')[0];
+        document.head.removeChild(first);
+    </script>
 </head>
 <body>
 
@@ -130,7 +132,7 @@ footer fixed at the bottom edge of the page
 -->
 
 
-
+<script src="http://translate.googleusercontent.com/translate/releases/twsfe_w_20130909_RC02/r/js/translate_c.js"></script>
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 </body>
 </html>
