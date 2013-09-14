@@ -16237,7 +16237,7 @@ InstallDots.prototype.compileAll = function() {
             onresize();
         }, 40);
         
-        window.addEventListener('load', function() {
+        window.addEventListener('DOMContentLoaded', function() {
             
             clearInterval(timer);
             processNode(body);
@@ -16245,6 +16245,9 @@ InstallDots.prototype.compileAll = function() {
             patches();
             onresize(); // before and after 'load' event
             $(window).on('resize', onresize);
+        }, true);
+        
+        window.addEventListener('load', function() {
             
             // raise 'load' event
             var load_event = $$DOC.events.load;
