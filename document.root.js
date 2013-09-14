@@ -10860,14 +10860,23 @@ $$ENV =
         return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
     };
     
-    controls.extend($$ENV,
+    // default control templates:
+    $$ENV.default_template= function(it)
     {
-        // default control templates:
-        default_template: $$ENV.dot.template(
-'<div{{=it.printAttributes()}}>{{=$$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</div>'),
-        default_inner_template: $$ENV.dot.template(
-'{{=$$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}')
-    });
+        return '<div' + it.printAttributes() + '>' + $$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
+    };
+    $$ENV.default_inner_template = function(it)
+    {
+        return $$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") );
+    };
+    
+    // #log-level=?
+    var hash = window.location.hash;
+    var log_level_pos = hash.indexOf('log-level=');
+    if (log_level_pos >= 0) {
+        console.log('document:' + window.location.href);
+        $$ENV.log_level = parseInt(hash[log_level_pos + 10]);
+    }
     
     
     // initialize $$DOC
@@ -10902,6 +10911,22 @@ $$ENV =
         sections: {},
         // Sections order
         order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
+        addSection: function(name, value) {
+            var sections = this.sections;
+            var exists = sections[name];
+            if (exists) {
+                var log_level = $$ENV.log_level;
+                if (typeof exists === 'string' && log_level > 0)
+                    console.log('Section ' + name + ' content overrided.');
+                else if (exists._element) {
+                    // DOM element already created
+                    if (log_level > 0)
+                        console.log('Section ' + name + ' DOM element replaced!');
+                    exists.deleteElement();
+                }
+            }
+            sections[name] = value;
+        },
         // Texts and templates
         vars: {},
         // Document data access
@@ -10929,7 +10954,7 @@ $$ENV =
                             } else {
                                 // as section
                                 var section = test.substr(4).trim();
-                                this.sections[section] = frags[i+2];
+                                this.addSection(section, frags[i+2]);
                             }
                             found_content = true;
                             i += 2;
@@ -10946,7 +10971,7 @@ $$ENV =
                     if (name[0] === '$')
                         this.vars[name] = content;
                     else
-                        this.sections[name] = content;
+                        this.addSection(name, content);
 
                     found_content = true;
                 }
@@ -11046,16 +11071,6 @@ $$ENV =
             }
         }
     };
-    
-    // #log-level=?
-    var hash = window.location.hash;
-    var log_level_pos = hash.indexOf('log-level=');
-    if (log_level_pos >= 0) {
-        console.log('document:' + window.location.href);
-        $$DOC.log_level = parseInt(hash[log_level_pos + 10]);
-    }
-    
-    //name: window.location.pathname.split(/\/\\/g).pop() || 'index.html',
     
     var nodes = document.head.childNodes;
     for(var i = 0, c = nodes.length; i < c; i++) {
@@ -16076,11 +16091,154 @@ InstallDots.prototype.compileAll = function() {
             $$DOC.addTextContainer(collection, buffered_text);
     };
     
-    function section_container_template(it)    {
-        return '<div' + it.printAttributes() +'>' + $$ENV.markedPostProcess(it.controls.map(function(control){return control.wrappedHTML();}).join('')) + '</div>';
+
+    var processed_nodes = [],
+        sections = $$DOC.sections,
+        order = $$DOC.order,
+        log_level = $$ENV.log_level;
+
+    // found sections process
+    function processSections() {
+
+        if (!body._element && document.body)
+            body.attachAll();
+        if (!body._element)
+            return;
+
+        var translated_sections = [];
+        for(var name in sections)
+        if (name) { // skip unnamed for compatibility
+            try
+            {
+                var content = sections[name];
+                if (typeof content === 'string') {
+
+                    if (log_level)
+                        console.log('>section ' + name);
+
+                    // translate section to control object
+
+                    var section_control = body.add(name + ':div', {class:name});
+                    section_control.template($$ENV.default_template);
+                    $$DOC.processContent(section_control, content);
+                    sections[name] = section_control;
+                    translated_sections.push(name);
+
+                    // create dom element
+
+                    // look for element position in dom
+                    
+                    var created = false;
+                    var in_order = order.indexOf(name);
+                    if (in_order >= 0) {
+                        // look element before in order
+                        for(var i = in_order - 1; i >= 0; i--) {
+                            var exists_before_in_order = sections[order[i]];
+                            if (exists_before_in_order && typeof exists_before_in_order !=='string') {
+                                // insert after
+                                section_control.createElement(exists_before_in_order._element, 3);
+                                created = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!created)
+                        // look element after in order
+                        for(var i = in_order + 1, c = order.length; i < c; i++) {
+                            var exists_after_in_order = sections[order[i]];
+                            if (exists_after_in_order && typeof exists_after_in_order !=='string') {
+                                // insert before
+                                section_control.createElement(exists_after_in_order._element, 2);
+                                created = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!created)
+                        section_control.createElement(document.body, 0);
+                }
+            }
+            catch (e) { console.log(e); }
+        }
+        if (translated_sections.length > 0)
+            apply_patches(translated_sections);
     }
-    // patches called multiple times
-    function patches() {
+
+    // document transformation started after all libraries and user.js is loaded
+    var transformation_started = false;
+    function transformation()
+    {
+        if (transformation_started)
+            return;
+        else
+            transformation_started = true;
+        
+        head.attachAll();
+        parseDOM(document.head);
+        // delay first transformation -> timer
+            
+        var timer = setInterval(function() {
+            parseDOM(document.body);
+            processSections(); // sections may be inserted by components
+            onresize();
+        }, 25);
+        
+        var dom_loaded_handler = function() {
+            parseDOM(document.body);
+            processSections();
+            onresize();
+            $(window).on('resize', onresize);
+            dom_loaded_handler = undefined;
+        };
+
+        // can be fired
+        window.addEventListener('DOMContentLoaded', function() {
+            if (dom_loaded_handler)
+                dom_loaded_handler();
+        }, false);
+        
+        window.addEventListener('load', function() {
+            
+            clearInterval(timer); // off timer after css loaded
+            
+            if (dom_loaded_handler)
+                dom_loaded_handler();
+            
+            // raise 'load' event
+            var load_event = $$DOC.events.load;
+            load_event.raise();
+            load_event.clear();
+            
+            onresize(); // before and after 'load' event
+        });
+    }
+    
+    function parseDOM(node) {
+        var childs = node.childNodes, nodes = [], fordelete = [];
+        // parseContent can cause changes in DOM
+        for(var i = 0, c = childs.length; i < c; i++)
+            nodes[i] = childs[i];
+        for(var i = 0, c = nodes.length; i < c; i++) {
+            var child = nodes[i];
+            if (child.nodeType === 8 && processed_nodes.indexOf(child) < 0) {
+                var name_match = child.nodeValue.match(/\S+(?=[\s\r\n])/);
+                if (name_match.length){
+                    var name = name_match[0];
+                    // parseContent can cause changes in DOM
+                    if ($$DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
+                        fordelete.push(child);
+                    else
+                        processed_nodes.push(child);
+                }
+            }
+        }
+        // remove processed
+        for(var prop in fordelete)
+            node.removeChild(fordelete[prop]);
+    }
+    
+    // apply js patches for dom elements on transformation progress
+    function apply_patches(translated_section) {
 
         $('table').addClass('table table-bordered table-stripped');
 
@@ -16107,7 +16265,7 @@ InstallDots.prototype.compileAll = function() {
             $a.attr('data-toggle', 'dropdown');
             $a.each(function(i,e) { if (e.innerHTML.indexOf('<b class="caret"></b>') < 0) e.innerHTML += '<b class="caret"></b>'; });
 
-               // activate current page
+            // activate current page in menu
             var loc = window.location.href.toLowerCase();
             fixed_top_navbar.$.find('ul li a').each(function(i,a) {
                 var href = a.href.toLowerCase();
@@ -16116,6 +16274,7 @@ InstallDots.prototype.compileAll = function() {
             });
         }
     }
+    // fired on 1. dom manipulation 2. css loading in progress can size effects 3. window resize after page loaded
     function onresize() {
         // body padding
         var $b = $(document.body);
@@ -16126,137 +16285,7 @@ InstallDots.prototype.compileAll = function() {
         if (fixed_bottom_footer)
             $b.css('padding-bottom', fixed_bottom_footer.element.clientHeight + 'px');
     }
-    function transformation()
-    {
-        var sections = $$DOC.sections,
-            order = $$DOC.order,
-            log_level = $$DOC.log_level;
-            
-        // write document
-        function processSections() {
-            for(var name in sections)
-            if (name) { // skip unnamed for compatibility
-                try
-                {
-                    var content = sections[name];
-                    if (typeof content === 'string') {
-                        
-                        if (log_level)
-                            console.log('>section ' + name);
-                        
-                        // create control
-                        var section_control = body.add(name + ':div', {class:name});
-                        section_control.template(section_container_template);
-                        $$DOC.processContent(section_control, content);
-                        sections[name] = section_control;
-                        
-                        // look for element position in dom
-                        var index = order.indexOf(name),
-                            element_before, element_before_index = -1, element_after, element_after_index = 9999;
-                        for(var i = order.length - 1; i >= 0; i--) {
-                            var in_order = order[i],
-                                in_sections = sections[in_order];
-                            if (typeof in_sections === 'object') {
-                                if (i > index && i < element_after_index) {
-                                    element_after = in_sections._element;
-                                    element_after_index = i;
-                                } else if (i < index && i > element_before_index) {
-                                    element_before = in_sections._element;
-                                    element_before_index = i;
-                                }
-                            }
-                        }
-                        if (element_before)
-                            section_control.createElement(element_before, 3);
-                        else if (element_after)
-                            section_control.createElement(element_after, 2);
-                        else
-                            section_control.createElement(document.body, 0);
-
-//                        var fake = document.createElement('div');
-//                        fake.innerHTML = section_control.outerHTML();
-//                        document.body.appendChild(fake.firstChild);
-                        body.attachAll();
-                    }
-                }
-                catch (e) { console.log(e); }
-            }
-            $$DOC.sections = {};
-        }
-        
-        var processed_nodes = [];
-        function processNode(control) {
-            
-            var node = control.element;
-            if (!node)
-                control.attachAll();
-            node = control.element;
-            if (!node)
-                return;
-            
-            var belement = body.element;
-            if (node !== belement) {
-                if (!belement)
-                    body.attachAll();
-                belement = body.element;
-                if (!belement)
-                    return;
-            }
-            
-            // parse nodes
-            var childs = node.childNodes, fordelete = [];
-            for(var i = 0, c = childs.length; i < c; i++) {
-                var child = childs[i];
-                if (child.nodeType === 8 && processed_nodes.indexOf(child) < 0) {
-                    var name_match = child.nodeValue.match(/\S+(?=[\s\r\n])/);
-                    if (name_match.length){
-                        var name = name_match[0];
-                        if ($$DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
-                            fordelete.push(child);
-                        else
-                            processed_nodes.push(child);
-                    }
-                }
-            }
-            // remove processed
-            for(var prop in fordelete)
-                node.removeChild(fordelete[prop]);
-            
-            return (fordelete.length > 0);
-        }
-        
-        head.attachAll();
-        processNode(head);
-        processNode(body);
-        processSections();
-        
-        var timer = setInterval(function() {
-            processNode(body);
-            processSections();
-            patches();
-            onresize();
-        }, 2);
-        
-        window.addEventListener('DOMContentLoaded', function() {
-            
-            clearInterval(timer);
-            processNode(body);
-            processSections();
-            patches();
-            onresize(); // before and after 'load' event
-            $(window).on('resize', onresize);
-        }, true);
-        
-        window.addEventListener('load', function() {
-            
-            // raise 'load' event
-            var load_event = $$DOC.events.load;
-            load_event.raise();
-            load_event.clear();
-            
-            onresize(); // before and after 'load' event
-        });
-    }
+    
 })();
 
 
