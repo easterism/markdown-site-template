@@ -11,6 +11,7 @@ $$DOC.parseContent(function(){/*
 * [Components]({{=$$DOC.root}}index.html)
  * [CSS]({{=$$DOC.root}}components/controls.css.html)
  * [Alert]({{=$$DOC.root}}components/controls.alert.html)
+ * [Panel]({{=$$DOC.root}}components/controls.panel.html)
  * [Collapse]({{=$$DOC.root}}components/controls.collapse.html)
  * [Tabbed panel]({{=$$DOC.root}}components/controls.tabpanel.html)
  * [Carousel]({{=$$DOC.root}}components/controls.bs-carousel.html)
