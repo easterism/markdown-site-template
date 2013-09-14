@@ -16226,8 +16226,9 @@ InstallDots.prototype.compileAll = function() {
         }
         
         head.attachAll();
-        if (processNode(head))
-            processSections();
+        processNode(head);
+        processNode(body);
+        processSections();
         
         var timer = setInterval(function() {
             processNode(body);
@@ -16254,6 +16255,7 @@ InstallDots.prototype.compileAll = function() {
         });
     }
 })();
+
 
 
 
