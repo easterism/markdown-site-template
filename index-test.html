@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>Simple Markdown site template</title>
+    <script src="document.root.min.js"></script>
+</head>
+<body>
+
+<!--fixed-top-navbar
+
+* [Home]({{=$$DOC.root}}index.html)
+* [Layout]({{=$$DOC.root}}layout.html)
+* [Components]({{=$$DOC.root}}index.html)
+ * [CSS]({{=$$DOC.root}}components/controls.css.html)
+ * [Alert]({{=$$DOC.root}}components/controls.alert.html)
+ * [Panel]({{=$$DOC.root}}components/controls.panel.html)
+ * [Collapse]({{=$$DOC.root}}components/controls.collapse.html)
+ * [Tabbed panel]({{=$$DOC.root}}components/controls.tabpanel.html)
+ * [Carousel]({{=$$DOC.root}}components/controls.bs-carousel.html)
+ * [Emoji]({{=$$DOC.root}}components/GitHub.gemoji.html)
+ * [YouTube Player]({{=$$DOC.root}}components/YouTube.Player.html)
+ * [Mediawiki markup]({{=$$DOC.root}}components/wiki.instaview.html)
+ * [MathJax]({{=$$DOC.root}}components/controls.math.html)
+
+-->
+
+<!--header
+
+# Simple Markdown site template
+Incredible simple but powerful site template
+
+-->
+
+
+<!--content
+
+This template was created using the original bundle of the libraries jquery.js, twitter bootstrap and controls.js, no server side code, it works both online and offline.
+
+Very simple, you do not need to edit *HTML, CSS, JS, PHP, ASP, JAVA, PERL, PYTHON, RUBY* and a billion other technologies. Just open .html file and edit TEXT in it. The marked text you are reading is written as plain text. Open the 'View page source' and see it.
+
+Easy content editing and management structure of the site (the site can be generated from a shell script!), static pages with great download speeds and the ability to host it anywhere, powerful JavaScript environment allows you to create a dynamic document without restrictions.
+
+[Wiki: Markdown](http://en.wikipedia.com/wiki/Markdown)
+
+<br>
+
+%block#scale=2,2;rotate=3deg;origin=left(```Additional```)%block
+%block#scale=2,2;rotate=-3deg;origin=left;margin-left=104px;margin-right=164px;margin-top=32px;margin-bottom=22px;(***formatting options***)%block
+
+%panel#and elements;info;$style=display:inline-block(
+The best solution for writing documentation.
+)%panel
+
+## Installation
+
+* <h3><a class="label label-success" href="http://aplib.github.io/markdown-site-template/markdown-site-template.zip">Download template from GitHub</a></h3>
+
+Required files:
+
+* index.html
+* document.root.min.css
+* document.root.min.js
+* user.js
+
+Options:
+
+* components/
+ * [Emoji](http://aplib.github.io/markdown-site-template/components/GitHub.gemoji.html)
+ * [YouTube Player](http://aplib.github.io/markdown-site-template/components/YouTube.Player.html)
+ * [Mediawiki markup](http://aplib.github.io/markdown-site-template/components/wiki.instaview.html)
+ * [Carousel](http://aplib.github.io/markdown-site-template/components/controls.bs-carousel.html)
+* mods/
+ * [MSDN-like theme](http://aplib.github.io/markdown-site-template/mods/msdn-like-theme.html)
+
+New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing named sections of content as needed, for example the addition of a navigation bar:
+
+    <!--fixed-top-navbar
+    * [Home](index.html)
+    * [Page1](page1.html)
+    * [Page2](page1.html)
+    -­­­->
+
+## Pre-defined section names:
+
+* left-side-column - left side column
+* content (marked text) - the main contents of the site
+* text-box - padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
+* right-side-column - right side column
+* fixed-top-navbar (list) - top horizontal navigation bar fixed at the upper edge of the page
+* footer - footer at the bottom of the page for copyright, powered etc notes
+* fixed-bottom-footer (list)) - footer fixed at the bottom edge of the page
+
+### left-side-column
+adaptive left side column
+
+### content
+the main contents of the site
+
+### right-side-column
+adaptive right side column
+
+### text-box
+padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
+
+### fixed-top-navbar
+Top horizontal navigation bar fixed at the upper edge of the page. See example in section Installation.
+
+### footer
+footer at the bottom of the page
+
+### fixed-bottom-footer
+footer fixed at the bottom edge of the page
+
+    <!--fixed-bottom-footer
+    * © 2013 copyright notes here
+    * other notes
+    * last item right-aligned
+    -­­­->
+-->
+
+<!--right-side-column -->
+
+<!--footer
+* © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT
+* [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)
+-->
+
+<script>
+document.write("<h1>document</h1>");
+</script>
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>
