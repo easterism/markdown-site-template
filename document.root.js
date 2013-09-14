@@ -10893,10 +10893,6 @@ $$ENV =
     
     $$DOC =
     {
-        root: '', // document root path
-        js:   '', // document.root.js path
-        css:  '', // document.root.css path
-        
         // Document events - 'load'
         events: {},
         onload: function(handler) {
@@ -11072,20 +11068,29 @@ $$ENV =
         }
     };
     
+    // Path
+    // root - document root path
+    // relativeRoot - relative to root path
+    // js - document.root.js path
+    // css - document.root.css path
+
     var nodes = document.head.childNodes;
     for(var i = 0, c = nodes.length; i < c; i++) {
         var node = nodes[i];
         if (node.nodeType === 1 && node.tagName.toLowerCase() === 'script' && node.src) {
-             var src = node.src.toLowerCase();
-             if (src.slice(-20) === 'document.root.min.js') {
-                var root = src.substr(0, src.length - 20);
+            
+            var document_root_url   = node.src;                 // absolute url
+            var document_root_exact = node.getAttribute('src'); // url as it is set initially
+             
+             if (document_root_exact.slice(-20) === 'document.root.min.js') {
+                var root = document_root_exact.substr(0, document_root_exact.length - 20);
                 $$DOC.root = root;
                 $$DOC.js =   root + 'document.root.min.js';
                 $$DOC.css =  root + 'document.root.min.css';
                 $$DOC.components = root + 'components/';
              }
-             else if (src.slice(-16) === 'document.root.js') {
-                var root = src.substr(0, src.length - 16);
+             else if (document_root_exact.slice(-16) === 'document.root.js') {
+                var root = document_root_exact.substr(0, document_root_exact.length - 16);
                 $$DOC.root = root;
                 $$DOC.js =   root + 'document.root.js';
                 $$DOC.css =  root + 'document.root.css';
@@ -15751,6 +15756,46 @@ InstallDots.prototype.compileAll = function() {
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//     
+//     controls.Alert.js The control for displaying alerts
+//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     license: MIT
+//
+// require controls.js
+
+(function() { "use strict"; var controls = $$ENV.controls;
+
+
+
+    // built-in message box
+    // 
+    function CAlert(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'Alert', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
+
+        var style = 'default';
+        var first_par = Object.keys(parameters)[0];
+        if ('link success primary info warning danger'.indexOf(first_par) >= 0)
+            style = first_par;
+        this.class('alert alert-block alert-' + style + ' fade in');
+        
+        // process markup at this level
+        var this_text = this.text();
+        this.text('');
+        $$DOC.processContent(this, this_text);
+    };
+    CAlert.prototype = controls.control_prototype;
+    controls.typeRegister('Alert', CAlert);
+
+
+}).call(this);
+
+
+
+
+
+
 //     controls.panel.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     License: MIT
@@ -15794,37 +15839,48 @@ InstallDots.prototype.compileAll = function() {
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//     
-//     controls.Alert.js The control for displaying alerts
+//     controls.collapse.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
-//     license: MIT
-//
+//     License: MIT
 // require controls.js
 
 (function() { "use strict"; var controls = $$ENV.controls;
 
-
-
-    // built-in message box
-    // 
-    function CAlert(parameters, attributes) {
+   
+   
+    function CCollapse(parameters, attributes) {
         
-        controls.controlInitialize(this, 'Alert', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
-
-        var style = 'default';
-        var first_par = Object.keys(parameters)[0];
-        if ('link success primary info warning danger'.indexOf(first_par) >= 0)
-            style = first_par;
-        this.class('alert alert-block alert-' + style + ' fade in');
+        controls.controlInitialize(this, 'collapse', parameters, attributes);
         
-        // process markup at this level
-        var this_text = this.text();
+        var in_panel = this.parameter('panel');
+        var panel_class = (typeof in_panel === 'string') ? in_panel : undefined;
+        var start_collapsed = parameters.collapse || parameters.collapsed;
+        
+        for(var prop in parameters)
+        if (prop.substr(0,6) === 'panel-')
+            panel_class = prop;
+        
+        this.class('collapse-panel' + (in_panel || panel_class ? ' panel ' + (panel_class || 'panel-default') : ''));
+        
+        // subcontrols
+        var collapse = this.add('collapse:div', {class:'panel-collapse collapse collapse-body' + (start_collapsed ? '' : ' in')});
+        var content = collapse.add('div', {class:'panel-body'});
+        var header = this.insert(0, 'header:div',
+        {
+                    class: 'panel-heading collapse-header',
+            'data-toggle': 'collapse',
+            'data-target': '#'+collapse.id,
+                    $text: '<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>'
+        });
+        
+        $$DOC.processContent(content, this.text());
         this.text('');
-        $$DOC.processContent(this, this_text);
+        
+        // process markup template:
+        content.template($$ENV.default_template, $$ENV.default_inner_template);
     };
-    CAlert.prototype = controls.control_prototype;
-    controls.typeRegister('Alert', CAlert);
+    CCollapse.prototype = controls.control_prototype;
+    controls.typeRegister('collapse', CCollapse);
 
 
 }).call(this);
@@ -15907,57 +15963,6 @@ InstallDots.prototype.compileAll = function() {
     }
     controls.factoryRegister('tabpage', tabpage_factory);
     
-
-}).call(this);
-
-
-
-
-
-
-//     controls.collapse.js
-//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
-//     License: MIT
-// require controls.js
-
-(function() { "use strict"; var controls = $$ENV.controls;
-
-   
-   
-    function CCollapse(parameters, attributes) {
-        
-        controls.controlInitialize(this, 'collapse', parameters, attributes);
-        
-        var in_panel = this.parameter('panel');
-        var panel_class = (typeof in_panel === 'string') ? in_panel : undefined;
-        var start_collapsed = parameters.collapse || parameters.collapsed;
-        
-        for(var prop in parameters)
-        if (prop.substr(0,6) === 'panel-')
-            panel_class = prop;
-        
-        this.class('collapse-panel' + (in_panel || panel_class ? ' panel ' + (panel_class || 'panel-default') : ''));
-        
-        // subcontrols
-        var collapse = this.add('collapse:div', {class:'panel-collapse collapse collapse-body' + (start_collapsed ? '' : ' in')});
-        var content = collapse.add('div', {class:'panel-body'});
-        var header = this.insert(0, 'header:div',
-        {
-                    class: 'panel-heading collapse-header',
-            'data-toggle': 'collapse',
-            'data-target': '#'+collapse.id,
-                    $text: '<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>'
-        });
-        
-        $$DOC.processContent(content, this.text());
-        this.text('');
-        
-        // process markup template:
-        content.template($$ENV.default_template, $$ENV.default_inner_template);
-    };
-    CCollapse.prototype = controls.control_prototype;
-    controls.typeRegister('collapse', CCollapse);
-
 
 }).call(this);
 
