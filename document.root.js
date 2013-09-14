@@ -16235,7 +16235,7 @@ InstallDots.prototype.compileAll = function() {
             processSections();
             patches();
             onresize();
-        }, 40);
+        }, 2);
         
         window.addEventListener('DOMContentLoaded', function() {
             
