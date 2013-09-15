@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>CML (Component Markdown Language)</title>
+    <script src="document.root.min.js"></script>
+</head>
+<body>
+
+
+<!--header
+
+# CML (Component Markdown Language)
+### markdown + html + components
+-->
+
+
+<!--content
+
+CML is an extension of the markdown and html markup for inclusion in the document of the active components, representing the templates,
+visual components, data or parts of other documents.
+
+### Syntax
+
+&lt;!--sectionname ... --&gt; - in the context of the html document, where sectionname is any identifier, template for inclusion in the 
+html document named section.
+Named section is a div-control, the section name is assigned to the class attribute of the control. In the final html document it
+is translated to a div: ```<div id=... class="sectionname"> ... </div>```.
+
+All controls (in terms of library controls.js) are created when translation, after translation are available through the fields
+global object $$DOC. $$DOC has two predefined fields named head and body. The path from the $$DOC to the control of a named section within
+the hierarchical subordination of controls is determined by where the &lt;!--name ... --&gt; pattern was placed. For example, it may be $$DOC.body.content
+
+Controls include text content is desirable (but not necessarily) translate it as CML.
+In particular the named sections translate their content as CML.
+
+### CML 
+
+```%[namespace.]identifier[#parameters]( [content] )[%[namespace.]identifier]```
+
+#### namespace
+
+Optional. If not specified will default 'controls'.
+
+#### parameters
+
+Optional. List of items separated by semicolons. The element may be a value or equation or assignment.
+If the variable name in an assignment starts with $ then assignment is recognized as the assignment of attribute value.
+Attribute of the control (not field) later copied to the attributes of the html element or operate other more complex ways.
+Other parameter values ​​used to obtain modifications of the control.
+
+Example:
+%alert#primary;$class=m41()
+
+#### content
+
+The text inside the parentheses is the responsibility of the control, diferent controls translate content text in different ways.
+
+
+### Libraries
+
+bundle | document automatic translation | jquery.js, bootstrap | marked.js, controls.js
+---|---|---
+document.root.js | + | + | +
+document.root.less.js | + | - | +
+document.root.api.js | - | - | +
+
+
+
+-->
+
+<!--right-side-column -->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>
