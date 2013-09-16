@@ -1,23 +1,38 @@
 
 (function() { "use strict";
     
-    var all_themes = {'bootstrap-theme':'Bootstrap', 'msdn-like-theme':'MSDN-like'};
-    try { /*not work in IE on file:// */ $$DOCUMENT.primaryTheme = localStorage.getItem('primary-theme'); } catch (e) {}
-    if (!all_themes[$$DOCUMENT.primaryTheme])
-        $$DOCUMENT.primaryTheme = 'msdn-like-theme';
-    $$DOCUMENT.mod('primary-theme', $$DOCUMENT.primaryTheme);
+    var all_themes =
+    {
+        'bootstrap-theme':'Bootstrap Default',
+//        'cerulian-theme':'Bootswatch: Cerulian',
+//        'cosmo-theme':'Bootswatch: Cosmo',
+//        'cyborg-theme':'Bootswatch: Cyborg',
+//        'flatly-theme':'Bootswatch: Flatly',
+//        'journal-theme':'Bootswatch: Journal',
+//        'readable-theme':'Bootswatch: Readable',
+//        'simplex-theme':'Bootswatch: Simplex',
+//        'slate-theme':'Bootswatch: Slate',
+//        'spacelab-theme':'Bootswatch: Spacelab',
+//        'united-theme':'Bootswatch: United',
+        'msdn-like-theme':'MSDN-like'
+    };
+    
+    try { /*not work in IE on file:// */ $$DOC.primaryTheme = localStorage.getItem('primary-theme'); } catch (e) {}
+    if (!all_themes[$$DOC.primaryTheme])
+        $$DOC.primaryTheme = 'msdn-like-theme';
+    $$DOC.mod('primary-theme', $$DOC.primaryTheme);
     
 
-    $$DOCUMENT.selectPrimaryTheme = function (theme) {
-        if (theme !== $$DOCUMENT.primaryTheme) {
-            $$DOCUMENT.removeMod('primary-theme');
+    $$DOC.selectPrimaryTheme = function (theme) {
+        if (theme !== $$DOC.primaryTheme) {
+            $$DOC.removeMod('primary-theme');
             if (all_themes[theme]) {
-                $$DOCUMENT.mod('primary-theme', theme);
-                $$DOCUMENT.primaryTheme = theme;
+                $$DOC.mod('primary-theme', theme);
+                $$DOC.primaryTheme = theme;
                 try { /*not work in IE on file:// */ localStorage.setItem('primary-theme', theme); } catch (e) {}
             } else {
-                $$DOCUMENT.mod('primary-theme', 'msdn-like-theme');
-                $$DOCUMENT.primaryTheme = 'msdn-like-theme';
+                $$DOC.mod('primary-theme', 'msdn-like-theme');
+                $$DOC.primaryTheme = 'msdn-like-theme';
                 try { /*not work in IE on file:// */ localStorage.setItem('primary-theme', 'msdn-like-theme'); } catch (e) {}
             }
         }
@@ -26,7 +41,7 @@
     // FIX: IE browser does not support localStorage
     if (this.localStorage)
     
-    $$DOCUMENT.events.load.addListener('load', function()
+    $$DOC.events.load.addListener('load', function()
     {
         var ul = $('.fixed-top-navbar ul').first();
         if (ul) {
@@ -40,7 +55,7 @@
                     .add('a', {$text:all_themes[theme]})
                     .listen('click', function()
                     {
-                        $$DOCUMENT.selectPrimaryTheme(theme);
+                        $$DOC.selectPrimaryTheme(theme);
                     });
                 });
 
