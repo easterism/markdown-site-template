@@ -22,6 +22,7 @@ $$DOC.parseContent(function(){/*
  * [Mediawiki markup]({{=$$DOC.root}}components/wiki.instaview.html)
  * [MathJax]({{=$$DOC.root}}components/controls.math.html)
  * [Google Charts]({{=$$DOC.root}}components/gcharts/Google Charts.html)
+ * [d3js.org]({{=$$DOC.root}}components/d3/d3.html)
  
 -->
 
