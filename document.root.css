@@ -7000,14 +7000,16 @@ td.visible-print {
     -moz-box-shadow: 0 1444px 0 1444px #f8f8f8;
     -webkit-box-shadow: 0 1444px 0 1444px #f8f8f8;
     box-shadow: 0 1444px 0 1444px #f8f8f8;
+    margin-top: 20px;
 }
 .footer ul {
     padding-right: 25px;
+    line-height: 32px;
 }
 .footer li {
     list-style: none;
     float:left;
-    padding:20px;
+    padding:12px 20px;
 }
 .footer li:last-child {
     float:right;

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>CSS component</title>
+    <script src="../../document.root.min.js"></script>
+</head>
+<body>
+
+
+<!--content
+
+## Google Charts
+
+### Pie Chart
+
+>syntax:  
+><code>*%*gcharts.PieChart#parameters(data)*%*gcharts.PieChart</code>  
+> * parameters - [Pie Chart configuration options](https://developers.google.com/chart/interactive/docs/gallery/piechart#Configuration_Options)
+> * data - json formatted data array  
+>
+> [Pie Chart on Google Developers](https://developers.google.com/chart/interactive/docs/gallery/piechart)  
+
+ example:
+
+%block#float=left(
+
+<code>
+*%*gcharts.PieChart#is3D;width=640;height=320([  
+&nbsp;["Task", "Hours per Day"],  
+&nbsp;["Work",     11],  
+&nbsp;["Eat",      2],  
+&nbsp;["Commute",  2],  
+&nbsp;["Watch TV", 2],  
+&nbsp;["Sleep",    7]  
+])*%*gcharts.PieChart
+</code>
+
+)%block
+
+%block#float=left(
+
+%gcharts.PieChart#is3D;width=640;height=320(
+[
+    ["Task", "Hours per Day"],
+    ["Work",     11],
+    ["Eat",      2],
+    ["Commute",  2],
+    ["Watch TV", 2],
+    ["Sleep",    7]
+]
+)%gcharts.PieChart
+
+)%block
+-->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+<script>if(typeof $$DOC==='undefined')document.write('<div class="alert alert-danger">document.root.js not found!</div>');</script>
+</body>
+</html>

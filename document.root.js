@@ -10838,7 +10838,7 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 
 
-var $$DOC, $$ENV, /*deprecated*/ $$DOCUMENT, $$ENVIRONMENT;
+var $$DOC, $$ENV;
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 $$ENV =
@@ -10992,11 +10992,19 @@ $$ENV =
         appendScript: function(id, src, callback) {
             if (arguments.length === 1 || typeof src === 'function') { callback = src; src = id; id = undefined; }
             
+            if (id && document.getElementById(id)) {
+                // script already loaded
+                if (callback)
+                    callback(+1);
+                return;
+            }
+            
             scripts_count++;
             var script = document.createElement('script');
             if (id)
                 script.id = id;
             script.src = src;
+            script.async = true;
             script.addEventListener('load', function() {
                 if (callback)
                     callback(+1);
@@ -11105,7 +11113,6 @@ $$ENV =
 }).call(this);
 
 
-/*deprecated*/$$DOCUMENT = $$DOC; $$ENVIRONMENT = $$ENV;
 },{"./temp/bootstrap.controls.js":2,"./temp/dot":3,"./temp/marked":4,"controls":5}],2:[function(require,module,exports){
 ////////////////////////////////////////////////////////////////////////////////
 //     
