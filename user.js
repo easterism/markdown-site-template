@@ -7,7 +7,9 @@ $$DOC.parseContent(function(){/*
 <!--fixed-top-navbar
 
 * [Home]({{=$$DOC.root}}index.html)
-* [Layout]({{=$$DOC.root}}layout.html)
+* [Docs]({{=$$DOC.root}}index.html)
+ * [Layout]({{=$$DOC.root}}layout.html)
+ * [CML (Components Markdown Language)]({{=$$DOC.root}}CML.html)
 * [Components]({{=$$DOC.root}}index.html)
  * [CSS]({{=$$DOC.root}}components/controls.css.html)
  * [Alert]({{=$$DOC.root}}components/controls.alert.html)
