@@ -11135,8 +11135,17 @@ $$ENV =
     var root = $$DOC.root || meta_root || param_root || src_root || '',
         index = $$DOC.index || meta_index || param_index || root + 'index.html',
         js,css,components;
-
-    var js = document.currentScript && document.currentScript.src;
+        
+    var current = document.currentScript;
+    if (!current) {
+        var scripts = document.getElementsByTagName('script');
+        for(var i = scripts.length - 1; i >= 0; i--) {
+            var script = scripts[i];
+            if (script.src.indexOf('document.') >= 0 && ' complete interactive'.indexOf(script.readyState) > 0)
+                current = script;
+        }
+    }
+    var js = current && current.src;
     if (js) {
         // css and components is always loaded from path of the executing script
         css = ((js.slice(-3) === '.js') ? js.slice(0,-3) : js) + '.css';
@@ -11181,7 +11190,7 @@ function Bootstrap(controls)
 {
     var bootstrap = this;
     var doT = controls.doT;
-    bootstrap.VERSION = '0.1';
+    bootstrap.VERSION = '0.6.6';
     var CONTROL_STYLE = 'default info link success primary warning danger';
     
     bootstrap.control_prototype = (function()
@@ -12950,7 +12959,7 @@ if (typeof exports === 'object') {
 //
 // require doT.js
 
-(function() { "use strict"; var VERSION = '0.6.3';
+(function() { "use strict"; var VERSION = '0.6.6';
 
 function Controls(doT)
 {
