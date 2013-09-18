@@ -7,6 +7,9 @@
 <loc>http://aplib.github.io/markdown-site-template/index.html</loc>
 </url>
 <url>
+<loc>http://aplib.github.io/markdown-site-template/blog.html</loc>
+</url>
+<url>
 <loc>http://aplib.github.io/markdown-site-template/layout.html</loc>
 </url>
 <url>
@@ -44,5 +47,8 @@
 </url>
 <url>
 <loc>http://aplib.github.io/markdown-site-template/components/gcharts/Google Charts.html</loc>
+</url>
+<url>
+<loc>http://aplib.github.io/markdown-site-template/components/d3/d3.html</loc>
 </url>
 </urlset>

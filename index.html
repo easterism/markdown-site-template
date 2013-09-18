@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Simple Markdown site template</title>
-    <script src="document.root.min.js"></script>
+    <script src="document.min.js"></script>
 </head>
 <body>
 
@@ -11,6 +11,7 @@
 
 * [Home]({{=$$DOC.root}}index.html)
 * [Docs]({{=$$DOC.root}}index.html)
+ * [Blog]({{=$$DOC.root}}blog.html)
  * [Layout]({{=$$DOC.root}}layout.html)
  * [CML (Components Markdown Language)]({{=$$DOC.root}}CML.html)
 * [Components]({{=$$DOC.root}}index.html)
@@ -63,8 +64,8 @@ The best solution for writing documentation.
 Required files:
 
 * index.html
-* document.root.min.css
-* document.root.min.js
+* document.min.css
+* document.min.js
 * user.js
 
 Options:
@@ -132,6 +133,6 @@ footer fixed at the bottom edge of the page
 -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $$DOC==='undefined')document.write('<div class="alert alert-danger">document.root.js not found!</div>');</script>
+<script>if(typeof $$DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
 </body>
 </html>

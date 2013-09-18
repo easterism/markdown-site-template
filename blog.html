@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>Blog</title>
+    <script src="document.min.js"></script>
+</head>
+<body>
+
+
+<!--content
+
+## Blog
+
+%panel#success;New features(
+
+#### 2013/9/17
+Added the ability to create pages for testing purposes without any script files and styles.
+You can simply copy the page template.html, to add text and instantly view in the browser.
+If the script is not specified or is not available, the page will automatically load the script and 
+styles from my page on [GitHub](https://github.com/aplib/markdown-site-template). Of course it's slower, and at some points may not work as GitHub is not a CDN,
+but for testing purposes it is very comfortable. I hope you will appreciate this feature.
+
+#### 2013/9/15 The test results indexing of the site in Google
+
+1. Content is indexed properly and is visible in the search results
+2. Crawler does not see internal links on the site, had to add a sitemap.xml and only after that the inside pages were indexed.&ast;  
+
+&ast; Actually, there are two ways for proper indexing in Google - sitemap.xml and script generation of static html pages. 
+Both methods are available, but it seemed to me sitemap.xml generation is more convenient, no need to create a lot of files.
+To generate a sitemap template added a special page sitemap.html
+
+)%panel
+
+%panel#danger;Last breaking changes(
+
+#### 2013/9/17 Renamed the executable files in template:
+
+document.root.js  ->  document.js  
+document.root.css  ->  document.css  
+
+minified version:
+
+document.root.min.js  ->  document.min.js  
+document.root.min.css  ->  document.min.css  
+
+)%panel
+
+
+-->
+
+<!--right-side-column -->
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+<script>if(typeof $$DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
+</body>
+</html>

@@ -10840,7 +10840,9 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 var $$DOC, $$ENV;
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
+if (!$$ENV) {
+    
+    
 $$ENV =
 {
     dot: require('./temp/dot'),
@@ -10874,7 +10876,7 @@ $$ENV =
     var hash = window.location.hash;
     var log_level_pos = hash.indexOf('log-level=');
     if (log_level_pos >= 0) {
-        console.log('document:' + window.location.href);
+        console.log('>document: "' + window.location.href + '"');
         $$ENV.log_level = parseInt(hash[log_level_pos + 10]);
     }
     
@@ -10926,7 +10928,6 @@ $$ENV =
         // Texts and templates
         vars: {},
         // Document data access
-        index: {},
 
         // parse content values from function text object
         parseContent:
@@ -10975,14 +10976,22 @@ $$ENV =
             },
 
         filters: [],
-        
-        appendElement: function(tag, attr1, value1, attr2, value2) {
+        // append to head
+        appendElement: function(id, tag, attributes) {
             try {
+                if (arguments.length < 3) { attributes = tag; tag = id; id = undefined; }
                 var head = document.head;
-                head.insertAdjacentHTML('beforeend', '<' + tag + ' ' + attr1 + '="' + value1 + '" ' + attr2 + '="' + value2 + '"></' + tag + '>');
+                if (id) {
+                    var element = document.getElementById(id);
+                    if (element && element.parentNode === head)
+                        return;
+                }
+                head.insertAdjacentHTML('beforeend',
+                    '<' + tag + (id ? (' id="'+id+'"') : '') + Object.keys(attributes).map(function(prop){return' '+prop+'="'+attributes[prop]+'"';}).join('') + '></' + tag + '>');
                 return head.lastChild;
             } catch(e) { console.log(e); }
         },
+        // remove from head
         removeElement: function(id) {
             var element = document.getElementById(id);
             if (element && element.parentNode === document.head)
@@ -11018,10 +11027,6 @@ $$ENV =
                 check_all_script();
             });
             document.head.appendChild(script);
-        },
-        appendMeta: function(attr1, value1, attr2, value2) {
-            document.head.insertAdjacentHTML('beforeend',
-                '<meta ' + attr1 + '="' + value1 + '" ' + ((arguments.length > 2) ? (attr2 + '="' + value2 + '" ') : '') + ' />');
         },
         // id {string} - optional, identifier
         // css {string} - url or css
@@ -11077,41 +11082,84 @@ $$ENV =
     };
     
     // Path
-    // root - document root path
-    // js - document.root.js path
-    // css - document.root.css path
-
-    var nodes = document.head.childNodes;
-    for(var i = 0, c = nodes.length; i < c; i++) {
+    // root - document folder root path, preferred relative
+    // index - document index file
+    // js - document.js path
+    // css - document.css path
+    // components - codebase start path
+    var nodes = document.head.childNodes, meta_root, meta_index, param_root, param_index, src_root, src_index;
+    for(var i = 0, c = nodes.length; i < c && !meta_root; i++) {
         var node = nodes[i];
-        if (node.nodeType === 1 && node.tagName.toLowerCase() === 'script' && node.src) {
+        if (node.nodeType === 1)
+        switch(node.tagName.toLowerCase()) {
             
-            var document_root_url   = node.src;                 // absolute url
-            var document_root_exact = node.getAttribute('src'); // url as it is set initially
-             
-             if (document_root_exact.slice(-20) === 'document.root.min.js') {
-                var root = document_root_exact.substr(0, document_root_exact.length - 20);
-                $$DOC.root = root;
-                $$DOC.js =   root + 'document.root.min.js';
-                $$DOC.css =  root + 'document.root.min.css';
-                $$DOC.components = root + 'components/';
-             }
-             else if (document_root_exact.slice(-16) === 'document.root.js') {
-                var root = document_root_exact.substr(0, document_root_exact.length - 16);
-                $$DOC.root = root;
-                $$DOC.js =   root + 'document.root.js';
-                $$DOC.css =  root + 'document.root.css';
-                $$DOC.components = root + 'components/';
+            case 'meta':
+                meta_root = node.getAttribute('root');
+                meta_index = node.getAttribute('index');
+                
+                if (meta_index) {
+                    var milowercase = meta_index.toLowerCase();
+                    if ((meta_index.slice(-1) === '/' || meta_index === meta_root)
+                    && (!milowercase.indexOf('.php') && !milowercase.indexOf('.htm') && !milowercase.indexOf('.html'))) {
+                        if (meta_index.slice(-1) !== '/')
+                            meta_index += '/';
+                        meta_index += 'index.html';
+                    }
+                }
+                if (meta_index && !meta_root)
+                    meta_root = meta_index.split('/').slice(0, -1);
+                break;
+                
+            case 'script': if (node.src) {
+                var src = node.getAttribute('src'),
+                    docpos = src.indexOf('document.');
+                // it is a document. script element
+                if (docpos >= 0) {
+                    var qpos = src.indexOf('#') || src.indexOf('?');
+                    if (qpos >= 0)
+                    src.slice(qpos+1).split('&').forEach(function(param)
+                    {
+                        if (param.slice(0,5)==='root=')         param_root = param.slice(5);
+                        else if (param.slice(0,6)==='index=')   param_index = param.slice(6);
+                    });
+                    
+                    // if not an absolute path
+                    if (src.indexOf('//') < 0) {
+                        src_root = src.slice(0, docpos);
+                    }
+                }
             }
         }
     }
+    
+    var root = $$DOC.root || meta_root || param_root || src_root || '',
+        index = $$DOC.index || meta_index || param_index || root + 'index.html',
+        js,css,components;
 
-    $$DOC.appendMeta('name', "viewport", 'content', "width=device-width, initial-scale=1.0");
+    var js = document.currentScript && document.currentScript.src;
+    if (js) {
+        // css and components is always loaded from path of the executing script
+        css = ((js.slice(-3) === '.js') ? js.slice(0,-3) : js) + '.css';
+        components = js.split('/').slice(0, -1).concat(['components/']).join('/');
+    }
+    
+    Object.defineProperties($$DOC, {
+        root: {value: root},
+        index: {value: index},
+        js: {value: js},
+        css: {value: css},
+        components: {value: components}
+    });
+    
+    if ($$ENV.log_level > 0)
+        console.log('root,index,js,css,components'.split(',').map(function(prop){return '>'+prop+': "'+$$DOC[prop]+'"';}).join('\n'));
+    
+    $$DOC.appendElement('meta', {name:'viewport', content:'width=device-width, initial-scale=1.0'});
     if ($$DOC.css)
-        $$DOC.appendElement('link', 'rel', "stylesheet", 'href', $$DOC.css);
+        $$DOC.appendElement('link', {rel:'stylesheet', href:$$DOC.css});
 
 }).call(this);
-
+}
 
 },{"./temp/bootstrap.controls.js":2,"./temp/dot":3,"./temp/marked":4,"controls":5}],2:[function(require,module,exports){
 ////////////////////////////////////////////////////////////////////////////////
@@ -11134,7 +11182,7 @@ function Bootstrap(controls)
     var bootstrap = this;
     var doT = controls.doT;
     bootstrap.VERSION = '0.1';
-    var CONTROL_STYLES = 'default info link success primary warning danger';
+    var CONTROL_STYLE = 'default info link success primary warning danger';
     
     bootstrap.control_prototype = (function()
     {
@@ -11164,7 +11212,7 @@ function Bootstrap(controls)
         for(var prop in parameters)
         {
             var lowercase = prop.toLowerCase();
-            if (CONTROL_STYLES.indexOf(lowercase) >= 0)
+            if (CONTROL_STYLE.indexOf(lowercase) >= 0)
                 style = lowercase;
         }
         
@@ -11337,6 +11385,8 @@ function Bootstrap(controls)
         this.listen('type', function()
         {
             var style = this.parameter('style') || 'default';
+            Object.keys(parameters).some(function(param) { if (CONTROL_STYLE.indexOf(param) >= 0) style = param; });
+            
             this.class('btn btn-' + style, 'btn-default btn-primary btn-success btn-info btn-warning btn-danger btn-link');
             
             var size = bootstrap.BUTTON_SIZES['' + this.parameter('size') || '2'];
@@ -11473,16 +11523,10 @@ function Bootstrap(controls)
     // 
     function FormGroup(parameters, attributes)
     {
-        controls.controlInitialize(this, 'bootstrap.FormGroup', parameters, attributes, FormGroup.template);
+        controls.controlInitialize(this, 'bootstrap.FormGroup', parameters, attributes);
         this.class('form-group');
     };
     FormGroup.prototype = bootstrap.control_prototype;
-    FormGroup.template = doT.template(
-'<div{{=it.printAttributes()}}>\
-{{? (it.controls && it.controls.length > 0) }}\
-{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}\
-{{?}}\
-</div>');
     controls.typeRegister('bootstrap.FormGroup', FormGroup);
     
     
@@ -11499,6 +11543,46 @@ function Bootstrap(controls)
     ControlLabel.template = doT.template(
 '<label{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</label>');
     controls.typeRegister('bootstrap.ControlLabel', ControlLabel);
+    
+    
+    // ControlLabel
+    // 
+    function ControlInput(parameters, attributes)
+    {
+        controls.controlInitialize(this, 'bootstrap.ControlInput', parameters, attributes, ControlInput.template);
+        this.class('form-control');
+        
+        
+        Object.defineProperty(this, 'value',
+        {
+            get: function()
+            {
+                var element = this._element;
+                if (element)
+                    this.attributes.value = element.value;
+                
+                return this.attributes.value;
+            },
+            set: function(value)
+            {
+                var element = this._element;
+                if (element)
+                    element.value = value;
+                
+                this.attributes.value = value;
+            }
+        });
+        this.listen('element', function(element)
+        {
+            if (element)
+                element.value = this.attributes.value;
+        });
+    };
+    ControlInput.prototype = bootstrap.control_prototype;
+    ControlInput.template = doT.template(
+'<input{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</input>');
+    controls.typeRegister('bootstrap.ControlInput', ControlInput);
+    
     
     // ControlSelect
     // 
@@ -11530,8 +11614,6 @@ function Bootstrap(controls)
 </select>');
     ControlSelect.inner_template = doT.template('{{?it.data}}{{~it.data :value:index}}<option value={{=value}}>{{=value}}</option>{{~}}{{?}}');
     controls.typeRegister('bootstrap.ControlSelect', ControlSelect);
-    
-
 };
 
 
@@ -15974,17 +16056,17 @@ InstallDots.prototype.compileAll = function() {
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
 //     markdown-site-template
 //     http://aplib.github.io/markdown-site-template/
 //     (c) 2013 vadim b.
 //     License: MIT
-//
 // require marked.js, controls.js, bootstrap.controls.js, doT.js, jquery.js
 
 (function() { "use strict";
-            
+    
+    if ($$DOC.head)
+        return;
+    
     $$DOC.events.load = new controls.Event();
     $$DOC.transformation = transformation;
 

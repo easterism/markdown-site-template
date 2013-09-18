@@ -8,6 +8,7 @@ $$DOC.parseContent(function(){/*
 
 * [Home]({{=$$DOC.root}}index.html)
 * [Docs]({{=$$DOC.root}}index.html)
+ * [Blog]({{=$$DOC.root}}blog.html)
  * [Layout]({{=$$DOC.root}}layout.html)
  * [CML (Components Markdown Language)]({{=$$DOC.root}}CML.html)
 * [Components]({{=$$DOC.root}}index.html)
