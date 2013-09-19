@@ -16,7 +16,7 @@
 
 #### 2013/9/17
 Added the ability to create pages for testing purposes without any script files and styles.
-You can simply copy the page template.html, to add text and instantly view in the browser.
+You can copy the page template.html, to add text and instantly view in the browser.
 If the script is not specified or is not available, the page will automatically load the script and 
 styles from my page on [GitHub](https://github.com/aplib/markdown-site-template). Of course it's slower, and at some points may not work as GitHub is not a CDN,
 but for testing purposes it is very comfortable. I hope you will appreciate this feature.
@@ -33,6 +33,11 @@ To generate a sitemap template added a special page sitemap.html
 )%panel
 
 %panel#danger;Last breaking changes(
+
+#### 2013/9/19 Renamed globals:
+
+$$ENV -> $ENV
+$$DOC -> $DOC
 
 #### 2013/9/17 Renamed the executable files in template:
 
@@ -52,6 +57,6 @@ document.root.min.css  ->  document.min.css
 <!--right-side-column -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $$DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
+<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
 </body>
 </html>

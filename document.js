@@ -10838,19 +10838,19 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
 
 
 
-var $$DOC, $$ENV;
+var $DOC, $ENV, /*deprecated*/$$DOC, $$ENV;
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-if (!$$ENV) {
+if (!$ENV) {
     
     
-$$ENV =
+$ENV =
 {
     dot: require('./temp/dot'),
     controls: require('controls'),
     marked: require('./temp/marked'),
     'bootstrap.controls': require('./temp/bootstrap.controls.js')
 };
-
+/*deprecated*/$$ENV = $ENV;
 
 (function() {
     
@@ -10881,19 +10881,19 @@ $$ENV =
     }
     
     
-    // initialize $$DOC
+    // initialize $DOC
     
     var scripts_count = 0, scripts_stated = 0, transformation_started;
     function check_all_script() {
         // document transformation start after the scripts loaded or failed
-        var transformation = $$DOC.transformation;
+        var transformation = $DOC.transformation;
         if (scripts_count === scripts_stated && !transformation_started && transformation) {
             transformation_started = true;
             transformation();
         }
     }
     
-    $$DOC =
+    $DOC =
     {
         // Document events - 'load'
         events: {},
@@ -10929,7 +10929,7 @@ $$ENV =
         vars: {},
         // Document data access
 
-        // parse content values from function text object
+        // parse content values from text or from function text
         parseContent:
             function(name /*name optional*/, content) {
 
@@ -11052,34 +11052,35 @@ $$ENV =
         mod: function(group, names) {
             if (arguments.length === 1)
                 names = group;
-            var mod_group = $$DOC.mods[group];
+            var mod_group = $DOC.mods[group];
             if (!mod_group) {
                 mod_group = [];
-                $$DOC.mods[group] = mod_group;
+                $DOC.mods[group] = mod_group;
             }
             names.split(/ ,;/g).forEach(function(name) {
                 if (mod_group.indexOf(name) < 0) {
-                    var path = $$DOC.root + 'mods/' + name + '/' + name;
-                    $$DOC.appendCSS(group + '-' + name + '-css', path + '.css');
-                    $$DOC.appendScript(group + '-' + name + '-js', path + '.js');
+                    var path = $DOC.root + 'mods/' + name + '/' + name;
+                    $DOC.appendCSS(group + '-' + name + '-css', path + '.css');
+                    $DOC.appendScript(group + '-' + name + '-js', path + '.js');
                     mod_group.push(name);
                 }
             });
         },
         removeMod: function(group, names) {
-            var mod_group = $$DOC.mods[group];
+            var mod_group = $DOC.mods[group];
             if (mod_group) {
                 ((arguments.length === 1) ? mod_group : names.split(/ ,;/g)) .forEach(function(name) {
                     var index = mod_group.indexOf(name);
                     if (index >= 0) {
-                        $$DOC.removeElement(group + '-' + name + '-css');
-                        $$DOC.removeElement(group + '-' + name + '-js');
+                        $DOC.removeElement(group + '-' + name + '-css');
+                        $DOC.removeElement(group + '-' + name + '-js');
                         mod_group.splice(index, 1);
                     }
                 });
             }
         }
     };
+    /*deprecated*/ $$DOC = $DOC;
     
     // Path
     // root - document folder root path, preferred relative
@@ -11132,8 +11133,8 @@ $$ENV =
         }
     }
     
-    var root = $$DOC.root || meta_root || param_root || src_root || '',
-        index = $$DOC.index || meta_index || param_index || root + 'index.html',
+    var root = $DOC.root || meta_root || param_root || src_root || '',
+        index = $DOC.index || meta_index || param_index || root + 'index.html',
         js,css,components;
         
     var current = document.currentScript;
@@ -11152,7 +11153,7 @@ $$ENV =
         components = js.split('/').slice(0, -1).concat(['components/']).join('/');
     }
     
-    Object.defineProperties($$DOC, {
+    Object.defineProperties($DOC, {
         root: {value: root},
         index: {value: index},
         js: {value: js},
@@ -11161,11 +11162,11 @@ $$ENV =
     });
     
     if ($$ENV.log_level > 0)
-        console.log('root,index,js,css,components'.split(',').map(function(prop){return '>'+prop+': "'+$$DOC[prop]+'"';}).join('\n'));
+        console.log('root,index,js,css,components'.split(',').map(function(prop){return '>'+prop+': "'+$DOC[prop]+'"';}).join('\n'));
     
-    $$DOC.appendElement('meta', {name:'viewport', content:'width=device-width, initial-scale=1.0'});
-    if ($$DOC.css)
-        $$DOC.appendElement('link', {rel:'stylesheet', href:$$DOC.css});
+    $DOC.appendElement('meta', {name:'viewport', content:'width=device-width, initial-scale=1.0'});
+    if ($DOC.css)
+        $DOC.appendElement('link', {rel:'stylesheet', href:$DOC.css});
 
 }).call(this);
 }
@@ -15823,27 +15824,37 @@ InstallDots.prototype.compileAll = function() {
         }
     }
 
+
     // styled block div factory
-    function Fblock(parameters, attributes) {
+    function Block(parameters, attributes) {
         var control = Felement('div', parameters, attributes);
         control.template($$ENV.default_template, $$ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
     };
-    controls.factoryRegister('block', Fblock);
+    controls.factoryRegister('block', Block);
+    
+    
+    function IBlock(parameters, attributes) {
+        var control = Block(parameters, attributes);
+        control.style('display:inline-block;' + control.style());
+        return control;
+    };
+    controls.factoryRegister('iblock', IBlock);
+
 
     var span_template = $$ENV.dot.template(
 '<span{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</span>');
 
-    function Ftext(parameters, attributes) {
+    function Text(parameters, attributes) {
         var control = Felement('span', parameters, attributes);
         control.template(span_template, $$ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
     };
-    controls.factoryRegister('text', Ftext);
+    controls.factoryRegister('text', Text);
     
 
 }).call(this);
@@ -15877,7 +15888,7 @@ InstallDots.prototype.compileAll = function() {
         // process markup at this level
         var this_text = this.text();
         this.text('');
-        $$DOC.processContent(this, this_text);
+        $DOC.processContent(this, this_text);
     };
     CAlert.prototype = controls.control_prototype;
     controls.typeRegister('Alert', CAlert);
@@ -15900,7 +15911,7 @@ InstallDots.prototype.compileAll = function() {
 
 
     var known_params = 'style header footer default info link success primary warning danger';
-    function FPanel(parameters, attributes) {
+    function Panel(parameters, attributes) {
         
         var panel = controls.create('bootstrap.Panel', parameters, attributes);
         
@@ -15923,7 +15934,15 @@ InstallDots.prototype.compileAll = function() {
         
         return panel;
     };
-    controls.factoryRegister('panel', FPanel);
+    controls.factoryRegister('panel', Panel);
+    
+    
+    function IPanel(parameters, attributes) {
+        var control = Panel(parameters, attributes);
+        control.style('display:inline-block;' + control.style());
+        return control;
+    };
+    controls.factoryRegister('ipanel', IPanel);
 
 
 }).call(this);
@@ -15967,7 +15986,7 @@ InstallDots.prototype.compileAll = function() {
                     $text: '<a href="#" class="panel-title">' + Object.keys(parameters)[0] + '</a>'
         });
         
-        $$DOC.processContent(content, this.text());
+        $DOC.processContent(content, this.text());
         this.text('');
         
         // process markup template:
@@ -16004,7 +16023,7 @@ InstallDots.prototype.compileAll = function() {
         
         
         // place tabs on this.content panel
-        $$DOC.processContent(body, this.attributes.$text);
+        $DOC.processContent(body, this.attributes.$text);
         this.attributes.$text = '';
         
         var found_active = false;
@@ -16048,7 +16067,7 @@ InstallDots.prototype.compileAll = function() {
         
         var this_text = bootstrap_tabpage.attributes.$text;
         bootstrap_tabpage.attributes.$text = '';
-        $$DOC.processContent(bootstrap_tabpage, this_text);
+        $DOC.processContent(bootstrap_tabpage, this_text);
         
         // process markup template:
         bootstrap_tabpage.template($$ENV.default_template, $$ENV.default_inner_template);
@@ -16073,20 +16092,21 @@ InstallDots.prototype.compileAll = function() {
 
 (function() { "use strict";
     
-    if ($$DOC.head)
+    if ($DOC.head)
         return;
     
-    $$DOC.events.load = new controls.Event();
-    $$DOC.transformation = transformation;
+    $DOC.events.load = new controls.Event();
+    $DOC.transformation = transformation;
 
     // load user.js script:
-    $$DOC.appendScript($$DOC.root + "user.js");
+    $DOC.appendScript($DOC.root + "user.js");
     
-    // These elements are are not attached, childs are attached
+    // These controls are are not attached, childs are attached
     var head = controls.create('head'), body = controls.create('body');
-    $$DOC.head = head;
-    $$DOC.body = body;
+    $DOC.head = head;
+    $DOC.body = body;
     
+    // Stub controls loading dispatcher
     var stubs = {};
     function stubResLoader(stub) {
         // here if stub
@@ -16097,7 +16117,7 @@ InstallDots.prototype.compileAll = function() {
             stubs[original__type] = stublist;
         }
         stublist.push(stub);
-        var url = $$DOC.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
+        var url = $DOC.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
         // load component asynchronously
         var component_js = $(document.head).children('script[src*="' + url +'"]:first')[0];
         if (!component_js) {
@@ -16108,28 +16128,28 @@ InstallDots.prototype.compileAll = function() {
         }
     }
     
-    // 3. process templates and create control
-    var template = controls.doT.template('{{=it.getText()}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
-    $$DOC.addTextContainer = function(control, text) {
+    // Add text fragment to controls tree
+    var template = function(it) { return it.getText() + it.controls.map(function(control) { return control.wrappedHTML(); }).join(''); };
+    $DOC.addTextContainer = function(control, text) {
         
         // container.outerHTML() returns text as is
         var container = control.add('container', {$text:text});
         
-        // if text contains dot template compile getText function
+        // if text contains doT template then compile to getText function
         var pos = text.indexOf('{{');
-        if (pos && text.indexOf('}}') > pos) {
+        if (pos >= 0 && text.indexOf('}}') > pos) {
             container.getText = controls.doT.template(text);
             container.template(template);
         }
     };
     
-    $$DOC.processContent = function(collection, content) {
+    $DOC.processContent = function(collection, content) {
         
         if (!content)
             return;
         
         // 1. check substitutions
-        var filters = $$DOC.filters;
+        var filters = $DOC.filters;
         for(var i in filters) {
             var subst = filters[i];
             content = content.replace(subst.regex, subst);
@@ -16164,7 +16184,7 @@ InstallDots.prototype.compileAll = function() {
                             if (control) {
                                 // flush buffer
                                 if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/) {
-                                    $$DOC.addTextContainer(collection, buffered_text);
+                                    $DOC.addTextContainer(collection, buffered_text);
                                     buffered_text = '';
                                 }
 
@@ -16187,13 +16207,12 @@ InstallDots.prototype.compileAll = function() {
         
         // flush buffer
         if (buffered_text/* && (buffered_text.length > 16 || buffered_text.trim())*/)
-            $$DOC.addTextContainer(collection, buffered_text);
+            $DOC.addTextContainer(collection, buffered_text);
     };
     
 
-    var processed_nodes = [],
-        sections = $$DOC.sections,
-        order = $$DOC.order,
+    var sections = $DOC.sections,
+        order = $DOC.order,
         log_level = $$ENV.log_level;
 
     // found sections process
@@ -16219,7 +16238,7 @@ InstallDots.prototype.compileAll = function() {
 
                     var section_control = body.add(name + ':div', {class:name});
                     section_control.template($$ENV.default_template);
-                    $$DOC.processContent(section_control, content);
+                    $DOC.processContent(section_control, content);
                     sections[name] = section_control;
                     translated_sections.push(name);
 
@@ -16230,24 +16249,25 @@ InstallDots.prototype.compileAll = function() {
                     var created = false;
                     var in_order = order.indexOf(name);
                     if (in_order >= 0) {
-                        // look element before in order
-                        for(var i = in_order - 1; i >= 0; i--) {
-                            var exists_before_in_order = sections[order[i]];
-                            if (exists_before_in_order && typeof exists_before_in_order !=='string') {
-                                // insert after
-                                section_control.createElement(exists_before_in_order._element, 3);
-                                created = true;
-                                break;
-                            }
-                        }
                         
-                        if (!created)
                         // look element after in order
                         for(var i = in_order + 1, c = order.length; i < c; i++) {
                             var exists_after_in_order = sections[order[i]];
                             if (exists_after_in_order && typeof exists_after_in_order !=='string') {
                                 // insert before
                                 section_control.createElement(exists_after_in_order._element, 2);
+                                created = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!created)
+                        // look element before in order
+                        for(var i = in_order - 1; i >= 0; i--) {
+                            var exists_before_in_order = sections[order[i]];
+                            if (exists_before_in_order && typeof exists_before_in_order !=='string') {
+                                // insert after
+                                section_control.createElement(exists_before_in_order._element, 3);
                                 created = true;
                                 break;
                             }
@@ -16273,17 +16293,17 @@ InstallDots.prototype.compileAll = function() {
             transformation_started = true;
         
         head.attachAll();
-        parseDOM(document.head);
+        body.attach();
+
         // delay first transformation -> timer
-            
         var timer = setInterval(function() {
-            parseDOM(document.body);
+            parseDOM();
             processSections(); // sections may be inserted by components
             onresize();
         }, 25);
         
         var dom_loaded_handler = function() {
-            parseDOM(document.body);
+            parseDOM();
             processSections();
             onresize();
             $(window).on('resize', onresize);
@@ -16304,7 +16324,7 @@ InstallDots.prototype.compileAll = function() {
                 dom_loaded_handler();
             
             // raise 'load' event
-            var load_event = $$DOC.events.load;
+            var load_event = $DOC.events.load;
             load_event.raise();
             load_event.clear();
             
@@ -16312,7 +16332,33 @@ InstallDots.prototype.compileAll = function() {
         });
     }
     
-    function parseDOM(node) {
+    // get list of the special marked text elements from the dom tree
+    // dom_loading - dom loading in progress
+    // syntax:
+    // <--sectionname ... -->
+    // <--[namespace.]controlid[#parameters] ... -->
+    //
+    var processed_nodes = [];
+    function parseDOM(dom_loading) {
+//        var iterator = document.createNodeIterator(document.body, 0x80),
+//            text_node = iterator.nextNode(),
+//            fordelete = [];
+//        while (text_node)
+//        if (processed_nodes.indexOf(child) < 0) {
+//            var node_text = textNode.nodeValue;
+//            if (' \n['.indexOf(node_text[0]) < 0) {
+//                
+//                
+//                    
+//                
+//            }
+//            else
+//                processed_nodes.push(child);
+//            
+//            text_node = iterator.nextNode();
+//        }
+        
+        var node = document.body;
         var childs = node.childNodes, nodes = [], fordelete = [];
         // parseContent can cause changes in DOM
         for(var i = 0, c = childs.length; i < c; i++)
@@ -16324,7 +16370,7 @@ InstallDots.prototype.compileAll = function() {
                 if (name_match.length){
                     var name = name_match[0];
                     // parseContent can cause changes in DOM
-                    if ($$DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
+                    if ($DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
                         fordelete.push(child);
                     else
                         processed_nodes.push(child);

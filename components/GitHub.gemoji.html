@@ -8,7 +8,7 @@
     // place to user.js to enable gemoji on the whole site
     function emoji(text) { return '%GitHub.gemoji(' + text + ')%GitHub.gemoji'; }
     emoji.regex = /:[^\s\{}]{1,20}:(?!`)/g;
-    $$DOC.filters.push(emoji);
+    $DOC.filters.push(emoji);
 </script>
 
 </head>
@@ -29,7 +29,7 @@ script:
 
     function emoji(text) { return '%GitHub.gemoji'+'(' + text + ')%GitHub.gemoji'; }
     emoji.regex = /:\S{1,20}:(?!`)/g;
-    $$DOC.filters.push(emoji);
+    $DOC.filters.push(emoji);
 
 component: <code><span>%</span>GitHub.gemoji(abc)<span>%</span>GitHub.gemoji</code>
 
@@ -74,6 +74,6 @@ some example:
 <!--right-side-column -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $$DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
+<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
 </body>
 </html>
