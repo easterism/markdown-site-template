@@ -17,24 +17,35 @@
 
 <!--content
 
-CML is an extension of the markdown and html markup for inclusion in the document of the active components, representing the templates,
-visual components, data or parts of other documents.
+CML is an extension of the html and markdown markup for inclusion of the visual components, templates, data or parts of other documents.
 
-### Syntax
+#### Syntax
 
-&lt;!--sectionname ... --&gt; - in the context of the html document, where sectionname is any identifier, template for inclusion in the 
-html document named section.
-Named section is a div-control, the section name is assigned to the class attribute of the control. In the final html document it
-is translated to a div: ```<div id=... class="sectionname"> ... </div>```.
+<code>&lt;!--sectionname ... --&gt;</code> where sectionname is any valid identifier,
+allowed in context of the html document and in function $$DOC.parseContent() argument text.
 
-All controls (in terms of library controls.js) are created when translation, after translation are available through the fields
-global object $$DOC. $$DOC has two predefined fields named head and body. The path from the $$DOC to the control of a named section within
-the hierarchical nesting of controls is determined by where the &lt;!--name ... --&gt; pattern was placed. For example, it may be $$DOC.body.content
+Template for inclusion named section in the html document. Named section is a div-control, the section name is assigned to 
+the class attribute of the control. In the final html document it is translated to a div: ```<div id=... class="sectionname"> ... </div>```.
 
+<code>$$DOC.order</code> determine the order of the first level sections for which placement in the document is undefined.
+
+#### Syntax
+
+<code>&lt;!--%[namespace.]identifier[#parameters]\( ... \)%[namespace.]identifier--&gt;</code> where controlid is valid identifier of a registered control,
+allowed in context of the html document and in function $$DOC.parseContent() argument text.
+
+Template for inclusion component in the html document.
+All controls (in terms of library controls.js) are created when translation. After translation collection of the controls are accessible
+through the fields $$DOC.sections, $$DOC.head, $$DOC.body. The path from the $$DOC to the control of a named section within the nesting of
+the controls is determined by where the &lt;!--name ... --&gt; pattern was placed. For example $$DOC.body.content.
+
+##### Markup nesting
+
+Inside the markdown markup, you can use html and CML markup.
 Controls include text content is desirable (but not necessarily) translate it as CML.
 In particular the named sections translate their content as CML.
 
-### CML 
+#### Syntax
 
 ```%[namespace.]identifier[#parameters]( [content] )[%[namespace.]identifier]```
 
