@@ -10958,6 +10958,7 @@ $ENV =
                         }
                     }
                 }
+                // for delete
                 else if (arguments.length > 1) {
 
                     if (typeof(content) === 'function') {
@@ -13837,17 +13838,14 @@ controls.typeRegister(__type, ' + name + ');';
                 var index = parent.controls.indexOf(this);
                 this.parent = undefined;
                 setParent.call(control, parent, index);
-                
-                var element = this._element;
-                if (!element)
-                    control.element = undefined;
-                else
-                {
-                    control.element = element;
-                    control.refresh(); // rewrite dom
-                }
-                
-                //parent.refreshInner();
+            }
+            var element = this._element;
+            if (!element)
+                control.element = undefined;
+            else
+            {
+                control.element = element;
+                control.refresh(); // rewrite dom
             }
         };
         
@@ -15808,7 +15806,7 @@ InstallDots.prototype.compileAll = function() {
 //            // build css element
 //            // style = style.replace(/;/g, ' !important;');
 //            
-//            $$DOC.appendCSS(control.cssClassName, style);
+//            $DOC.appendCSS(control.cssClassName, style);
 //        }
         
         return control;
@@ -15819,7 +15817,7 @@ InstallDots.prototype.compileAll = function() {
         var inner_text = control.attributes.$text;
         if (inner_text)
         {
-            $$DOC.processContent(control, inner_text);
+            $DOC.processContent(control, inner_text);
             control.attributes.$text = undefined;
         }
     }
@@ -15926,7 +15924,7 @@ InstallDots.prototype.compileAll = function() {
             panel.footer.text(parameters.footer);
             
         var body = panel.body;
-        $$DOC.processContent(body, body.text());
+        $DOC.processContent(body, body.text());
         body.text('');
         
         // process markup template:
@@ -16215,15 +16213,82 @@ InstallDots.prototype.compileAll = function() {
         order = $DOC.order,
         log_level = $$ENV.log_level;
 
-    // found sections process
+    // process found sections content
+    var processed_nodes = [];
     function processSections() {
-
+        
+        // check body
         if (!body._element && document.body)
             body.attachAll();
         if (!body._element)
             return;
-
+        
         var translated_sections = [];
+        
+        // process DOM
+        // get list of the special marked text elements from the dom tree
+        // syntax:
+        // <--sectionname ... -->
+        // <--%[namespace.]cid[#parameters]( ... )%[namespace.]cid-->
+        //
+        var iterator = document.createNodeIterator(document.body, 0x80, null, false),
+            text_node,
+            fordelete = [];
+    
+        while (text_node = iterator.nextNode())
+        if (processed_nodes.indexOf(text_node) < 0) {
+            var control, text = text_node.nodeValue, first_char = text[0];
+            if (' \n\t[@$&*#!'.indexOf(first_char) < 0) {
+                try {
+                    if (first_char === '%') {
+                        // <--%namespace.cid#params( ... )%namespace.cid-->
+                        // \1 cid \2 #params \3 content
+                        var match = text.match(/^(%(?:[^ \t\n\(]{1,128}\.)?[^ \t\n\(]{1,128})(#[^\t\n\(]{1,512})?\(([\S\s]*)\)\1$/);
+                        if (match) {
+                            // create control
+                            control = controls.createOrStub(match[1].slice(1) + (match[2] || ''), {$text: match[3]});
+                        }
+                    } else {
+                        // <--sectionname ... -->
+                        var namelen = text.indexOf(' ');
+                        var eol = text.indexOf('\n');
+                        if (eol > 0 && eol < namelen)
+                            namelen = eol;
+                        if (namelen > 0 && namelen < 128) {
+                            var section_name = text.slice(0, namelen),
+                            // create section div
+                            control = controls.create('div', {class:section_name});
+                            control.name = section_name;
+                            $DOC.addSection(section_name, control);
+                            control.template($$ENV.default_template, $$ENV.default_inner_template);
+                            $DOC.processContent(control, text.slice(namelen + 1));
+                            translated_sections.push(section_name);
+                        }
+                    }
+                    if (control) {
+                        // insert control element to DOM
+                        control.createElement(text_node, 2/*before node*/);
+                        if (control._element && control._element.parentNode === document.body)
+                            $DOC.body.add(control);
+                        
+                        // create component loader
+                        // FIX: (for orphaned control) start loader after DOM element was created
+                        if (control.isStub)
+                            new stubResLoader(control);
+                    }
+                } catch (e) { console.log(e); }
+            }
+            (control ? fordelete : processed_nodes).push(text_node);
+        }
+        
+        for( var i = fordelete.length - 1; i >= 0; i--) {
+            var node = fordelete[i], parent = node.parentNode;
+            parent.removeChild(node);
+        }
+            
+        
+        // process other named sections content, applied from controls or user.js
+        //
         for(var name in sections)
         if (name) { // skip unnamed for compatibility
             try
@@ -16237,7 +16302,7 @@ InstallDots.prototype.compileAll = function() {
                     // translate section to control object
 
                     var section_control = body.add(name + ':div', {class:name});
-                    section_control.template($$ENV.default_template);
+                    section_control.template($$ENV.default_template, $$ENV.default_inner_template);
                     $DOC.processContent(section_control, content);
                     sections[name] = section_control;
                     translated_sections.push(name);
@@ -16279,6 +16344,7 @@ InstallDots.prototype.compileAll = function() {
             }
             catch (e) { console.log(e); }
         }
+        
         if (translated_sections.length > 0)
             apply_patches(translated_sections);
     }
@@ -16297,13 +16363,11 @@ InstallDots.prototype.compileAll = function() {
 
         // delay first transformation -> timer
         var timer = setInterval(function() {
-            parseDOM();
             processSections(); // sections may be inserted by components
             onresize();
         }, 25);
         
         var dom_loaded_handler = function() {
-            parseDOM();
             processSections();
             onresize();
             $(window).on('resize', onresize);
@@ -16330,56 +16394,6 @@ InstallDots.prototype.compileAll = function() {
             
             onresize(); // before and after 'load' event
         });
-    }
-    
-    // get list of the special marked text elements from the dom tree
-    // dom_loading - dom loading in progress
-    // syntax:
-    // <--sectionname ... -->
-    // <--[namespace.]controlid[#parameters] ... -->
-    //
-    var processed_nodes = [];
-    function parseDOM(dom_loading) {
-//        var iterator = document.createNodeIterator(document.body, 0x80),
-//            text_node = iterator.nextNode(),
-//            fordelete = [];
-//        while (text_node)
-//        if (processed_nodes.indexOf(child) < 0) {
-//            var node_text = textNode.nodeValue;
-//            if (' \n['.indexOf(node_text[0]) < 0) {
-//                
-//                
-//                    
-//                
-//            }
-//            else
-//                processed_nodes.push(child);
-//            
-//            text_node = iterator.nextNode();
-//        }
-        
-        var node = document.body;
-        var childs = node.childNodes, nodes = [], fordelete = [];
-        // parseContent can cause changes in DOM
-        for(var i = 0, c = childs.length; i < c; i++)
-            nodes[i] = childs[i];
-        for(var i = 0, c = nodes.length; i < c; i++) {
-            var child = nodes[i];
-            if (child.nodeType === 8 && processed_nodes.indexOf(child) < 0) {
-                var name_match = child.nodeValue.match(/\S+(?=[\s\r\n])/);
-                if (name_match.length){
-                    var name = name_match[0];
-                    // parseContent can cause changes in DOM
-                    if ($DOC.parseContent(name, child.nodeValue.substr(name.length+1)))
-                        fordelete.push(child);
-                    else
-                        processed_nodes.push(child);
-                }
-            }
-        }
-        // remove processed
-        for(var prop in fordelete)
-            node.removeChild(fordelete[prop]);
     }
     
     // apply js patches for dom elements on transformation progress

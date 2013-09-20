@@ -17,7 +17,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 
     
     var jsapi_state = 0, corechart_state = 0, not_drawn = [];
-    $$DOC.appendScript('www.google.com/jsapi', 'https://www.google.com/jsapi', function(state) {
+    $DOC.appendScript('www.google.com/jsapi', 'https://www.google.com/jsapi', function(state) {
         jsapi_state = state;
         if (jsapi_state > 0) {
             google.load('visualization', '1.0', {packages:['corechart'], callback: function() {

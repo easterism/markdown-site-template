@@ -35,7 +35,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         var inner = this.add('inner:div', {class:'carousel-inner'});
         
         // place slides on this.inner panel
-        $$DOC.processContent(inner, this.text());
+        $DOC.processContent(inner, this.text());
         this.text('');
         
         // remove burrs
@@ -96,7 +96,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         var text = slide.text();
         slide.text('');
-        $$DOC.processContent(slide, text);
+        $DOC.processContent(slide, text);
         
         // process markup template:
         slide.template($$ENV.default_template, $$ENV.default_inner_template);

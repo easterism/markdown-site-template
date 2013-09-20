@@ -31,7 +31,7 @@ the class attribute of the control. In the final html document it is translated 
 
 #### Syntax
 
-<code>&lt;!--%[namespace.]identifier[#parameters]\( ... \)%[namespace.]identifier--&gt;</code> where controlid is valid identifier of a registered control,
+<code>&lt;!--%[namespace.]control[#parameters]\( ... \)%[namespace.]control--&gt;</code> where control is valid identifier of a registered control,
 allowed in context of the html document and in function $DOC.parseContent() argument text.
 
 Template for inclusion component in the html document.
@@ -47,7 +47,7 @@ In particular the named sections translate their content as CML.
 
 #### Syntax
 
-```%[namespace.]identifier[#parameters]( [content] )[%[namespace.]identifier]```
+```%[namespace.]control[#parameters]( [content] )[%[namespace.]control]```
 
 #### namespace
 

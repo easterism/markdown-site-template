@@ -62,7 +62,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     // load from CDN:
     if (typeof MathJax === 'undefined') {
         var config = 'TeX-AMS-MML_HTMLorMML'; // http://docs.mathjax.org/en/latest/configuration.html
-        $$DOC.appendScript('math.MathJax', "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=" + config, function(state) {
+        $DOC.appendScript('math.MathJax', "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=" + config, function(state) {
             for(var prop in load_controls) {
                 var control = load_controls[prop];
                 if (state > 0)

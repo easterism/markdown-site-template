@@ -17,7 +17,7 @@ if (!controls) throw new TypeError('controls.js not found!');
     
     
     var d3v3_state = 0, not_drawn = [];
-    $$DOC.appendScript('d3.v3', 'http://d3js.org/d3.v3.js', function(state) {
+    $DOC.appendScript('d3.v3', 'http://d3js.org/d3.v3.js', function(state) {
         d3v3_state = state;
         if (d3v3_state > 0) {
             for(var i in not_drawn)
