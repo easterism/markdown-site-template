@@ -13,8 +13,8 @@ http://aplib.github.io/markdown-site-template
 Required files:
 
 * index.html
-* document.root.min.css
-* document.root.min.js
+* document.min.css
+* document.min.js
 * user.js
 
 ## Addition components

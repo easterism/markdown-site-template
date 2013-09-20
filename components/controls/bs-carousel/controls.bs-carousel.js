@@ -91,15 +91,13 @@ if (!controls) throw new TypeError('controls.js not found!');
         
         var slide = controls.create('div', parameters, attributes);
         slide.class('bs-slide');
-        slide.template($$ENV.default_template, $$ENV.default_inner_template);
-
         
         var text = slide.text();
         slide.text('');
         $DOC.processContent(slide, text);
         
         // process markup template:
-        slide.template($$ENV.default_template, $$ENV.default_inner_template);
+        slide.template($ENV.default_template, $ENV.default_inner_template);
 
         return slide;
     }

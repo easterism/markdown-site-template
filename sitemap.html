@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>sitemap.xml</title>
+    <script src="document.min.js"></script>
+</head>
+<body>
+<script>
+    
+    $DOC.onload(function()
+    {
+        var input;
+        $DOC.body.content.add('form:bootstrap.Form', {class:'form-horizontal'}, function(form) {
+            form.add('bootstrap.FormGroup', function(group) {
+                
+                group.add('bootstrap.ControlLabel', {$text: 'Site url:', class:'col-sm-2'});
+                input = 
+                    group.add('div', {class:'col-sm-8'})
+                    .add('input:bootstrap.ControlInput', {value:$DOC.root, placeholder:'Enter site root url'});
+                
+                group.add('a', {class:'btn btn-primary col-sm-2', type:'submit', href:'#', download: 'sitemap.xml', $text:'Create sitemap'})
+                .listen('click', create_sitemap);
+            });
+        });
+        
+        try {
+            input.value = localStorage.getItem('rootpath');
+        } catch (e) {}
+        
+        $DOC.body.content.form.createElement();
+
+        function create_sitemap(event) {
+            
+            var rootpath = input.value;
+            if (!rootpath)
+                return;
+            
+            try {
+                localStorage.setItem('rootpath', rootpath);
+            } catch (e) {}
+            
+            var sitemap = 
+'<?xml version="1.0" encoding="UTF-8"?>\n\
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\
+<url>\n\
+<loc>http://aplib.github.io/markdown-site-template/</loc>\n\
+</url>\n\
+';
+            $($DOC.sections['fixed-top-navbar'].element).find('a').each(function(i,el)
+            {
+                var href = el.getAttribute('href');
+                if (href && href !== '#')
+                {
+                    sitemap += '<url>\n<loc>' + rootpath + href + '</loc>\n</url>\n';
+                }
+            });
+
+            sitemap += '</urlset>';
+
+            this.element.href = 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(sitemap);
+            this.element.download = 'sitemap.xml';
+        }
+    });    
+</script>
+
+<!--content
+
+-->
+
+
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://aplib.github.io/document.min.css" id="document.css">');</script>
+</body>
+</html>

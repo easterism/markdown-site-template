@@ -47,7 +47,7 @@ $DOC.sections.footer =
  // marked.js support GitHub Flavored Markdown see on https://github.com/chjj/marked/wiki
  // For enable GitHub Flavored Markdown uncommented next options code lines:
  // Set default options except highlight which has no default
- $$ENV.marked.setOptions({
+ $ENV.marked.setOptions({
    gfm: true,
  //  highlight: function (code, lang, callback) {
  //    pygmentize({ lang: lang, format: 'html' }, code, function (err, result) {

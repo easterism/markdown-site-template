@@ -29,6 +29,14 @@ the class attribute of the control. In the final html document it is translated 
 
 <code>$DOC.order</code> determine the order of the first level sections for which placement in the document is undefined.
 
+ example:
+
+    <!--fixed-top-navbar
+    * [Home](index.html)
+    * [Page1](page1.html)
+    * [Page2](page1.html)
+    -­->
+
 #### Syntax
 
 <code>&lt;!--%[namespace.]control[#parameters]\( ... \)%[namespace.]control--&gt;</code> where control is valid identifier of a registered control,
@@ -39,15 +47,21 @@ All controls (in terms of library controls.js) are created when translation. Aft
 through the fields $DOC.sections, $DOC.head, $DOC.body. The path from the $DOC to the control of a named section within the nesting of
 the controls is determined by where the &lt;!--name ... --&gt; pattern was placed. For example $DOC.body.content.
 
-##### Markup nesting
-
-Inside the markdown markup, you can use html and CML markup.
-Controls include text content is desirable (but not necessarily) translate it as CML.
-In particular the named sections translate their content as CML.
+example:
+<code><pre>
+<!--*%*math#tex(
+ \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
+ 1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
+ {1+\frac{e^{-8\pi}} {1+\ldots} } } }
+)*%*math
+-­->
+</pre></code>
 
 #### Syntax
 
 ```%[namespace.]control[#parameters]( [content] )[%[namespace.]control]```
+
+allowed in markdown text.
 
 #### namespace
 
@@ -67,12 +81,26 @@ Example:
 
 The text inside the parentheses is the responsibility of the control, diferent controls translate content text in different ways.
 
+example:
+<code><pre>
+*%*math#tex(
+ \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
+ 1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
+ {1+\frac{e^{-8\pi}} {1+\ldots} } } }
+)*%*math
+</pre></code>
+
+##### Markup nesting
+
+Inside the markdown markup, you can use html and CML markup.
+Controls include text content is desirable (but not necessarily) translate text as CML.
+In particular the named sections translate their content as CML.
 
 -->
 
 <!--right-side-column -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/markdown-site-template/document.min.js"><'+'/script>');</script>
+<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://aplib.github.io/document.min.css" id="document.css">');</script>
 </body>
 </html>
