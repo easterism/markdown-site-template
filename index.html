@@ -80,21 +80,26 @@ Options:
 
 New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing named sections of content as needed, for example the addition of a navigation bar:
 
-    <!--fixed-top-navbar
+    <!--fixed-top
+    %navbar(
     * [Home](index.html)
     * [Page1](page1.html)
     * [Page2](page1.html)
+    )%navbar
     -­­­->
 
 ## Pre-defined section names:
 
+* fixed-top - top horizontal bar fixed at the upper edge of the page
 * left-side-column - left side column
 * content (marked text) - the main contents of the site
 * text-box - padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
 * right-side-column - right side column
-* fixed-top-navbar (list) - top horizontal navigation bar fixed at the upper edge of the page
 * footer - footer at the bottom of the page for copyright, powered etc notes
 * fixed-bottom-footer (list)) - footer fixed at the bottom edge of the page
+
+### fixed-top
+Top horizontal bar fixed at the upper edge of the page.
 
 ### left-side-column
 adaptive left side column
@@ -107,9 +112,6 @@ adaptive right side column
 
 ### text-box
 padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
-
-### fixed-top-navbar
-Top horizontal navigation bar fixed at the upper edge of the page. See example in section Installation.
 
 ### footer
 footer at the bottom of the page
