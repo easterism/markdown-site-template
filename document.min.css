@@ -13,11 +13,19 @@
 
 
 /*
-     markdown-site-template 0.1
+     markdown-site-template
      http://aplib.github.io/markdown-site-template/
-     (c) 2013 vadim baklanov
+     (c) 2013 vadim b.
      License: MIT
 */
+
+.fixed-top {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    /*min-height: 32px;*/
+    z-index: 1030;
+}
 
 .fixed-top-navbar {
     display: block;

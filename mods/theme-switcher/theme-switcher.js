@@ -4,16 +4,16 @@
     var all_themes =
     {
         'bootstrap-theme':'Bootstrap Default',
-//        'cerulian-theme':'Bootswatch: Cerulian',
-//        'cosmo-theme':'Bootswatch: Cosmo',
-//        'cyborg-theme':'Bootswatch: Cyborg',
-//        'flatly-theme':'Bootswatch: Flatly',
-//        'journal-theme':'Bootswatch: Journal',
-//        'readable-theme':'Bootswatch: Readable',
-//        'simplex-theme':'Bootswatch: Simplex',
-//        'slate-theme':'Bootswatch: Slate',
-//        'spacelab-theme':'Bootswatch: Spacelab',
-//        'united-theme':'Bootswatch: United',
+        'cerulian-theme':'Bootswatch: Cerulian',
+        'cosmo-theme':'Bootswatch: Cosmo',
+        'cyborg-theme':'Bootswatch: Cyborg',
+        'flatly-theme':'Bootswatch: Flatly',
+        'journal-theme':'Bootswatch: Journal',
+        'readable-theme':'Bootswatch: Readable',
+        'simplex-theme':'Bootswatch: Simplex',
+        'slate-theme':'Bootswatch: Slate',
+        'spacelab-theme':'Bootswatch: Spacelab',
+        'united-theme':'Bootswatch: United',
         'msdn-like-theme':'MSDN-like'
     };
     
@@ -43,7 +43,7 @@
     
     $DOC.events.load.addListener('load', function()
     {
-        var ul = $('.fixed-top-navbar ul').first();
+        var ul = $('.navbar-collapse > ul').first();
         if (ul) {
             var menuitem = controls.create('li', {class:'dropdown'});
             menuitem.add('a', {class:'dropdown-toggle', 'data-toggle':'dropdown', $text:'Mods<b class="caret"></b>', href:'#'});

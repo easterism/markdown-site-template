@@ -10854,22 +10854,22 @@ $ENV =
 
 (function() {
     
-    // initialize $$ENV
+    // initialize $ENV
     
-    var marked = $$ENV.marked;
-    $$ENV.markedPostProcess = function(text) {
+    var marked = $ENV.marked;
+    $ENV.markedPostProcess = function(text) {
         var formatted = marked(text);
         return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
     };
     
     // default control templates:
-    $$ENV.default_template= function(it)
+    $ENV.default_template = function(it)
     {
-        return '<div' + it.printAttributes() + '>' + $$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
+        return '<div' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
     };
-    $$ENV.default_inner_template = function(it)
+    $ENV.default_inner_template = function(it)
     {
-        return $$ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") );
+        return $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") );
     };
     
     // #log-level=?
@@ -10877,7 +10877,7 @@ $ENV =
     var log_level_pos = hash.indexOf('log-level=');
     if (log_level_pos >= 0) {
         console.log('>document: "' + window.location.href + '"');
-        $$ENV.log_level = parseInt(hash[log_level_pos + 10]);
+        $ENV.log_level = parseInt(hash[log_level_pos + 10]);
     }
     
     
@@ -10908,12 +10908,12 @@ $ENV =
         // Document named sections content
         sections: {},
         // Sections order
-        order: ['fixed-top-navbar', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
+        order: ['fixed-top', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
         addSection: function(name, value) {
             var sections = this.sections;
             var exists = sections[name];
             if (exists) {
-                var log_level = $$ENV.log_level;
+                var log_level = $ENV.log_level;
                 if (typeof exists === 'string' && log_level > 0)
                     console.log('Section ' + name + ' content overrided.');
                 else if (exists._element) {
@@ -11162,12 +11162,12 @@ $ENV =
         components: {value: components}
     });
     
-    if ($$ENV.log_level > 0)
+    if ($ENV.log_level > 0)
         console.log('root,index,js,css,components'.split(',').map(function(prop){return '>'+prop+': "'+$DOC[prop]+'"';}).join('\n'));
     
     $DOC.appendElement('meta', {name:'viewport', content:'width=device-width, initial-scale=1.0'});
     if ($DOC.css)
-        $DOC.appendElement('link', {rel:'stylesheet', href:$DOC.css});
+        $DOC.appendCSS('document.css', $DOC.css);
 
 }).call(this);
 }
@@ -15729,6 +15729,94 @@ InstallDots.prototype.compileAll = function() {
 
 
 
+//     controls.navbar.js Boostrap-compatible navigation bar
+//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     license: MIT
+// require controls.js
+
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = true;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return true; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
+
+
+
+    function NavBar(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'navbar', parameters, attributes);
+        this.class('navbar navbar-default');
+        this.template(nav_template, $ENV.default_inner_template);
+
+        // text contains two parts separated by '***', first part non togglable, second part is togglable
+        var parts = (this.text() || '').split(/^\*\*\*/m);
+        this.text('');
+
+        // Brand part
+        
+        this.add('header:div', {class:'navbar-header'});
+        this.header.template(function(it) {
+return '<div' + it.printAttributes() + '>\
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">\
+<span class="sr-only">Toggle navigation</span>\
+<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>'
++ $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )
+.replace(/<a href/ig, '<a class="navbar-brand" href')
++ '</div>'; 
+        });
+        if (parts.length > 1)
+            $DOC.processContent(this.header, parts[0]);
+        
+        // Collapsible part
+        
+        this.add('collapse:div', {class:'collapse navbar-collapse navbar-ex1-collapse'});
+        $DOC.processContent(this.collapse, parts.slice(-1)[0]);
+        this.collapse.template($ENV.default_template, $ENV.default_inner_template);
+        
+        this.applyPatches = function() {
+            var element = this._element;
+            if (element) {
+                var $e = $(element);
+                $e.find('.navbar-collapse > ul').addClass('nav navbar-nav');
+                
+                var $dm = $e.find('ul ul');
+                $dm.addClass('dropdown-menu');
+                var $d = $dm.parent();
+                $d.addClass('dropdown');
+                var toggle = $d.find('> a');
+                toggle.addClass('dropdown-toggle');
+                toggle.attr('data-toggle', 'dropdown');
+                toggle.attr('href', '#');
+                if (toggle.html().indexOf('<b class="caret"></b>') <= 0)
+                    toggle.append('<b class="caret"></b>');
+            }
+        };
+        
+        this.listen('element', function() {
+            this.applyPatches();
+        });
+    };
+    NavBar.prototype = controls.control_prototype;
+    function nav_template(it)
+    {
+        return '<nav' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</nav>';
+    };
+    controls.typeRegister('navbar', NavBar);
+
+
+}).call(this);
+
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //     
 //     controls.css.js
@@ -15737,7 +15825,17 @@ InstallDots.prototype.compileAll = function() {
 //
 // require controls.js
 
-(function() { "use strict"; var controls = $$ENV.controls;
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = true;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return true; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
     
     
     
@@ -15826,7 +15924,7 @@ InstallDots.prototype.compileAll = function() {
     // styled block div factory
     function Block(parameters, attributes) {
         var control = Felement('div', parameters, attributes);
-        control.template($$ENV.default_template, $$ENV.default_inner_template);
+        control.template($ENV.default_template, $ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
@@ -15842,12 +15940,12 @@ InstallDots.prototype.compileAll = function() {
     controls.factoryRegister('iblock', IBlock);
 
 
-    var span_template = $$ENV.dot.template(
-'<span{{=it.printAttributes()}}>{{=$$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</span>');
+    var span_template = $ENV.dot.template(
+'<span{{=it.printAttributes()}}>{{=$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</span>');
 
     function Text(parameters, attributes) {
         var control = Felement('span', parameters, attributes);
-        control.template(span_template, $$ENV.default_inner_template);
+        control.template(span_template, $ENV.default_inner_template);
         process_inner_text(control);
 //        control.class(control.cssClassName);
         return control;
@@ -15862,12 +15960,22 @@ InstallDots.prototype.compileAll = function() {
 
 
 
-//     controls.Alert.js The control for displaying alerts
+//     controls.alert.js The control for displaying alerts
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; var controls = $$ENV.controls;
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = true;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return true; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
 
 
 
@@ -15875,7 +15983,7 @@ InstallDots.prototype.compileAll = function() {
     // 
     function CAlert(parameters, attributes) {
         
-        controls.controlInitialize(this, 'Alert', parameters, attributes, $$ENV.default_template, $$ENV.default_inner_template);
+        controls.controlInitialize(this, 'Alert', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
 
         var style = 'default';
         var first_par = Object.keys(parameters)[0];
@@ -15904,7 +16012,17 @@ InstallDots.prototype.compileAll = function() {
 //     License: MIT
 // require controls.js
 
-(function() { "use strict"; var controls = $$ENV.controls;
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CCollapse;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CCollapse; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
 
 
 
@@ -15928,7 +16046,7 @@ InstallDots.prototype.compileAll = function() {
         body.text('');
         
         // process markup template:
-        body.template($$ENV.default_template, $$ENV.default_inner_template);
+        body.template($ENV.default_template, $ENV.default_inner_template);
         
         return panel;
     };
@@ -15955,7 +16073,17 @@ InstallDots.prototype.compileAll = function() {
 //     License: MIT
 // require controls.js
 
-(function() { "use strict"; var controls = $$ENV.controls;
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CCollapse;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CCollapse; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
 
    
    
@@ -15988,7 +16116,7 @@ InstallDots.prototype.compileAll = function() {
         this.text('');
         
         // process markup template:
-        content.template($$ENV.default_template, $$ENV.default_inner_template);
+        content.template($ENV.default_template, $ENV.default_inner_template);
     };
     CCollapse.prototype = controls.control_prototype;
     controls.typeRegister('collapse', CCollapse);
@@ -16006,7 +16134,17 @@ InstallDots.prototype.compileAll = function() {
 //     License: MIT
 // require controls.js
 
-(function() { "use strict"; var controls = $$ENV.controls;
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = CTabPanel;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return CTabPanel; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
 
 
 
@@ -16068,7 +16206,7 @@ InstallDots.prototype.compileAll = function() {
         $DOC.processContent(bootstrap_tabpage, this_text);
         
         // process markup template:
-        bootstrap_tabpage.template($$ENV.default_template, $$ENV.default_inner_template);
+        bootstrap_tabpage.template($ENV.default_template, $ENV.default_inner_template);
 
         return bootstrap_tabpage;
     }
@@ -16211,7 +16349,7 @@ InstallDots.prototype.compileAll = function() {
 
     var sections = $DOC.sections,
         order = $DOC.order,
-        log_level = $$ENV.log_level;
+        log_level = $ENV.log_level;
 
     // process found sections content
     var processed_nodes = [];
@@ -16232,53 +16370,57 @@ InstallDots.prototype.compileAll = function() {
         // <--%[namespace.]cid[#parameters]( ... )%[namespace.]cid-->
         //
         var iterator = document.createNodeIterator(document.body, 0x80, null, false),
-            text_node,
+            text_node = iterator.nextNode(),
             fordelete = [];
     
-        while (text_node = iterator.nextNode())
-        if (processed_nodes.indexOf(text_node) < 0) {
-            var control, text = text_node.nodeValue, first_char = text[0];
-            if (' \n\t[@$&*#!'.indexOf(first_char) < 0) {
-                try {
-                    if (first_char === '%') {
-                        // <--%namespace.cid#params( ... )%namespace.cid-->
-                        // \1 cid \2 #params \3 content
-                        var match = text.match(/^(%(?:[^ \t\n\(]{1,128}\.)?[^ \t\n\(]{1,128})(#[^\t\n\(]{1,512})?\(([\S\s]*)\)\1$/);
-                        if (match) {
-                            // create control
-                            control = controls.createOrStub(match[1].slice(1) + (match[2] || ''), {$text: match[3]});
+        while(text_node)
+        try {
+            if (processed_nodes.indexOf(text_node) < 0) {
+                var control, text = text_node.nodeValue, first_char = text[0];
+                if (' \n\t[@$&*#!'.indexOf(first_char) < 0) {
+                    try {
+                        if (first_char === '%') {
+                            // <--%namespace.cid#params( ... )%namespace.cid-->
+                            // \1 cid \2 #params \3 content
+                            var match = text.match(/^(%(?:[^ \t\n\(]{1,128}\.)?[^ \t\n\(]{1,128})(#[^\t\n\(]{1,512})?\(([\S\s]*)\)\1$/);
+                            if (match) {
+                                // create control
+                                control = controls.createOrStub(match[1].slice(1) + (match[2] || ''), {$text: match[3]});
+                            }
+                        } else {
+                            // <--sectionname ... -->
+                            var namelen = text.indexOf(' ');
+                            var eol = text.indexOf('\n');
+                            if (eol > 0 && eol < namelen)
+                                namelen = eol;
+                            if (namelen > 0 && namelen < 128) {
+                                var section_name = text.slice(0, namelen),
+                                // create section div
+                                control = controls.create('div', {class:section_name});
+                                control.name = section_name;
+                                $DOC.addSection(section_name, control);
+                                control.template($ENV.default_template, $ENV.default_inner_template);
+                                $DOC.processContent(control, text.slice(namelen + 1));
+                                translated_sections.push(section_name);
+                            }
                         }
-                    } else {
-                        // <--sectionname ... -->
-                        var namelen = text.indexOf(' ');
-                        var eol = text.indexOf('\n');
-                        if (eol > 0 && eol < namelen)
-                            namelen = eol;
-                        if (namelen > 0 && namelen < 128) {
-                            var section_name = text.slice(0, namelen),
-                            // create section div
-                            control = controls.create('div', {class:section_name});
-                            control.name = section_name;
-                            $DOC.addSection(section_name, control);
-                            control.template($$ENV.default_template, $$ENV.default_inner_template);
-                            $DOC.processContent(control, text.slice(namelen + 1));
-                            translated_sections.push(section_name);
+                        if (control) {
+                            // insert control element to DOM
+                            control.createElement(text_node, 2/*before node*/);
+                            if (control._element && control._element.parentNode === document.body)
+                                $DOC.body.add(control);
+
+                            // create component loader
+                            // FIX: (for orphaned control) start loader after DOM element was created
+                            if (control.isStub)
+                                new stubResLoader(control);
                         }
-                    }
-                    if (control) {
-                        // insert control element to DOM
-                        control.createElement(text_node, 2/*before node*/);
-                        if (control._element && control._element.parentNode === document.body)
-                            $DOC.body.add(control);
-                        
-                        // create component loader
-                        // FIX: (for orphaned control) start loader after DOM element was created
-                        if (control.isStub)
-                            new stubResLoader(control);
-                    }
-                } catch (e) { console.log(e); }
+                    } catch (e) { console.log(e); }
+                }
+                (control ? fordelete : processed_nodes).push(text_node);
             }
-            (control ? fordelete : processed_nodes).push(text_node);
+        } finally {
+            text_node = iterator.nextNode();
         }
         
         for( var i = fordelete.length - 1; i >= 0; i--) {
@@ -16302,7 +16444,7 @@ InstallDots.prototype.compileAll = function() {
                     // translate section to control object
 
                     var section_control = body.add(name + ':div', {class:name});
-                    section_control.template($$ENV.default_template, $$ENV.default_inner_template);
+                    section_control.template($ENV.default_template, $ENV.default_inner_template);
                     $DOC.processContent(section_control, content);
                     sections[name] = section_control;
                     translated_sections.push(name);
@@ -16359,41 +16501,82 @@ InstallDots.prototype.compileAll = function() {
             transformation_started = true;
         
         head.attachAll();
-        body.attach();
-
-        // delay first transformation -> timer
-        var timer = setInterval(function() {
-            processSections(); // sections may be inserted by components
-            onresize();
-        }, 25);
+        body.attachAll();
         
-        var dom_loaded_handler = function() {
-            processSections();
-            onresize();
-            $(window).on('resize', onresize);
-            dom_loaded_handler = undefined;
-        };
+        var gen_flag = document.body && document.body.getAttribute('data-generator'),
+        page_ready = gen_flag && gen_flag.indexOf('embed-processed') >= 0;
+        if (page_ready) {
+            
+            // page already generated
+            
+            var timer = setInterval(function() { onresize(); }, 25);
+            var dom_loaded_handler = function() {
+                body.attachAll();
+                onresize();
+                $(window).on('resize', onresize);
+                dom_loaded_handler = undefined;
+            };
 
-        // can be fired
-        window.addEventListener('DOMContentLoaded', function() {
-            if (dom_loaded_handler)
-                dom_loaded_handler();
-        }, false);
+            // can be fired
+            window.addEventListener('DOMContentLoaded', function() {
+                if (dom_loaded_handler)
+                    dom_loaded_handler();
+            }, false);
         
-        window.addEventListener('load', function() {
+            window.addEventListener('load', function() {
+
+                clearInterval(timer); // off timer after css loaded
+
+                if (dom_loaded_handler)
+                    dom_loaded_handler();
+
+                // raise 'load' event
+                var load_event = $DOC.events.load;
+                load_event.raise();
+                load_event.clear();
+
+                onresize(); // before and after 'load' event
+            });
             
-            clearInterval(timer); // off timer after css loaded
+        } else {
             
-            if (dom_loaded_handler)
-                dom_loaded_handler();
+            // page transformation
             
-            // raise 'load' event
-            var load_event = $DOC.events.load;
-            load_event.raise();
-            load_event.clear();
-            
-            onresize(); // before and after 'load' event
-        });
+            // delay first transformation -> timer
+            var timer = setInterval(function() {
+                processSections(); // sections may be inserted by components
+                onresize();
+            }, 25);
+        
+            var dom_loaded_handler = function() {
+                processSections();
+                document.body.setAttribute('data-generator', 'MST/embed-processed');
+                onresize();
+                $(window).on('resize', onresize);
+                dom_loaded_handler = undefined;
+            };
+
+            // can be fired
+            window.addEventListener('DOMContentLoaded', function() {
+                if (dom_loaded_handler)
+                    dom_loaded_handler();
+            }, false);
+        
+            window.addEventListener('load', function() {
+
+                clearInterval(timer); // off timer after css loaded
+
+                if (dom_loaded_handler)
+                    dom_loaded_handler();
+
+                // raise 'load' event
+                var load_event = $DOC.events.load;
+                load_event.raise();
+                load_event.clear();
+
+                onresize(); // before and after 'load' event
+            });
+        }
     }
     
     // apply js patches for dom elements on transformation progress
@@ -16401,7 +16584,7 @@ InstallDots.prototype.compileAll = function() {
 
         $('table').addClass('table table-bordered table-stripped');
 
-        var fixed_top_navbar = body['fixed-top-navbar'];
+        var fixed_top_navbar = body['fixed-top'];
 //                var left_side_column = body['left-side-column'];
 //                var content = body.content;
 //                var right_side_column = body['right-side-column'];
@@ -16409,27 +16592,27 @@ InstallDots.prototype.compileAll = function() {
 //                var fixed_bottom_footer = body['fixed-bottom-footer'];
 
         if (fixed_top_navbar) {
-            // apply bootstrap classes to navbar
-            var $q = fixed_top_navbar.$;
-            $q.addClass('navbar navbar-default navbar-fixed-top');
-            //
-            //$q.addClass('nav navbar-nav');
-            var $s = $q.find('li ul');
-            $s.addClass('dropdown-menu');
-            var $p = $s.parent();
-            $p.addClass('dropdown');
-            var $a = $p.children('a');
-            $a.addClass('dropdown-toggle');
-            $a.attr('href', '#');
-            $a.attr('data-toggle', 'dropdown');
-            $a.each(function(i,e) { if (e.innerHTML.indexOf('<b class="caret"></b>') < 0) e.innerHTML += '<b class="caret"></b>'; });
+//            // apply bootstrap classes to navbar
+//            var $q = fixed_top_navbar.$;
+//            $q.addClass('navbar navbar-default navbar-fixed-top');
+//            //
+//            //$q.addClass('nav navbar-nav');
+//            var $s = $q.find('li ul');
+//            $s.addClass('dropdown-menu');
+//            var $p = $s.parent();
+//            $p.addClass('dropdown');
+//            var $a = $p.children('a');
+//            $a.addClass('dropdown-toggle');
+//            $a.attr('href', '#');
+//            $a.attr('data-toggle', 'dropdown');
+//            $a.each(function(i,e) { if (e.innerHTML.indexOf('<b class="caret"></b>') < 0) e.innerHTML += '<b class="caret"></b>'; });
 
             // activate current page in menu
             var loc = window.location.href.toLowerCase();
             fixed_top_navbar.$.find('ul li a').each(function(i,a) {
-                var href = a.href.toLowerCase();
+                var href = (a.href || '').toLowerCase();
                 if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
-                    $(a.parentNode).addClass('active');
+                    $(a).parents('li').addClass('active');
             });
         }
     }
@@ -16437,7 +16620,7 @@ InstallDots.prototype.compileAll = function() {
     function onresize() {
         // body padding
         var $b = $(document.body);
-        var fixed_top_navbar = body['fixed-top-navbar'];
+        var fixed_top_navbar = body['fixed-top'];
         if (fixed_top_navbar)
             $b.css('padding-top', fixed_top_navbar.element.clientHeight + 'px');
         var fixed_bottom_footer = body['fixed-bottom-footer'];

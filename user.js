@@ -4,9 +4,10 @@ $DOC.mod('theme-switcher');
 // example of using $DOC.parseContent function to create sections
 $DOC.parseContent(function(){/*
 
-<!--fixed-top-navbar
-
-* [Home]({{=$DOC.root}}index.html)
+<!--fixed-top
+%navbar(
+[Home]({{=$DOC.root}}index.html)
+***
 * [Docs]({{=$DOC.root}}index.html)
  * [Blog]({{=$DOC.root}}blog.html)
  * [Layout]({{=$DOC.root}}layout.html)
@@ -24,7 +25,7 @@ $DOC.parseContent(function(){/*
  * [MathJax]({{=$DOC.root}}components/controls.math.html)
  * [Google Charts]({{=$DOC.root}}components/gcharts/Google Charts.html)
  * [d3js.org]({{=$DOC.root}}components/d3/d3.html)
- 
+)%navbar
 -->
 
 <!--header
