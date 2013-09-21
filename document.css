@@ -6982,7 +6982,7 @@ td.visible-print {
     position: fixed;
     left: 0; bottom: 0;
     width: 100%;
-    background-color: #f8f8f8;
+    /*background-color: #f8f8f8;*/
     border: 1px solid #e7e7e7;
     padding-left: 32px;
 }
@@ -7003,7 +7003,7 @@ td.visible-print {
 
 .footer {
     border-top: 1px solid #e7e7e7;
-    background-color: #f8f8f8;
+    /*background-color: #f8f8f8;*/
     clear: both;
     -moz-box-shadow: 0 1444px 0 1444px #f8f8f8;
     -webkit-box-shadow: 0 1444px 0 1444px #f8f8f8;

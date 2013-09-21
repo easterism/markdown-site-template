@@ -13887,9 +13887,11 @@ controls.typeRegister(__type, ' + name + ');';
                     var fragment = document.createDocumentFragment();
                     var el = document.createElement('div');
                     el.innerHTML = this.outerHTML();
-                    var nodes = el.childNodes;
+                    var nodes = el.childNodes, buf = [];
                     for(var i = 0, c = nodes.length; i < c; i++)
-                        fragment.appendChild(nodes[i]);
+                        buf.push(nodes[i]);
+                    for(var i = 0, c = buf.length; i < c; i++)
+                        fragment.appendChild(buf[i]);
                     
                     switch(opcode)
                     {
