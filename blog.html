@@ -8,7 +8,7 @@
 <body>
 
 
-<!--content
+<!--content-panel
 
 ## Blog
 
@@ -35,10 +35,12 @@ To generate a sitemap template added a special page sitemap.html
 
 %panel#danger;Last breaking changes(
 
-#### 2013/9/20 Renamed globals:
+#### 2013/9/20 Renamed globals
 
-fixed-top-navbar section deprecated  
-fixed-top-navbar -> fixed-top + *%*navbar()*%*navbar
+Layout totally redesigned.
+For example fixed-top-navbar section deprecated,
+%off(fixed-top-navbar replaced with a combination fixed-top-bar + %navbar()*%*navbar
+)%off
 
 #### 2013/9/19 Renamed globals:
 
@@ -60,7 +62,7 @@ document.root.min.css  ->  document.min.css
 
 -->
 
-<!--right-side-column -->
+<!--right-side-panel -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 <script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://aplib.github.io/document.min.css" id="document.css">');</script>

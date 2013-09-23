@@ -4,6 +4,7 @@
     var all_themes =
     {
         'bootstrap-theme':'Bootstrap Default',
+        'amelia-theme':'Bootswatch: Amelia',
         'cerulian-theme':'Bootswatch: Cerulian',
         'cosmo-theme':'Bootswatch: Cosmo',
         'cyborg-theme':'Bootswatch: Cyborg',
@@ -18,6 +19,7 @@
     };
     
     try { /*not work in IE on file:// */ $DOC.primaryTheme = localStorage.getItem('primary-theme'); } catch (e) {}
+    
     if (!all_themes[$DOC.primaryTheme])
         $DOC.primaryTheme = 'msdn-like-theme';
     $DOC.mod('primary-theme', $DOC.primaryTheme);
@@ -38,13 +40,21 @@
         }
     };
     
-    // FIX: IE browser does not support localStorage
-    if (this.localStorage)
+    // chaeck browser does not support localStorage
+    if (this.localStorage/* localStorage not work in IE on file:// protocol */) {
     
-    $DOC.events.load.addListener('load', function()
+        if ($DOC.isLoaded)
+            create_mods_dropdown();
+        else
+            $DOC.events.load.addListener('load', create_mods_dropdown);
+    }
+    
+    // add Mods submenu
+    function create_mods_dropdown()
     {
         var ul = $('.navbar-collapse > ul').first();
         if (ul) {
+            // create mods submenu
             var menuitem = controls.create('li', {class:'dropdown'});
             menuitem.add('a', {class:'dropdown-toggle', 'data-toggle':'dropdown', $text:'Mods<b class="caret"></b>', href:'#'});
             menuitem.add('ul', {class:'dropdown-menu'}, function(modslist)
@@ -63,5 +73,6 @@
                 menuitem.attachAll();
             });
         }
-    });
+    }
+    
 }).call(this);

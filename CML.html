@@ -8,14 +8,14 @@
 <body>
 
 
-<!--header
+<!--header-panel
 
 # CML (Component Markdown Language)
 ### markdown + html + components
 -->
 
 
-<!--content
+<!--content-panel
 
 CML is an extension of the html and markdown markup for inclusion of the visual components, templates, data or parts of other documents.
 
@@ -31,11 +31,11 @@ the class attribute of the control. In the final html document it is translated 
 
  example:
 
-    <!--fixed-top-navbar
-    * [Home](index.html)
-    * [Page1](page1.html)
-    * [Page2](page1.html)
-    -­->
+<pre><code>%encode(%off(&lt;!--right-side-panel
+Example Navigation:
+* [Layout](#layout)
+* [Default layout scheme](#default-layout-scheme)
+--&gt;)%off)%encode</code></pre>
 
 #### Syntax
 
@@ -48,14 +48,13 @@ through the fields $DOC.sections, $DOC.head, $DOC.body. The path from the $DOC t
 the controls is determined by where the &lt;!--name ... --&gt; pattern was placed. For example $DOC.body.content.
 
 example:
-<code><pre>
-<!--*%*math#tex(
+
+<pre><code>%encode(%off(&lt;!--%math#tex(
  \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
  1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
  {1+\frac{e^{-8\pi}} {1+\ldots} } } }
-)*%*math
--­->
-</pre></code>
+)%math
+--&gt;)%off)%encode</code></pre>
 
 #### Syntax
 
@@ -82,13 +81,13 @@ Example:
 The text inside the parentheses is the responsibility of the control, diferent controls translate content text in different ways.
 
 example:
-<code><pre>
-*%*math#tex(
+
+<pre><code>%encode(%off(%math#tex(
  \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
  1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
  {1+\frac{e^{-8\pi}} {1+\ldots} } } }
-)*%*math
-</pre></code>
+)%math
+)%off)%encode</code></pre>
 
 ##### Markup nesting
 
@@ -98,7 +97,7 @@ In particular the named sections translate their content as CML.
 
 -->
 
-<!--right-side-column -->
+<!--right-side-panel -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
 <script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://aplib.github.io/document.min.css" id="document.css">');</script>

@@ -10857,9 +10857,10 @@ $ENV =
     // initialize $ENV
     
     var marked = $ENV.marked;
-    $ENV.markedPostProcess = function(text) {
-        var formatted = marked(text);
-        return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
+    $ENV.markedPostProcess = function(text, options) {
+        var formatted = marked(text, options);
+        return formatted;
+        //return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
     };
     
     // default control templates:
@@ -10895,9 +10896,13 @@ $ENV =
     
     $DOC =
     {
+        options: {},
+
         // Document events - 'load'
         events: {},
+        isLoaded: false,
         onload: function(handler) {
+            this.isLoaded = true;
             var events = this.events;
             var event = events.load;
             if (!event)
@@ -10908,22 +10913,41 @@ $ENV =
         // Document named sections content
         sections: {},
         // Sections order
-        order: ['fixed-top', 'header', 'left-side-column', 'content', 'right-side-column', 'footer', 'fixed-bottom-footer'],
+        order: ['fixed-top-bar', 'fixed-top-panel',
+            'header-panel', 'header-panel',
+            'left-side-bar', 'left-side-panel',
+            'content-bar', 'content-panel',
+            'right-side-panel', 'right-side-bar',
+            'footer-panel', 'footer-bar',
+            'fixed-bottom-panel', 'fixed-bottom-bar'],
         addSection: function(name, value) {
-            var sections = this.sections;
-            var exists = sections[name];
+            var sections = this.sections, exists = sections[name];
             if (exists) {
-                var log_level = $ENV.log_level;
-                if (typeof exists === 'string' && log_level > 0)
-                    console.log('Section ' + name + ' content overrided.');
-                else if (exists._element) {
-                    // DOM element already created
-                    if (log_level > 0)
-                        console.log('Section ' + name + ' DOM element replaced!');
+                if ($ENV.log_level) console.log('>' + name + ' overriden!');
+                if (exists._element)
                     exists.deleteElement();
-                }
             }
             sections[name] = value;
+        },
+        removeSection: function(name) {
+            var sections = this.sections, exists = sections[name];
+            if (exists) {
+                if (exists._element)
+                    exists.deleteElement();
+                sections[name] = undefined;
+            }
+        },
+        // move section to placeholder location
+        sectionPlaceholder: function(name, element) {
+            var sections = this.sections;
+            var exists = sections[name];
+            // move exists node
+            if (exists && exists.nodeType && element && element.nodeType) {
+                document.insertBefore(exists, element);
+            // or put placeholder
+            } else if (exists) {
+                sections[name] = {placeholder:element, content:exists};
+            }
         },
         // Texts and templates
         vars: {},
@@ -11173,13 +11197,9 @@ $ENV =
 }
 
 },{"./temp/bootstrap.controls.js":2,"./temp/dot":3,"./temp/marked":4,"controls":5}],2:[function(require,module,exports){
-////////////////////////////////////////////////////////////////////////////////
-//     
 //     controls.bootstrap.js
 //     purpose: twitter bootstrap VCL for using with controls.js
-//     status: proposal, example, prototype, under development
-//     I need your feedback, any feedback
-//     http://aplib.github.io/controls.js/controls+bootstrap-demo.html
+//     http://aplib.github.io/controls.js/bootstrap.controls-demo.html
 //     (c) 2013 vadim b.
 //     License: MIT
 //
@@ -11193,17 +11213,18 @@ function Bootstrap(controls)
     var bootstrap = this;
     var doT = controls.doT;
     bootstrap.VERSION = '0.6.6';
-    var CONTROL_STYLE = 'default info link success primary warning danger';
+    controls.bootstrap = bootstrap;
     
-    bootstrap.control_prototype = (function()
+    var control_prototype = (function()
     {
         function bootstrap_proto() { }
         bootstrap_proto.prototype = controls.control_prototype;
         return new bootstrap_proto();
     })();
+    bootstrap.control_prototype = control_prototype;
     
     // icon()
-    bootstrap.control_prototype.icon = function(icon_class)
+    control_prototype.icon = function(icon_class)
     {
         if (arguments.length === 0)
             return this.attributes.$icon;
@@ -11216,19 +11237,41 @@ function Bootstrap(controls)
         return icon_class;
     };
     
-    function controlStyle(parameters)
+    var CONTROL_STYLE = ' default info link success primary warning danger ';
+    control_prototype.getControlStyle = function(parameters, style_enum)
     {
-        var style;
-            
+        parameters = parameters || this.parameters;
+        style_enum = style_enum || CONTROL_STYLE;
+        var cstyle = parameters.style || parameters['/style'];
+        
+        if (!cstyle)
         for(var prop in parameters)
         {
             var lowercase = prop.toLowerCase();
-            if (CONTROL_STYLE.indexOf(lowercase) >= 0)
-                style = lowercase;
+            if (style_enum.indexOf(lowercase) > 0 && parameters[prop] === true)
+                cstyle = lowercase;
         }
         
-        return parameters.style || style || 'default';
-    }
+        return cstyle || 'default';
+    };
+    
+    var CONTROL_SIZE = ' large small ';
+    control_prototype.getControlSize = function(parameters, size_enum)
+    {
+        parameters = parameters || this.parameters;
+        size_enum = size_enum || CONTROL_SIZE;
+        var csize = parameters.size || parameters['/size'];
+        
+        if (!csize)
+        for(var prop in parameters)
+        {
+            var lowercase = prop.toLowerCase();
+            if (size_enum.indexOf(lowercase) > 0 && parameters[prop] === true)
+                csize = lowercase;
+        }
+        
+        return csize || '';
+    };
     
     
     // Label
@@ -11239,11 +11282,10 @@ function Bootstrap(controls)
          
         this.listen('type', function()
         {
-            var style = this.parameter('style') || 'default';
-            this.class('label label-' + controlStyle(this.parameters), 'label-default label-link label-primary label-success label-info label-warning label-danger');
+            this.class('label label-' + this.getControlStyle(), 'label-default label-link label-primary label-success label-info label-warning label-danger');
         });
     };
-    Label.prototype = bootstrap.control_prototype;
+    Label.prototype = control_prototype;
     Label.template = doT.template(
 '<span{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</span>');
     controls.typeRegister('bootstrap.Label', Label);
@@ -11280,7 +11322,7 @@ function Bootstrap(controls)
     
         this.listen('type', function()
         {
-            this.class('panel panel-' + controlStyle(this.parameters), 'panel-default panel-link panel-primary panel-success panel-info panel-warning panel-danger');
+            this.class('panel panel-' + this.getControlStyle(), 'panel-default panel-link panel-primary panel-success panel-info panel-warning panel-danger');
         });
 
         this.text = function(_text)
@@ -11294,7 +11336,7 @@ function Bootstrap(controls)
             attributes.$text = undefined;
         }
     };
-    Panel.prototype = bootstrap.control_prototype;
+    Panel.prototype = control_prototype;
     controls.typeRegister('bootstrap.Panel', Panel);
     
     
@@ -11310,7 +11352,7 @@ function Bootstrap(controls)
     {
         controls.controlInitialize(this, 'bootstrap.DropdownItem', parameters, attributes, DropdownItem.template);
     };
-    DropdownItem.prototype = bootstrap.control_prototype;
+    DropdownItem.prototype = control_prototype;
     DropdownItem.template = doT.template(
 '<li id="{{=it.id}}">\
 <a data-toggle="tab"{{=it.printAttributes("-id")}}>\
@@ -11328,7 +11370,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.DividerItem', parameters, attributes, DividerItem.template);
         this.class('divider');
     };
-    DividerItem.prototype = bootstrap.control_prototype;
+    DividerItem.prototype = control_prototype;
     DividerItem.template = doT.template('<li{{=it.printAttributes()}}></li>');
     controls.typeRegister('bootstrap.DividerItem', DividerItem);
     
@@ -11341,7 +11383,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.DropdownLink', parameters, attributes, DropdownLink.template);
         this.class('dropdown');
     };
-    DropdownLink.prototype = bootstrap.control_prototype;
+    DropdownLink.prototype = control_prototype;
     DropdownLink.template = doT.template(
 '<div{{=it.printAttributes()}}>\
 <a class="dropdown-toggle" data-toggle="dropdown" href="#">\
@@ -11361,7 +11403,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.ToggleBtn', parameters, attributes, ToggleBtn.template);
         this.class('btn dropdown-toggle');
     };
-    ToggleBtn.prototype = bootstrap.control_prototype;
+    ToggleBtn.prototype = control_prototype;
     ToggleBtn.template = doT.template(
 '<a{{=it.printAttributes()}} data-toggle="dropdown" href="#">{{? it.attributes.$icon }}<b class="{{=it.attributes.$icon}}"> </b>{{?}}{{? it.attributes.Caret }}<span class="caret"></span>{{?}}{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</a>\n\
 {{? (it.controls && it.controls.length > 0) }}\n\
@@ -11416,7 +11458,7 @@ function Bootstrap(controls)
             return this.parameter('size');
         };
     };
-    Button.prototype = bootstrap.control_prototype;
+    Button.prototype = control_prototype;
     Button.template = doT.template(
 '<button{{=it.printAttributes()}}>\
 {{? it.attributes.$icon }}<b class="glyphicon glyphicon-{{=it.attributes.$icon}}"></b>&nbsp;{{?}}\
@@ -11431,7 +11473,7 @@ function Bootstrap(controls)
     {
         controls.controlInitialize(this, 'bootstrap.Splitbutton', parameters, attributes, Splitbutton.template);
     };
-    Splitbutton.prototype = bootstrap.control_prototype;
+    Splitbutton.prototype = control_prototype;
     Splitbutton.template = doT.template(
 '<div id="{{=it.id}}" class="btn-group">\
 <button type="button" class="btn btn-primary {{=it.attributes.class}}"{{=it.printAttributes("style")}}>{{=it.attributes.$text}}\
@@ -11458,7 +11500,7 @@ function Bootstrap(controls)
         if (!this.attributes.class || this.attributes.class.indexOf('btn-group') < 0)
             this.class('btn-group');
     };
-    BtnGroup.prototype = bootstrap.control_prototype;
+    BtnGroup.prototype = control_prototype;
     controls.typeRegister('bootstrap.BtnGroup', BtnGroup);
     
     
@@ -11469,7 +11511,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.TabPanelHeader', parameters, attributes, TabPanelHeader.template);
         this.class('nav nav-tabs tabpanel-header');
     };
-    TabPanelHeader.prototype = bootstrap.control_prototype;
+    TabPanelHeader.prototype = control_prototype;
     TabPanelHeader.template = doT.template(
 '<ul{{=it.printAttributes()}}>\
 {{? it.attributes.$text}}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}\
@@ -11484,7 +11526,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.TabHeader', parameters, attributes, TabHeader.template);
         this.class('tab-header');
     };
-    TabHeader.prototype = bootstrap.control_prototype;
+    TabHeader.prototype = control_prototype;
     TabHeader.template = doT.template(
 '<li{{=it.printAttributes()}}>\
 <a href={{=it.attributes.$href}} data-toggle="tab">\
@@ -11500,7 +11542,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.TabPanelBody', parameters, attributes);
         this.class('tab-content tabpanel-body');
     };
-    TabPanelBody.prototype = bootstrap.control_prototype;
+    TabPanelBody.prototype = control_prototype;
     controls.typeRegister('bootstrap.TabPanelBody', TabPanelBody);
     
     
@@ -11511,7 +11553,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.TabPage', parameters, attributes);
         this.class('tab-pane fade');
     };
-    TabPage.prototype = bootstrap.control_prototype;
+    TabPage.prototype = control_prototype;
     controls.typeRegister('bootstrap.TabPage', TabPage);
     
     
@@ -11522,7 +11564,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.Form', parameters, attributes, Form.template);
         attributes.role = 'form';
     };
-    Form.prototype = bootstrap.control_prototype;
+    Form.prototype = control_prototype;
     Form.template = doT.template(
 '<form{{=it.printAttributes()}}>\
 {{? (it.controls && it.controls.length > 0) }}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}{{?}}\
@@ -11537,7 +11579,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.FormGroup', parameters, attributes);
         this.class('form-group');
     };
-    FormGroup.prototype = bootstrap.control_prototype;
+    FormGroup.prototype = control_prototype;
     controls.typeRegister('bootstrap.FormGroup', FormGroup);
     
     
@@ -11550,7 +11592,7 @@ function Bootstrap(controls)
         controls.controlInitialize(this, 'bootstrap.ControlLabel', parameters, attributes, ControlLabel.template);
         this.class('control-label');
     };
-    ControlLabel.prototype = bootstrap.control_prototype;
+    ControlLabel.prototype = control_prototype;
     ControlLabel.template = doT.template(
 '<label{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</label>');
     controls.typeRegister('bootstrap.ControlLabel', ControlLabel);
@@ -11589,7 +11631,7 @@ function Bootstrap(controls)
                 element.value = this.attributes.value;
         });
     };
-    ControlInput.prototype = bootstrap.control_prototype;
+    ControlInput.prototype = control_prototype;
     ControlInput.template = doT.template(
 '<input{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}</input>');
     controls.typeRegister('bootstrap.ControlInput', ControlInput);
@@ -11618,7 +11660,7 @@ function Bootstrap(controls)
         
         this.listen('data', this.refreshInner);
     };
-    ControlSelect.prototype = bootstrap.control_prototype;
+    ControlSelect.prototype = control_prototype;
     ControlSelect.template = doT.template(
 '<select{{=it.printAttributes()}}>\
 {{?it.data}}{{~it.data :value:index}}<option value={{=value}}>{{=value}}</option>{{~}}{{?}}\
@@ -13856,8 +13898,10 @@ controls.typeRegister(__type, ' + name + ');';
             if (element)
                 throw new TypeError('Already exists!');
             
-            if (!node && this.parent)
+            if (!node && this.parent) {
                 node = this.parent.element;
+                opcode = 0;
+            }
             
             if (node)
             {
@@ -15797,6 +15841,14 @@ return '<div' + it.printAttributes() + '>\
                 toggle.attr('href', '#');
                 if (toggle.html().indexOf('<b class="caret"></b>') <= 0)
                     toggle.append('<b class="caret"></b>');
+                
+                // activate menu item of the current page
+                var loc = window.location.href.toLowerCase();
+                $e.find('ul li a').each(function(i,a) {
+                    var href = (a.href || '').toLowerCase();
+                    if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
+                        $(a).parents('li').addClass('active');
+                });
             }
         };
         
@@ -15941,10 +15993,11 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     controls.factoryRegister('iblock', IBlock);
 
-
-    var span_template = $ENV.dot.template(
-'<span{{=it.printAttributes()}}>{{=$ENV.marked( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )}}</span>');
-
+    function span_template(it) {
+        return '<span' + it.printAttributes() + '>'
+            + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") )
+            + '</span>';
+    }
     function Text(parameters, attributes) {
         var control = Felement('span', parameters, attributes);
         control.template(span_template, $ENV.default_inner_template);
@@ -15954,6 +16007,25 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     controls.factoryRegister('text', Text);
     
+    
+    function  Off(parameters, attributes) {
+        var off_mode = $DOC.options.off;
+        var off_text = controls.create('container', parameters, attributes);
+        $DOC.options.off = off_mode;
+        return off_text;
+    }
+    controls.factoryRegister('off', Off);
+    
+    function  Encode(parameters, attributes) {
+        var control = controls.create('container', parameters, attributes);
+        control.template(sanitize_template, sanitize_template);
+        process_inner_text(control);
+        return control;
+    }
+    function sanitize_template(it) {
+        return '<span>' + controls.encodeHTML((it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("")) + '</span>';
+    }
+    controls.factoryRegister('encode', Encode);
 
 }).call(this);
 
@@ -15962,54 +16034,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 
 
-//     controls.alert.js The control for displaying alerts
-//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
-//     license: MIT
-// require controls.js
-
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
-
-
-
-    // built-in message box
-    // 
-    function CAlert(parameters, attributes) {
-        
-        controls.controlInitialize(this, 'Alert', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
-
-        var style = 'default';
-        var first_par = Object.keys(parameters)[0];
-        if ('link success primary info warning danger'.indexOf(first_par) >= 0)
-            style = first_par;
-        this.class('alert alert-block alert-' + style + ' fade in');
-        
-        // process markup at this level
-        var this_text = this.text();
-        this.text('');
-        $DOC.processContent(this, this_text);
-    };
-    CAlert.prototype = controls.control_prototype;
-    controls.typeRegister('Alert', CAlert);
-
-
-}).call(this);
-
-
-
-
-
-
-//     controls.panel.js
+//     controls.panels.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     License: MIT
 // require controls.js
@@ -16018,16 +16043,18 @@ if (!controls) throw new TypeError('controls.js not found!');
 var controls;
 if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
     controls = require('controls');
-    module.exports = CCollapse;
+    module.exports = Collapse;
 } else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CCollapse; });
+    define(['controls'], function(c) { controls = c; return Collapse; });
 else
     controls = this.controls;
 if (!controls) throw new TypeError('controls.js not found!');
 // << #604
 
-
-
+var bootstrap = controls.bootstrap;
+    
+    // Panel
+    
     var known_params = 'style header footer default info link success primary warning danger';
     function Panel(parameters, attributes) {
         
@@ -16055,43 +16082,19 @@ if (!controls) throw new TypeError('controls.js not found!');
     controls.factoryRegister('panel', Panel);
     
     
-    function IPanel(parameters, attributes) {
+    function iPanel(parameters, attributes) {
         var control = Panel(parameters, attributes);
         control.style('display:inline-block;' + control.style());
         return control;
     };
-    controls.factoryRegister('ipanel', IPanel);
-
-
-}).call(this);
-
-
-
-
-
-
-//     controls.collapse.js
-//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
-//     License: MIT
-// require controls.js
-
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = CCollapse;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CCollapse; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
-
-   
-   
-    function CCollapse(parameters, attributes) {
+    controls.factoryRegister('ipanel', iPanel);
+    
+    
+    // Collapse
+    
+    function Collapse(parameters, attributes) {
         
-        controls.controlInitialize(this, 'collapse', parameters, attributes);
+        controls.controlInitialize(this, 'collapse', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
         
         var in_panel = this.parameter('panel');
         var panel_class = (typeof in_panel === 'string') ? in_panel : undefined;
@@ -16120,10 +16123,71 @@ if (!controls) throw new TypeError('controls.js not found!');
         // process markup template:
         content.template($ENV.default_template, $ENV.default_inner_template);
     };
-    CCollapse.prototype = controls.control_prototype;
-    controls.typeRegister('collapse', CCollapse);
-
-
+    Collapse.prototype = bootstrap.control_prototype;
+    controls.typeRegister('collapse', Collapse);
+    
+    
+    function iCollapse(parameters, attributes) {
+        var control = Collapse(parameters, attributes);
+        control.style('display:inline-block;' + control.style());
+        return control;
+    };
+    controls.factoryRegister('icollapse', iCollapse);
+    
+    
+    // Alert
+    
+    function Alert(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'alert', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
+        this.class('alert alert-' + this.getControlStyle() + ' fade in');
+        
+        // process markup at this level
+        var this_text = this.text();
+        this.text('');
+        $DOC.processContent(this, this_text);
+    };
+    Alert.prototype = bootstrap.control_prototype;
+    controls.typeRegister('alert', Alert);
+    
+    
+    function iAlert(parameters, attributes) {
+        var control = Alert(parameters, attributes);
+        control.style('display:inline-block;' + control.style());
+        return control;
+    };
+    controls.factoryRegister('ialert', iAlert);
+    
+    
+    // Well
+    
+    function Well(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'well', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
+        this.class('well');
+        
+        var size = this.getControlSize();
+        if (size === 'small')
+            this.class('well-sm');
+        else if (size === 'large')
+            this.class('well-lg');
+        
+        var this_text = this.text();
+        this.text('');
+        $DOC.processContent(this, this_text);
+    };
+    Well.prototype = bootstrap.control_prototype;
+    controls.typeRegister('well', Well);
+    
+    
+    function iWell(parameters, attributes) {
+        var control = Alert(parameters, attributes);
+        control.style('display:inline-block;' + control.style());
+        return control;
+    };
+    controls.factoryRegister('iwell', iWell);
+    
+    
 }).call(this);
 
 
@@ -16281,10 +16345,16 @@ if (!controls) throw new TypeError('controls.js not found!');
         }
     };
     
+    // $DOC.options.off - turn off filters and component translation
     $DOC.processContent = function(collection, content) {
         
         if (!content)
             return;
+        
+        if ($DOC.options.off) {
+            $DOC.addTextContainer(collection, content);
+            return;
+        }
         
         // 1. check substitutions
         var filters = $DOC.filters;
@@ -16379,7 +16449,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         try {
             if (processed_nodes.indexOf(text_node) < 0) {
                 var control, text = text_node.nodeValue, first_char = text[0];
-                if (' \n\t[@$&*#!'.indexOf(first_char) < 0) {
+                if (' \n\t[@$&*#'.indexOf(first_char) < 0) {
                     try {
                         if (first_char === '%') {
                             // <--%namespace.cid#params( ... )%namespace.cid-->
@@ -16389,21 +16459,30 @@ if (!controls) throw new TypeError('controls.js not found!');
                                 // create control
                                 control = controls.createOrStub(match[1].slice(1) + (match[2] || ''), {$text: match[3]});
                             }
+                        } else if (first_char === '!') {
+                            // <!--!sectionname--> - section remover
+                            $DOC.removeSection(text.slice(1));
                         } else {
                             // <--sectionname ... -->
                             var namelen = text.indexOf(' ');
                             var eol = text.indexOf('\n');
-                            if (eol > 0 && eol < namelen)
-                                namelen = eol;
-                            if (namelen > 0 && namelen < 128) {
-                                var section_name = text.slice(0, namelen),
-                                // create section div
-                                control = controls.create('div', {class:section_name});
-                                control.name = section_name;
-                                $DOC.addSection(section_name, control);
-                                control.template($ENV.default_template, $ENV.default_inner_template);
-                                $DOC.processContent(control, text.slice(namelen + 1));
-                                translated_sections.push(section_name);
+                            
+                            if (namelen < 0 && eol < 0) {
+                                $DOC.sectionPlaceholder(text, text_node);
+                            }
+                            else {
+                                if (eol > 0 && (namelen < 0 || eol < namelen))
+                                    namelen = eol;
+                                if (namelen > 0 && namelen < 128) {
+                                    var section_name = text.slice(0, namelen),
+                                    // create section div
+                                    control = controls.create('div', {class:section_name});
+                                    control.name = section_name;
+                                    $DOC.addSection(section_name, control);
+                                    control.template($ENV.default_template, $ENV.default_inner_template);
+                                    $DOC.processContent(control, text.slice(namelen + 1));
+                                    translated_sections.push(section_name);
+                                }
                             }
                         }
                         if (control) {
@@ -16437,7 +16516,11 @@ if (!controls) throw new TypeError('controls.js not found!');
         if (name) { // skip unnamed for compatibility
             try
             {
-                var content = sections[name];
+                var placeholder, content = sections[name];
+                if (content && content.placeholder) {
+                    placeholder = content.placeholder;
+                    content = content.content;
+                }
                 if (typeof content === 'string') {
 
                     if (log_level)
@@ -16448,42 +16531,50 @@ if (!controls) throw new TypeError('controls.js not found!');
                     var section_control = body.add(name + ':div', {class:name});
                     section_control.template($ENV.default_template, $ENV.default_inner_template);
                     $DOC.processContent(section_control, content);
-                    sections[name] = section_control;
-                    translated_sections.push(name);
+
 
                     // create dom element
 
                     // look for element position in dom
                     
                     var created = false;
-                    var in_order = order.indexOf(name);
-                    if (in_order >= 0) {
-                        
-                        // look element after in order
-                        for(var i = in_order + 1, c = order.length; i < c; i++) {
-                            var exists_after_in_order = sections[order[i]];
-                            if (exists_after_in_order && typeof exists_after_in_order !=='string') {
-                                // insert before
-                                section_control.createElement(exists_after_in_order._element, 2);
-                                created = true;
-                                break;
+                    
+                    if (placeholder) {
+                        section_control.createElement(placeholder, 2);
+                    } else {
+                        var in_order = order.indexOf(name);
+                        if (in_order >= 0) {
+
+                            // look element after in order
+                            for(var i = in_order + 1, c = order.length; i < c; i++) {
+                                var exists_after_in_order = sections[order[i]];
+                                if (exists_after_in_order && typeof exists_after_in_order !=='string') {
+                                    // insert before
+                                    section_control.createElement(exists_after_in_order._element, 2);
+                                    created = true;
+                                    break;
+                                }
                             }
-                        }
-                        
-                        if (!created)
-                        // look element before in order
-                        for(var i = in_order - 1; i >= 0; i--) {
-                            var exists_before_in_order = sections[order[i]];
-                            if (exists_before_in_order && typeof exists_before_in_order !=='string') {
-                                // insert after
-                                section_control.createElement(exists_before_in_order._element, 3);
-                                created = true;
-                                break;
+
+                            if (!created)
+                            // look element before in order
+                            for(var i = in_order - 1; i >= 0; i--) {
+                                var exists_before_in_order = sections[order[i]];
+                                if (exists_before_in_order && typeof exists_before_in_order !=='string') {
+                                    // insert after
+                                    section_control.createElement(exists_before_in_order._element, 3);
+                                    created = true;
+                                    break;
+                                }
                             }
                         }
                     }
+                    
                     if (!created)
                         section_control.createElement(document.body, 0);
+                    
+                    sections[name] = section_control;
+                    translated_sections.push(name);
                 }
             }
             catch (e) { console.log(e); }
@@ -16570,7 +16661,16 @@ if (!controls) throw new TypeError('controls.js not found!');
 
                 if (dom_loaded_handler)
                     dom_loaded_handler();
-
+                
+                // scroll to hash element
+                // scroll down if fixtop cover element
+                if (window.location.hash) {
+                    window.location = window.location;
+                    var pad = parseInt(document.body.style['padding-top']);
+                    if (pad)
+                        window.scrollBy(0, -pad);
+                }
+                
                 // raise 'load' event
                 var load_event = $DOC.events.load;
                 load_event.raise();
@@ -16585,49 +16685,61 @@ if (!controls) throw new TypeError('controls.js not found!');
     function apply_patches(translated_section) {
 
         $('table').addClass('table table-bordered table-stripped');
-
-        var fixed_top_navbar = body['fixed-top'];
-//                var left_side_column = body['left-side-column'];
-//                var content = body.content;
-//                var right_side_column = body['right-side-column'];
-//                var footer = body.footer;
-//                var fixed_bottom_footer = body['fixed-bottom-footer'];
-
-        if (fixed_top_navbar) {
-//            // apply bootstrap classes to navbar
-//            var $q = fixed_top_navbar.$;
-//            $q.addClass('navbar navbar-default navbar-fixed-top');
-//            //
-//            //$q.addClass('nav navbar-nav');
-//            var $s = $q.find('li ul');
-//            $s.addClass('dropdown-menu');
-//            var $p = $s.parent();
-//            $p.addClass('dropdown');
-//            var $a = $p.children('a');
-//            $a.addClass('dropdown-toggle');
-//            $a.attr('href', '#');
-//            $a.attr('data-toggle', 'dropdown');
-//            $a.each(function(i,e) { if (e.innerHTML.indexOf('<b class="caret"></b>') < 0) e.innerHTML += '<b class="caret"></b>'; });
-
-            // activate current page in menu
-            var loc = window.location.href.toLowerCase();
-            fixed_top_navbar.$.find('ul li a').each(function(i,a) {
-                var href = (a.href || '').toLowerCase();
-                if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
-                    $(a).parents('li').addClass('active');
-            });
-        }
     }
     // fired on 1. dom manipulation 2. css loading in progress can size effects 3. window resize after page loaded
     function onresize() {
         // body padding
-        var $b = $(document.body);
-        var fixed_top_navbar = body['fixed-top'];
-        if (fixed_top_navbar)
-            $b.css('padding-top', fixed_top_navbar.element.clientHeight + 'px');
-        var fixed_bottom_footer = body['fixed-bottom-footer'];
-        if (fixed_bottom_footer)
-            $b.css('padding-bottom', fixed_bottom_footer.element.clientHeight + 'px');
+        var $b;
+        
+        var fix_top_bars = document.getElementsByClassName('fixed-top-bar'),
+        fix_top_panes = document.getElementsByClassName('fixed-top-panel');
+        if (fix_top_bars || fix_top_panes) {
+            var pad = 0;
+            for(var i = fix_top_bars.length - 1; i >= 0; i--)
+                pad += fix_top_bars[i].clientHeight;
+            for(var i = fix_top_panes.length - 1; i >= 0; i--)
+                pad += fix_top_panes[i].clientHeight;
+            
+            $b = $(document.body);
+            $b.css('padding-top', pad + 'px');
+        }
+        var fix_bottom_bars = document.getElementsByClassName('fixed-bottom-bar'),
+        fix_bottom_panes = document.getElementsByClassName('fixed-bottom-panel');
+        if (fix_bottom_bars || fix_bottom_panes) {
+            var pad = 0;
+            for(var i = fix_bottom_bars.length - 1; i >= 0; i--)
+                pad += fix_bottom_bars[i].clientHeight;
+            for(var i = fix_bottom_panes.length - 1; i >= 0; i--)
+                pad += fix_bottom_panes[i].clientHeight;
+            
+            $b = $b || $(document.body);
+            $b.css('padding-bottom', pad + 'px');
+        }
+        
+        var fix_r_bars = document.getElementsByClassName('fixed-right-side-bar'),
+        fix_r_panes = document.getElementsByClassName('fixed-right-side-panel');
+        if (fix_r_bars || fix_r_panes) {
+            var pad = 0;
+            for(var i = fix_r_bars.length - 1; i >= 0; i--)
+                pad += fix_r_bars[i].clientWidth;
+            for(var i = fix_r_panes.length - 1; i >= 0; i--)
+                pad += fix_r_panes[i].clientWidth;
+            
+            $b = $(document.body);
+            $b.css('padding-right', pad + 'px');
+        }
+        var fix_l_bars = document.getElementsByClassName('fixed-left-side-bar'),
+        fix_l_panes = document.getElementsByClassName('fixed-left-side-panel');
+        if (fix_r_bars || fix_r_panes) {
+            var pad = 0;
+            for(var i = fix_l_bars.length - 1; i >= 0; i--)
+                pad += fix_l_bars[i].clientWidth;
+            for(var i = fix_l_panes.length - 1; i >= 0; i--)
+                pad += fix_l_panes[i].clientWidth;
+            
+            $b = $b || $(document.body);
+            $b.css('padding-left', pad + 'px');
+        }
     }
     
 })();

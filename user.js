@@ -4,7 +4,7 @@ $DOC.mod('theme-switcher');
 // example of using $DOC.parseContent function to create sections
 $DOC.parseContent(function(){/*
 
-<!--fixed-top
+<!--fixed-top-bar
 %navbar(
 [Home]({{=$DOC.root}}index.html)
 ***
@@ -28,9 +28,9 @@ $DOC.parseContent(function(){/*
 )%navbar
 -->
 
-<!--header
+<!--header-panel
 
-# Markdown docs
+# Markdown webdocs
 ### Simple Markdown site template
 
 -->
@@ -38,7 +38,7 @@ $DOC.parseContent(function(){/*
 */});
 
 // another example of creating a page section
-$DOC.sections.footer =
+$DOC.sections['footer-panel'] =
 '* © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT\n\
 * [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)';
 

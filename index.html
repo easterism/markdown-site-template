@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<!--fixed-top
+<!--fixed-top-bar
 %navbar(
 [Home]({{=$DOC.root}}index.html)
 ***
@@ -31,15 +31,15 @@
 )%navbar
 -->
 
-<!--header
+<!--header-panel
 
-# Markdown docs
+# Markdown webdocs
 ### Simple Markdown site template
 
 -->
 
 
-<!--content
+<!--content-panel
 
 This template was created using the original bundle of the libraries jquery.js, twitter bootstrap and controls.js, no server side code, it works both online and offline.
 
@@ -78,58 +78,54 @@ Options:
 * mods/
  * [MSDN-like theme](http://aplib.github.io/markdown-site-template/mods/msdn-like-theme.html)
 
-New pages are added by copying the file 'page template.html'. After adding to edit the contents of the BODY tag by adding or removing named sections of content as needed, for example the addition of a navigation bar:
-<code><pre>
-&lt;!--fixed-top
-%navbar\(
-\* [Home]\(index.html\)
-\* [Page1]\(page1.html\)
-\* [Page2]\(page1.html\)
-\)%navbar
+## Edit site
+
+New pages are added by copying the file "page template.html".  
+Section of the document, such as a navigation bar, body text, header or footer, placed on the panels that having a predetermined behavior.
+To create a panel insert the brackets <code>&lt;--nameofpanel ... --&gt;</code> in the body of the html page.
+If the name of the panel from a predefined list, this panel has a behavior.
+For example a panel named fixed-top-panel is always visible when the document scrolls.
+If you create a panel with a unique name, the behavior you can assign using css.
+
+In the panels you can add marked text, components to display graphical elements or components for appearance or behavior of the site.
+
+ example:
+<pre><code>%encode(%off(<!DOCTYPE html>&nbsp;
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>Example</title>
+    <script src="document.min.js"></script>
+</head>
+<body>
+
+&lt;!--fixed-top-panel
+%navbar(
+* [Home](index.html)
+* [Page1](page1.html)
+* [Page2](page1.html)
+)%navbar
 --&gt;
-</code></pre>
 
-## Pre-defined section names:
 
-* fixed-top - top horizontal bar fixed at the upper edge of the page
-* left-side-column - left side column
-* content (marked text) - the main contents of the site
-* text-box - padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
-* right-side-column - right side column
-* footer - footer at the bottom of the page for copyright, powered etc notes
-* fixed-bottom-footer (list)) - footer fixed at the bottom edge of the page
+&lt;!--content-panel
+# Hello World!
+--&gt;
 
-### fixed-top
-Top horizontal bar fixed at the upper edge of the page.
+</body>
+</html>)%off)%encode</code></pre>
 
-### left-side-column
-adaptive left side column
+## Customize site
 
-### content
-the main contents of the site
+You can customize the appearance of the site by applying to the page any twitter bootstrap compatible theme.
+In the menu Mods you can see examples of themes, these themes are taken from the site http://bootswatch.com/.
+Examples of components are available in the menu Components.
 
-### right-side-column
-adaptive right side column
-
-### text-box
-padded text block 50% page width, joined in one or two columns list. For articles, messages etc.
-
-### footer
-footer at the bottom of the page
-
-### fixed-bottom-footer
-footer fixed at the bottom edge of the page
-
-    <!--fixed-bottom-footer
-    * © 2013 copyright notes here
-    * other notes
-    * last item right-aligned
-    -­­­->
 -->
 
-<!--right-side-column -->
+<!--right-side-panel -->
 
-<!--footer
+<!--footer-panel
 * © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT
 * [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)
 -->

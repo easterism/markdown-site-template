@@ -6,12 +6,19 @@
     <script src="document.min.js"></script>
 </head>
 <body>
+<!--header-panel # sitemap.xml generator -->
+<!--content-panel
+
+-->
+
 <script>
     
     $DOC.onload(function()
     {
+        // Create input form
+        
         var input;
-        $DOC.body.content.add('form:bootstrap.Form', {class:'form-horizontal'}, function(form) {
+        $DOC.body['content-panel'].add('form:bootstrap.Form', {class:'form-horizontal'}, function(form) {
             form.add('bootstrap.FormGroup', function(group) {
                 
                 group.add('bootstrap.ControlLabel', {$text: 'Site url:', class:'col-sm-2'});
@@ -24,11 +31,13 @@
             });
         });
         
+        // restore last used rootpath
+        
         try {
             input.value = localStorage.getItem('rootpath');
         } catch (e) {}
         
-        $DOC.body.content.form.createElement();
+        $DOC.body['content-panel'].refresh();
 
         function create_sitemap(event) {
             
@@ -40,20 +49,37 @@
                 localStorage.setItem('rootpath', rootpath);
             } catch (e) {}
             
-            var sitemap = 
+            var allrefs = {},
+                sitemap = 
 '<?xml version="1.0" encoding="UTF-8"?>\n\
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\
 <url>\n\
-<loc>http://aplib.github.io/markdown-site-template/</loc>\n\
+<loc>' + rootpath + '</loc>\n\
 </url>\n\
 ';
-            $($DOC.sections['fixed-top-navbar'].element).find('a').each(function(i,el)
-            {
-                var href = el.getAttribute('href');
-                if (href && href !== '#')
-                {
-                    sitemap += '<url>\n<loc>' + rootpath + href + '</loc>\n</url>\n';
+            function addref(url) {
+                
+                var url = (url || '').split('#')[0];
+                if (!url || allrefs[url.toLowerCase()])
+                    return;
+                
+                allrefs[url.toLowerCase()] = true;
+                
+                if (url.indexOf('//') >= 0) {
+                    console.log('url: ' + url + ' is absolute, skipped.');
                 }
+                else
+                {
+                    var abs_url = rootpath + url;
+                    console.log('url: ' + url + ' --> ' + abs_url);
+                    sitemap += '<url>\n<loc>' + abs_url + '</loc>\n</url>\n';
+                }
+            }
+            
+            addref(rootpath);
+            $('body').find('.navbar a').each(function(i,el)
+            {
+                addref(el.getAttribute('href'));
             });
 
             sitemap += '</urlset>';
@@ -64,9 +90,7 @@
     });    
 </script>
 
-<!--content
 
--->
 
 
 
