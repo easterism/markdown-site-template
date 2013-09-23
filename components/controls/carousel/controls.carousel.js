@@ -1,18 +1,15 @@
-////////////////////////////////////////////////////////////////////////////////
-//     
 //     controls.carousel.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     License: MIT
-//
 // require controls.js
 
 (function() { "use strict";
 var controls;
 if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
     controls = require('controls');
-    module.exports = CCarousel;
+    module.exports = Carousel;
 } else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CCarousel; });
+    define(['controls'], function(c) { controls = c; return Carousel; });
 else
     controls = this.controls;
 if (!controls) throw new TypeError('controls.js not found!');
@@ -20,9 +17,11 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 
     
-    function CCarousel(parameters, attributes) {
+    function Carousel(parameters, attributes) {
         
-        controls.controlInitialize(this, 'bs-carousel', parameters, attributes);
+        parameters['/namespace'] = 'bs-carousel';
+        
+        controls.controlInitialize(this, 'carousel', parameters, attributes);
         this.class('carousel slide');
         
         // get parameters
@@ -83,14 +82,14 @@ if (!controls) throw new TypeError('controls.js not found!');
             }.bind(this) ,5);
         });
     };
-    CCarousel.prototype = controls.control_prototype;
-    controls.typeRegister('bs-carousel', CCarousel);
+    Carousel.prototype = controls.control_prototype;
+    controls.typeRegister('carousel', Carousel);
 
 
     function carousel_slide_factory(parameters, attributes) {
         
         var slide = controls.create('div', parameters, attributes);
-        slide.class('bs-slide');
+        slide.class('bs-carousel-slide');
         
         var text = slide.text();
         slide.text('');
@@ -101,6 +100,6 @@ if (!controls) throw new TypeError('controls.js not found!');
 
         return slide;
     }
-    controls.factoryRegister('bs-slide', carousel_slide_factory);
+    controls.factoryRegister('slide#namespace=bs-carousel', carousel_slide_factory);
 
 }).call(this);

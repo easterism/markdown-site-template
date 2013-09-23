@@ -11212,7 +11212,7 @@ function Bootstrap(controls)
 {
     var bootstrap = this;
     var doT = controls.doT;
-    bootstrap.VERSION = '0.6.6';
+    bootstrap.VERSION = '0.6.7';
     controls.bootstrap = bootstrap;
     
     var control_prototype = (function()
@@ -13003,7 +13003,7 @@ if (typeof exports === 'object') {
 //
 // require doT.js
 
-(function() { "use strict"; var VERSION = '0.6.6';
+(function() { "use strict"; var VERSION = '0.6.7';
 
 function Controls(doT)
 {
@@ -13018,6 +13018,7 @@ Noscript,Object,Ol,Optgroup,Option,Output,P,Pre,Progress,Ruby,Rt,Rp,S,Samp,Scrip
 Table,TBody,Td,Textarea,Tfoot,Th,Thead,Time,Title,Tr,U,Ul,Var,Video,Wbr';
     var ENCODE_HTML_MATCH = /&(?!#?\w+;)|<|>|"|'|\//g;
     var ENCODE_HTML_PAIRS = { "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "&": "&#38;", "/": '&#47;' };
+    var DECODE_HTML_MATCH = /&#(\d{1,8});/g;
     controls.subtypes = {}; // Registered subtypes
     controls.doT = doT; // reexport need for gencodes
     doT.templateSettings.strip = false; // FIX: strip modifies the pattern incorrectly assuming that it is composed entirely of HTML code
@@ -15245,6 +15246,11 @@ DOMNodeInsertedIntoDocument,DOMNodeRemoved,DOMNodeRemovedFromDocument,DOMSubtree
         }
     };
     
+    controls.decodeHTML = function(text)
+    {
+        return text ? text.replace(DECODE_HTML_MATCH, function(match) { return String.fromCharCode(parseInt(match.slice(2))); }) : text;
+    };
+    
     controls.encodeHTML = function(text)
     {
         return text ? text.replace(ENCODE_HTML_MATCH, function(match) { return ENCODE_HTML_PAIRS[match] || match; }) : text;
@@ -16016,16 +16022,42 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
     controls.factoryRegister('off', Off);
     
+    
     function  Encode(parameters, attributes) {
         var control = controls.create('container', parameters, attributes);
-        control.template(sanitize_template, sanitize_template);
+        control.template(html_encode, html_encode);
         process_inner_text(control);
         return control;
     }
-    function sanitize_template(it) {
-        return '<span>' + controls.encodeHTML((it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("")) + '</span>';
+    function html_encode(it) {
+        return controls.encodeHTML((it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join(""));
     }
     controls.factoryRegister('encode', Encode);
+    
+    
+    function  Decode(parameters, attributes) {
+        var control = controls.create('container', parameters, attributes);
+        control.template(html_decode, html_decode);
+        process_inner_text(control);
+        return control;
+    }
+    function html_decode(it) {
+        return controls.decodeHTML((it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join(""));
+    }
+    controls.factoryRegister('decode', Decode);
+    
+    
+    function  Escape(parameters, attributes) {
+        var control = controls.create('container', parameters, attributes);
+        control.template(escape_template, escape_template);
+        process_inner_text(control);
+        return control;
+    }
+    function escape_template(it) {
+        return '<span>' + controls.encodeHTML((it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("")) + '</span>';
+    }
+    controls.factoryRegister('escape', Escape);
+
 
 }).call(this);
 

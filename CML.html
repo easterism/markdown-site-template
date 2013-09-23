@@ -21,25 +21,25 @@ CML is an extension of the html and markdown markup for inclusion of the visual 
 
 #### Syntax
 
-<code>&lt;!--sectionname ... --&gt;</code> where sectionname is any valid identifier,
+```%decode(&#60;!--sectionname ... --&#62;)%decode``` where sectionname is any valid identifier,
 allowed in context of the html document and in function $DOC.parseContent() argument text.
 
 Template for inclusion named section in the html document. Named section is a div-control, the section name is assigned to 
 the class attribute of the control. In the final html document it is translated to a div: ```<div id=... class="sectionname"> ... </div>```.
 
-<code>$DOC.order</code> determine the order of the first level sections for which placement in the document is undefined.
+```$DOC.order``` determine the order of the first level sections for which placement in the document is undefined.
 
  example:
 
-<pre><code>%encode(%off(&lt;!--right-side-panel
-Example Navigation:
-* [Layout](#layout)
-* [Default layout scheme](#default-layout-scheme)
---&gt;)%off)%encode</code></pre>
+    %decode(%off(&#60;!--right-side-panel
+    Example Navigation:
+    * [Layout](#layout)
+    * [Default layout scheme](#default-layout-scheme)
+    --&#62;)%off)%decode
 
 #### Syntax
 
-<code>&lt;!--%[namespace.]control[#parameters]\( ... \)%[namespace.]control--&gt;</code> where control is valid identifier of a registered control,
+```%decode(&#60;!--%[namespace.]control[#parameters]( ... )%[namespace.]control--&#62;)%decode```  where control is valid identifier of a registered control,
 allowed in context of the html document and in function $DOC.parseContent() argument text.
 
 Template for inclusion component in the html document.
@@ -49,16 +49,16 @@ the controls is determined by where the &lt;!--name ... --&gt; pattern was place
 
 example:
 
-<pre><code>%encode(%off(&lt;!--%math#tex(
- \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
- 1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
- {1+\frac{e^{-8\pi}} {1+\ldots} } } }
-)%math
---&gt;)%off)%encode</code></pre>
+    %decode(%off(&#60;!--%math#tex(
+     \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
+     1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
+     {1+\frac{e^{-8\pi}} {1+\ldots} } } }
+    )%math
+    --&#62;)%off)%decode
 
 #### Syntax
 
-```%[namespace.]control[#parameters]( [content] )[%[namespace.]control]```
+```%[namespace.]control[#parameters]( [content] )%[namespace.]control```
 
 allowed in markdown text.
 
@@ -74,7 +74,8 @@ Attribute of the control (not field) later copied to the attributes of the html 
 Other parameter values ​​used to obtain modifications of the control.
 
 Example:
-%alert#primary;$class=m41()
+
+    %off( %alert#primary;$class=m41( ... )%alert )%off
 
 #### content
 
@@ -82,12 +83,12 @@ The text inside the parentheses is the responsibility of the control, diferent c
 
 example:
 
-<pre><code>%encode(%off(%math#tex(
- \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
- 1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
- {1+\frac{e^{-8\pi}} {1+\ldots} } } }
-)%math
-)%off)%encode</code></pre>
+    %off(%math#tex(
+     \frac{1}{\Bigl(\sqrt{\phi \sqrt{5}}-\phi\Bigr) e^{\frac25 \pi}} =
+     1+\frac{e^{-2\pi}} {1+\frac{e^{-4\pi}} {1+\frac{e^{-6\pi}}
+     {1+\frac{e^{-8\pi}} {1+\ldots} } } }
+    )%math
+    )%off
 
 ##### Markup nesting
 
