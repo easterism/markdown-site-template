@@ -14,6 +14,7 @@
         'simplex-theme':'Bootswatch: Simplex',
         'slate-theme':'Bootswatch: Slate',
         'spacelab-theme':'Bootswatch: Spacelab',
+        'superhero-theme':'Bootswatch: Superhero',
         'united-theme':'Bootswatch: United',
         'msdn-like-theme':'MSDN-like'
     };

@@ -11061,7 +11061,7 @@ $ENV =
                 israwcss = (css.indexOf('{') >= 0);
             if (!exists) {
                 if (israwcss) {
-                    document.head.insertAdjacentHTML('beforeend', '<style id="' + id + ' auto="true">' + css + '</style>');
+                    document.head.insertAdjacentHTML('beforeend', '<style id="' + id + '" auto="true">' + css + '</style>');
                 } else {
                     var link = document.createElement('link');
                     link.rel = 'stylesheet';
@@ -16832,7 +16832,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                 // scroll down if fixtop cover element
                 if (window.location.hash) {
                     window.location = window.location;
-                    var pad = parseInt(document.body.style['padding-top']);
+                    var pad = parseInt(window.getComputedStyle(document.body).paddingTop);
                     if (pad)
                         window.scrollBy(0, -pad);
                 }
@@ -16855,57 +16855,24 @@ if (!controls) throw new TypeError('controls.js not found!');
     // fired on 1. dom manipulation 2. css loading in progress can size effects 3. window resize after page loaded
     function onresize() {
         // body padding
-        var $b;
+        var css = '', top = 0, right = 0, bottom = 0, left = 0;
+        function calc(classname, prop) {
+            var result = 0;
+            for(var i = 0, elements = document.getElementsByClassName(classname), c = elements.length; i < c; i++)
+                result += elements[i][prop];
+            return result;
+        }
+        top += calc('fixed-top-bar', 'clientHeight');
+        top += calc('fixed-top-panel', 'clientHeight');
+        right += calc('fixed-right-side-bar', 'clientWidth');
+        right += calc('fixed-right-side-panel', 'clientWidth');
+        bottom += calc('fixed-bottom-bar', 'clientHeight');
+        bottom += calc('fixed-bottom-panel', 'clientHeight');
+        left += calc('fixed-left-side-bar', 'clientWidth');
+        left += calc('fixed-left-side-panel', 'clientWidth');
         
-        var fix_top_bars = document.getElementsByClassName('fixed-top-bar'),
-        fix_top_panes = document.getElementsByClassName('fixed-top-panel');
-        if (fix_top_bars || fix_top_panes) {
-            var pad = 0;
-            for(var i = fix_top_bars.length - 1; i >= 0; i--)
-                pad += fix_top_bars[i].clientHeight;
-            for(var i = fix_top_panes.length - 1; i >= 0; i--)
-                pad += fix_top_panes[i].clientHeight;
-            
-            $b = $(document.body);
-            $b.css('padding-top', pad + 'px');
-        }
-        var fix_bottom_bars = document.getElementsByClassName('fixed-bottom-bar'),
-        fix_bottom_panes = document.getElementsByClassName('fixed-bottom-panel');
-        if (fix_bottom_bars || fix_bottom_panes) {
-            var pad = 0;
-            for(var i = fix_bottom_bars.length - 1; i >= 0; i--)
-                pad += fix_bottom_bars[i].clientHeight;
-            for(var i = fix_bottom_panes.length - 1; i >= 0; i--)
-                pad += fix_bottom_panes[i].clientHeight;
-            
-            $b = $b || $(document.body);
-            $b.css('padding-bottom', pad + 'px');
-        }
-        
-        var fix_r_bars = document.getElementsByClassName('fixed-right-side-bar'),
-        fix_r_panes = document.getElementsByClassName('fixed-right-side-panel');
-        if (fix_r_bars || fix_r_panes) {
-            var pad = 0;
-            for(var i = fix_r_bars.length - 1; i >= 0; i--)
-                pad += fix_r_bars[i].clientWidth;
-            for(var i = fix_r_panes.length - 1; i >= 0; i--)
-                pad += fix_r_panes[i].clientWidth;
-            
-            $b = $(document.body);
-            $b.css('padding-right', pad + 'px');
-        }
-        var fix_l_bars = document.getElementsByClassName('fixed-left-side-bar'),
-        fix_l_panes = document.getElementsByClassName('fixed-left-side-panel');
-        if (fix_r_bars || fix_r_panes) {
-            var pad = 0;
-            for(var i = fix_l_bars.length - 1; i >= 0; i--)
-                pad += fix_l_bars[i].clientWidth;
-            for(var i = fix_l_panes.length - 1; i >= 0; i--)
-                pad += fix_l_panes[i].clientWidth;
-            
-            $b = $b || $(document.body);
-            $b.css('padding-left', pad + 'px');
-        }
+        css += 'body{padding: ' + top + 'px ' + right + 'px ' + bottom + 'px ' + left + 'px;}';
+        $DOC.appendCSS('document#onresize', css);
     }
     
 })();
