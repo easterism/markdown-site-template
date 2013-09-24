@@ -10850,9 +10850,8 @@ $ENV =
     marked: require('./temp/marked'),
     'bootstrap.controls': require('./temp/bootstrap.controls.js')
 };
-/*deprecated*/$$ENV = $ENV;
 
-(function() {
+(function() { 'use strict';
     
     // initialize $ENV
     
@@ -10897,10 +10896,14 @@ $ENV =
     $DOC =
     {
         options: {},
-
+                
+        // State
+        state: 0, // 0 - started, 1 - transformation started, 2 - loaded, -1 - broken
+        isLoaded: false,
+                
         // Document events - 'load'
         events: {},
-        isLoaded: false,
+        
         onload: function(handler) {
             this.isLoaded = true;
             var events = this.events;
@@ -11022,7 +11025,7 @@ $ENV =
             if (element && element.parentNode === document.head)
                 document.head.removeChild(element);
         },
-        // only sync scripts
+        // only sync scripts(?)
         appendScript: function(id, src, callback) {
             if (arguments.length === 1 || typeof src === 'function') { callback = src; src = id; id = undefined; }
             
@@ -11038,7 +11041,7 @@ $ENV =
             if (id)
                 script.id = id;
             script.src = src;
-            script.async = true;
+            script.async = true; // no affects?
             script.addEventListener('load', function() {
                 if (callback)
                     callback(+1);
@@ -11053,24 +11056,27 @@ $ENV =
             });
             document.head.appendChild(script);
         },
-        // id {string} - optional, identifier
-        // css {string} - url or css
-        appendCSS: function(id, css) {
-            if (arguments.length < 2) { css = id; id = undefined; }
-            // element by id
-            var element = (id) ? document.getElementById(id) : undefined;
-            if (!element || element.parentNode !== document.head) {
-                // append css
-                document.head.insertAdjacentHTML('beforeend',
-                    (css.indexOf('{') >= 0)
-                    ? ('<style' + ((id) ? (' id="' + id + '"') : '') + '>' + css + '</style>')
-                    : ('<link rel="stylesheet" type="text/css"' + ((id) ? (' id="' + id + '"') : '') + ' href="' + css + '" />'));
-            }
-            else {
-                // update css
-                if (element.innerHTML !== css)
-                    element.innerHTML = css;
-            }
+        appendCSS: function(id, css, callback) {
+            var exists = document.getElementById(id),
+                israwcss = (css.indexOf('{') >= 0);
+            if (!exists) {
+                if (israwcss) {
+                    document.head.insertAdjacentHTML('beforeend', '<style id="' + id + ' auto="true">' + css + '</style>');
+                } else {
+                    var link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.type = 'text/css';
+                    link.id = id;
+                    link.auto = true;
+                    link.href = css;
+                    if (callback) {
+                        link.addEventListener('load', function() { callback(1); });
+                        link.addEventListener('error', function() { callback(-1); });
+                    }
+                    document.head.appendChild(link);
+                }
+            } else if (israwcss && exists.innerHTML !== css)
+                exists.innerHTML = css;
         },
         
         mods: {},
@@ -11105,7 +11111,6 @@ $ENV =
             }
         }
     };
-    /*deprecated*/ $$DOC = $DOC;
     
     // Path
     // root - document folder root path, preferred relative
@@ -11160,7 +11165,7 @@ $ENV =
     
     var root = $DOC.root || meta_root || param_root || src_root || '',
         index = $DOC.index || meta_index || param_index || root + 'index.html',
-        js,css,components;
+        js,components;
         
     var current = document.currentScript;
     if (!current) {
@@ -11173,26 +11178,106 @@ $ENV =
     }
     var js = current && current.src;
     if (js) {
-        // css and components is always loaded from path of the executing script
-        css = ((js.slice(-3) === '.js') ? js.slice(0,-3) : js) + '.css';
+        // components is always loaded from path of the executing script
         components = js.split('/').slice(0, -1).concat(['components/']).join('/');
     }
     
+    var theme = '', theme_confirmed;
+    if (typeof localStorage !== 'undefined') {
+        theme = localStorage.getItem('primary-theme');
+        theme_confirmed = localStorage.getItem('primary-theme-confirmed');
+    }
+    
     Object.defineProperties($DOC, {
-        root: {value: root},
-        index: {value: index},
-        js: {value: js},
-        css: {value: css},
-        components: {value: components}
+        root:       {value: root},
+        executing:  {value: js},
+        index:      {value: index},
+        components: {value: components},
+        theme: {
+            get: function() { return theme; },
+            set: function(value) {
+                if (!value && value !== '')
+                    value = '';
+                if (value !== theme) {
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.setItem('primary-theme', value); 
+                        window.location.reload();
+                    }
+                }
+            }
+        }
     });
     
     if ($ENV.log_level > 0)
-        console.log('root,index,js,css,components'.split(',').map(function(prop){return '>'+prop+': "'+$DOC[prop]+'"';}).join('\n'));
+        console.log('root,executing,index,components'.split(',').map(function(prop){return '>'+prop+': "'+$DOC[prop]+'"';}).join('\n'));
     
+                
     $DOC.appendElement('meta', {name:'viewport', content:'width=device-width, initial-scale=1.0'});
-    if ($DOC.css)
-        $DOC.appendCSS('document.css', $DOC.css);
+    
+    
+    $DOC.appendCSS('document.css',
+'.fixed-top-bar, .fixed-top-panel { display: block; margin: 0; padding: 0; position: fixed; top: 0; left: 0; right: 0; z-index: 1030; }\
+.fixed-top-panel { background-color: inherit; padding: 25px 37px 0px 37px; margin-bottom: 25px; }\
+.fixed-top-panel > .navbar { margin: 0; }\
+.header-bar, .header-panel { display: block; margin: 0; padding: 0; }\
+.header-panel { padding: 25px 32px; }\
+.footer-bar, .footer-panel { display: block; margin: 0; padding: 0; }\
+.footer-panel { padding: 25px 37px; }\
+.fixed-bottom-bar, .fixed-bottom-panel { display: block; margin: 0; padding: 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030; }\
+.fixed-bottom-panel { padding: 0px 37px 0px 37px; margin-top: 25px; }\
+.fixed-bottom-panel > .navbar { margin: 0; }\
+.text-box { width:50%; padding:25px 37px 25px 37px; display: inline-block; }\
+.fixed-left-side-bar, .fixed-left-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030; }\
+.fixed-left-side-panel { width: auto; padding:25px 20px; }\
+.left-side-bar, .left-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 26%; min-width: 240px; }\
+.left-side-panel { padding:25px 9px 25px 37px; }\
+.content-bar, .content-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 60%; min-width: 250px; max-width: 73%; }\
+.content-panel { padding:25px 37px 25px 37px; }\
+.fixed-right-side-bar, .fixed-right-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030;}\
+.fixed-right-side-panel { width: auto; padding:25px 20px;}\
+.right-side-bar, .right-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; min-width: 240px; width: 28%;}\
+.right-side-panel { padding:25px 25px 25px 9px;}\
+@media (max-width: 1024px) { .right-side-bar, .right-side-panel { display: block; padding:25px 25px 25px 37px; width: 50%; }\
+.right-side-panel { padding:25px 25px 25px 37px; }\
+}\
+@media (max-width: 768px) { .left-side-bar, .left-side-panel { display: block; margin: 0; padding: 0; width: auto; }\
+.left-side-panel { padding:25px 25px 25px 25px; }\
+.content-bar, .content-panel { display: block; margin: 0; padding: 0; max-width: 100%; width: auto; }\
+.content-panel { padding:25px 25px 25px 25px; }\
+.right-side-bar, .right-side-panel { display: block; margin: 0; padding: 0; width: auto; }\
+.right-side-panel { padding:25px 25px 25px 25px; }\
+}\
+.table-bordered { display: table-cell; }\
+.stub { display: inline-block; }\
+.stub-error { width:18px; height:18px; border: silver dotted 1px; border-radius: 2px; }\
+.stub-error:before { content: "?"; font-size: small; color: silver; margin: 4px; position: relative; top: -2px; }\
+\
+.tabpanel-body { padding-bottom: 5px; border-left: #DDD solid 1px; border-right: #DDD solid 1px; border-bottom: #DDD solid 1px;}\
+.nav-tabs > li > a:focus { outline-color: silver; }');
 
+    if (!theme) {
+        if ($DOC.root.indexOf('aplib.github.io') >= 0)
+                $DOC.appendCSS('bootstrap.css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css'); // load from CDN
+        else    $DOC.appendCSS('bootstrap.css', $DOC.root + 'bootstrap.css'); // load from root
+    } else {
+        
+        // load bootstrap.css if theme loading error
+        if (!theme_confirmed) {
+            
+            if ($DOC.root.indexOf('aplib.github.io') >= 0)
+                    $DOC.appendCSS('bootstrap.css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css'); // load from CDN
+            else    $DOC.appendCSS('bootstrap.css', $DOC.root + 'bootstrap.css'); // load from root
+        }
+        
+        $DOC.appendCSS('theme.css', $DOC.root + 'mods/' + theme + '/' + theme + '.css', function(state) {
+            if (state < 0 && theme_confirmed)
+                localStorage.setItem('primary-theme-confirmed', '');
+            else if (state > 0 && !theme_confirmed)
+                localStorage.setItem('primary-theme-confirmed', true);
+        });
+        $DOC.appendScript('theme.js', $DOC.root + 'mods/' + theme + '/' + theme + '.js');
+    }
+    
 }).call(this);
 }
 
@@ -13275,15 +13360,21 @@ controls.typeRegister(__type, ' + name + ');';
     
     // Post processing
     
-    var post_events = {};
+    var post_events = [];
     setInterval(function()
     {
-        for(var prop in post_events)
-        if (--post_events[prop] <= 0)
+        if (post_events.length > 0)
+        for(var i = 0, c = post_events.length; i < c; i++)
         {
-            delete post_events[prop];
-            prop.raise();
+            try
+            {
+                post_events[i].post_event.raise();
+            }
+            catch (e) { console.log(e); }
+            
+            post_events.length = 0;
         };
+        
     } , 30);
     
 // >> Data objects
@@ -13346,7 +13437,7 @@ controls.typeRegister(__type, ' + name + ');';
             return this;
         },
                 
-        raise: function(event_data, latency)
+        raise: function(event_data)
         {
             var event = this.event;
             if (event)
@@ -13354,9 +13445,46 @@ controls.typeRegister(__type, ' + name + ');';
             
             var post_event = this.post_event;
             if (post_event)
-                post_events[this] = latency || 1;
+            {
+                var index = post_events.indexOf(this);
+                if (index < 0 || index !== post_events.length - 1)
+                {
+                    if (index >= 0)
+                        post_events.splice(index, 1);
+                    post_events.push(this);
+                }
+            }
+        },
+        
+        set: function(name, value)
+        {
+            this.state_id++;
+            this[name] = value;
+            this.last_name = name;
+            this.raise();
+        },
+        setx: function(collection)
+        {
+            var modified;
+            for(var prop in collection)
+            if (collection.hasOwnProperty(prop))
+            {
+                modified = true;
+                this.state_id++;
+                this[prop] = collection[prop];
+                this.last_name = collection;
+            }
+            if (modified)
+                this.raise();
         }
     };
+    
+    function DataObject(parameters, attributes)
+    {
+        this.state_id = Number.MIN_VALUE;
+    }
+    DataObject.prototype = data_object_common;
+    controls.typeRegister('DataObject', DataObject);
     
     var data_array_common =
     {
@@ -13373,7 +13501,7 @@ controls.typeRegister(__type, ' + name + ');';
         }
         // TODO
     };
-    
+        
     function LocalStorageAdapter(parameters, attributes)
     {
     };
@@ -15842,19 +15970,21 @@ return '<div' + it.printAttributes() + '>\
                 var $d = $dm.parent();
                 $d.addClass('dropdown');
                 var toggle = $d.find('> a');
-                toggle.addClass('dropdown-toggle');
-                toggle.attr('data-toggle', 'dropdown');
-                toggle.attr('href', '#');
-                if (toggle.html().indexOf('<b class="caret"></b>') <= 0)
-                    toggle.append('<b class="caret"></b>');
-                
-                // activate menu item of the current page
-                var loc = window.location.href.toLowerCase();
-                $e.find('ul li a').each(function(i,a) {
-                    var href = (a.href || '').toLowerCase();
-                    if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
-                        $(a).parents('li').addClass('active');
-                });
+                if (toggle.length) {
+                    toggle.addClass('dropdown-toggle');
+                    toggle.attr('data-toggle', 'dropdown');
+                    toggle.attr('href', '#');
+                    if (toggle.html().indexOf('<b class="caret"></b>') <= 0)
+                        toggle.append('<b class="caret"></b>');
+
+                    // activate menu item of the current page
+                    var loc = window.location.href.toLowerCase();
+                    $e.find('ul li a').each(function(i,a) {
+                        var href = (a.href || '').toLowerCase();
+                        if (href === loc || loc.split(href).concat(href.split(loc)).some(function(frag){return frag && ('index.htm,index.html'.indexOf(frag) >= 0); }))
+                            $(a).parents('li').addClass('active');
+                    });
+                }
             }
         };
         
@@ -16336,9 +16466,11 @@ if (!controls) throw new TypeError('controls.js not found!');
     $DOC.appendScript($DOC.root + "user.js");
     
     // These controls are are not attached, childs are attached
-    var head = controls.create('head'), body = controls.create('body');
-    $DOC.head = head;
-    $DOC.body = body;
+    var chead = controls.create('head'),
+        cbody = controls.create('body'),
+        head = document.head;
+    $DOC.head = chead;
+    $DOC.body = cbody;
     
     // Stub controls loading dispatcher
     var stubs = {};
@@ -16353,12 +16485,12 @@ if (!controls) throw new TypeError('controls.js not found!');
         stublist.push(stub);
         var url = $DOC.components + original__type[0] + '/' + original__type[1] + '/' + original__type[0] + '.' + original__type[1] + '.js';
         // load component asynchronously
-        var component_js = $(document.head).children('script[src*="' + url +'"]:first')[0];
+        var component_js = $(head).children('script[src*="' + url +'"]:first')[0];
         if (!component_js) {
             var component_js = controls.extend(document.createElement('script'), {src:url, async:true});
             component_js.addEventListener('load', function() { stubs[original__type].forEach(function(stub){ stub.state = 1; }); stubs[original__type] = []; });
             component_js.addEventListener('error', function() { stubs[original__type].forEach(function(stub){ stub.state = -1; }); stubs[original__type] = []; });
-            document.head.appendChild(component_js);
+            head.appendChild(component_js);
         }
     }
     
@@ -16460,9 +16592,9 @@ if (!controls) throw new TypeError('controls.js not found!');
     function processSections() {
         
         // check body
-        if (!body._element && document.body)
-            body.attachAll();
-        if (!body._element)
+        if (!cbody._element && document.body)
+            cbody.attachAll();
+        if (!cbody._element)
             return;
         
         var translated_sections = [];
@@ -16480,7 +16612,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         while(text_node)
         try {
             if (processed_nodes.indexOf(text_node) < 0) {
-                var control, text = text_node.nodeValue, first_char = text[0];
+                var control = undefined,  text = text_node.nodeValue, first_char = text[0];
                 if (' \n\t[@$&*#'.indexOf(first_char) < 0) {
                     try {
                         if (first_char === '%') {
@@ -16519,9 +16651,11 @@ if (!controls) throw new TypeError('controls.js not found!');
                         }
                         if (control) {
                             // insert control element to DOM
-                            control.createElement(text_node, 2/*before node*/);
+                            
+//                            if (!control._element) // element exists if placeholder 
+                                control.createElement(text_node, 2/*before node*/);
                             if (control._element && control._element.parentNode === document.body)
-                                $DOC.body.add(control);
+                                cbody.add(control);
 
                             // create component loader
                             // FIX: (for orphaned control) start loader after DOM element was created
@@ -16560,7 +16694,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 
                     // translate section to control object
 
-                    var section_control = body.add(name + ':div', {class:name});
+                    var section_control = cbody.add(name + ':div', {class:name});
                     section_control.template($ENV.default_template, $ENV.default_inner_template);
                     $DOC.processContent(section_control, content);
 
@@ -16573,6 +16707,7 @@ if (!controls) throw new TypeError('controls.js not found!');
                     
                     if (placeholder) {
                         section_control.createElement(placeholder, 2);
+                        created = true;
                     } else {
                         var in_order = order.indexOf(name);
                         if (in_order >= 0) {
@@ -16617,16 +16752,15 @@ if (!controls) throw new TypeError('controls.js not found!');
     }
 
     // document transformation started after all libraries and user.js is loaded
-    var transformation_started = false;
     function transformation()
     {
-        if (transformation_started)
+        if ($DOC.state > 0)
             return;
-        else
-            transformation_started = true;
         
-        head.attachAll();
-        body.attachAll();
+        $DOC.state++;
+        
+        chead.attachAll();
+        cbody.attachAll();
         
         var gen_flag = document.body && document.body.getAttribute('data-generator'),
         page_ready = gen_flag && gen_flag.indexOf('embed-processed') >= 0;
@@ -16636,7 +16770,7 @@ if (!controls) throw new TypeError('controls.js not found!');
             
             var timer = setInterval(function() { onresize(); }, 25);
             var dom_loaded_handler = function() {
-                body.attachAll();
+                cbody.attachAll();
                 onresize();
                 $(window).on('resize', onresize);
                 dom_loaded_handler = undefined;

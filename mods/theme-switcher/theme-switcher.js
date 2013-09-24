@@ -3,7 +3,7 @@
     
     var all_themes =
     {
-        'bootstrap-theme':'Bootstrap Default',
+        '':'Bootstrap Default',
         'amelia-theme':'Bootswatch: Amelia',
         'cerulian-theme':'Bootswatch: Cerulian',
         'cosmo-theme':'Bootswatch: Cosmo',
@@ -18,31 +18,11 @@
         'msdn-like-theme':'MSDN-like'
     };
     
-    try { /*not work in IE on file:// */ $DOC.primaryTheme = localStorage.getItem('primary-theme'); } catch (e) {}
+    if (!all_themes[$DOC.theme])
+        $DOC.theme = undefined;
     
-    if (!all_themes[$DOC.primaryTheme])
-        $DOC.primaryTheme = 'msdn-like-theme';
-    $DOC.mod('primary-theme', $DOC.primaryTheme);
-    
-
-    $DOC.selectPrimaryTheme = function (theme) {
-        if (theme !== $DOC.primaryTheme) {
-            $DOC.removeMod('primary-theme');
-            if (all_themes[theme]) {
-                $DOC.mod('primary-theme', theme);
-                $DOC.primaryTheme = theme;
-                try { /*not work in IE on file:// */ localStorage.setItem('primary-theme', theme); } catch (e) {}
-            } else {
-                $DOC.mod('primary-theme', 'msdn-like-theme');
-                $DOC.primaryTheme = 'msdn-like-theme';
-                try { /*not work in IE on file:// */ localStorage.setItem('primary-theme', 'msdn-like-theme'); } catch (e) {}
-            }
-        }
-    };
-    
-    // chaeck browser does not support localStorage
-    if (this.localStorage/* localStorage not work in IE on file:// protocol */) {
-    
+    // check browser support localStorage
+    if (typeof localStorage !== 'undefined') {
         if ($DOC.isLoaded)
             create_mods_dropdown();
         else
@@ -65,7 +45,7 @@
                     .add('a', {$text:all_themes[theme]})
                     .listen('click', function()
                     {
-                        $DOC.selectPrimaryTheme(theme);
+                        $DOC.theme = theme;
                     });
                 });
 
