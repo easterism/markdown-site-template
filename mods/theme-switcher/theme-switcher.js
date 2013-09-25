@@ -32,8 +32,8 @@
     // add Mods submenu
     function create_mods_dropdown()
     {
-        var ul = $('.navbar-collapse > ul').first();
-        if (ul) {
+        var navbar_ul = $('.navbar-collapse > ul').first();
+        if (navbar_ul) {
             // create mods submenu
             var menuitem = controls.create('li', {class:'dropdown'});
             menuitem.add('a', {class:'dropdown-toggle', 'data-toggle':'dropdown', $text:'Mods<b class="caret"></b>', href:'#'});
@@ -48,10 +48,13 @@
                         $DOC.theme = theme;
                     });
                 });
-
-                ul.append(menuitem.outerHTML());
-                menuitem.attachAll();
+                
+                modslist.add('li')
+                .add('a', {href:$DOC.root + 'customize-with-a-Bootstrap-theme.html', $text:'How to customize with a Bootstrap theme'})
             });
+            
+            navbar_ul.append(menuitem.outerHTML());
+            menuitem.attachAll();
         }
     }
     
