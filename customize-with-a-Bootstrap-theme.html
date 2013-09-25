@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>CML (Component Markdown Language)</title>
+    <script src="document.min.js"></script>
+</head>
+<body>
+
+<!--content-panel
+
+## Customize document appearance with a Bootstrap theme
+
+Bootstrap based Markdown webdocs document can be customized with any Bootstrap compatible theme.
+The bootstrap is a very popular project for it already created a lot of interesting themes.
+
+The default template is included only the main bootstrap.css theme file and does not include themes that you see on this site as an example.
+If you want to override theme provided by default you can simply overwrite bootstrap.css with file supplied by the theme.
+
+If you plan to use a theme switcher that you need to copy the theme-switcher, and all of the theme folders that you want to use and 
+place them in the mods/ folder of the document. Attach theme-switcher by $DOC.mod('theme-switcher'); command.
+Edit theme-switcher.js to change the dropdown themes list.
+
+-->
+
+<!--right-side-panel
+<div id="disqus_thread"></div>
+-->
+<script src = "//markdocs.disqus.com/embed.js" async></script>
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+<script>if(typeof $DOC==="undefined")document.write('<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="document.css" auto="1"><script src="http://aplib.github.io/document.min.js"><'+'/script>');</script>
+</body>
+</html>

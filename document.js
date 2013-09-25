@@ -11216,19 +11216,28 @@ $ENV =
     
     
     $DOC.appendCSS('document.css',
-'.fixed-top-bar, .fixed-top-panel { display: block; margin: 0; padding: 0; position: fixed; top: 0; left: 0; right: 0; z-index: 1030; }\
-.fixed-top-panel { background-color: inherit; padding: 25px 37px 0px 37px; margin-bottom: 25px; }\
-.fixed-top-panel > .navbar { margin: 0; }\
-.header-bar, .header-panel { display: block; margin: 0; padding: 0; }\
-.header-panel { padding: 25px 32px; }\
-.footer-bar, .footer-panel { display: block; margin: 0; padding: 0; }\
-.footer-panel { padding: 25px 37px; }\
+'.fixed-top-bar, .fixed-top-panel\
+    { display: block; margin: 0; padding: 0; position: fixed; top: 0; left: 0; right: 0; z-index: 1030; }\
+.fixed-top-panel\
+    { background-color: inherit; padding: 25px 37px 0px 37px; margin-bottom: 25px; }\
+.fixed-top-panel > .navbar\
+    { margin: 0; }\
+.header-bar, .header-panel\
+    { display: block; margin: 0; padding: 0; }\
+.header-panel\
+    { padding: 25px 37px; }\
+.footer-bar, .footer-panel\
+    { display: block; margin: 0; padding: 0; }\
+.footer-panel\
+    { padding: 25px 37px; }\
 .fixed-bottom-bar, .fixed-bottom-panel { display: block; margin: 0; padding: 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030; }\
 .fixed-bottom-panel { padding: 0px 37px 0px 37px; margin-top: 25px; }\
 .fixed-bottom-panel > .navbar { margin: 0; }\
 .text-box { width:50%; padding:25px 37px 25px 37px; display: inline-block; }\
-.fixed-left-side-bar, .fixed-left-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030; }\
-.fixed-left-side-panel { width: auto; padding:25px 20px; }\
+.fixed-left-side-bar, .fixed-left-side-panel\
+    { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030; }\
+.fixed-left-side-panel\n\
+    { width: auto; padding:25px 20px; }\
 .left-side-bar, .left-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 26%; min-width: 240px; }\
 .left-side-panel { padding:25px 9px 25px 37px; }\
 .content-bar, .content-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 60%; min-width: 250px; max-width: 73%; }\

@@ -19,9 +19,10 @@
 
 CML is an extension of the html and markdown markup for inclusion of the visual components, templates, data or parts of other documents.
 
-#### Syntax
+#### Defining layout section in html document
 
-```%decode(&#60;!--sectionname ... --&#62;)%decode``` where sectionname is any valid identifier,
+```%decode(&#60;!--sectionname ... --&#62;)%decode```  
+where sectionname is any valid identifier,
 allowed in context of the html document and in function $DOC.parseContent() argument text.
 
 Template for inclusion named section in the html document. Named section is a div-control, the section name is assigned to 
@@ -37,7 +38,19 @@ the class attribute of the control. In the final html document it is translated 
     * [Default layout scheme](#default-layout-scheme)
     --&#62;)%off)%decode
 
-#### Syntax
+#### Section placeholder
+
+```%decode(&#60;!--sectionname--&#62;)%decode```  
+
+Placeholder for previously defined section
+
+#### Section remover
+
+```%decode(&#60;!--!sectionname--&#62;)%decode```  
+
+Remove previously defined section
+
+#### Inserting a component in html document
 
 ```%decode(&#60;!--%[namespace.]control[#parameters]( ... )%[namespace.]control--&#62;)%decode```  where control is valid identifier of a registered control,
 allowed in context of the html document and in function $DOC.parseContent() argument text.
@@ -56,7 +69,7 @@ example:
     )%math
     --&#62;)%off)%decode
 
-#### Syntax
+#### Inserting a component in marked text
 
 ```%[namespace.]control[#parameters]( [content] )%[namespace.]control```
 
@@ -90,11 +103,17 @@ example:
     )%math
     )%off
 
-##### Markup nesting
+#### Markup nesting
 
-Inside the markdown markup, you can use html and CML markup.
-Controls include text content is desirable (but not necessarily) translate text as CML.
-In particular the named sections translate their content as CML.
+Inside the markdown markup, you can use html and CML extensions.
+Controls include text content is desirable (but not necessarily) translate inner text as CML.
+In particular the named layout sections translate their content as CML.
+
+#### CML extensions
+
+In CML is defined syntax, but is not defined set of commands. Any instruction is a component that resolved runtime by the library
+controls.js on the principles of IoC. In the simplest case, this can be a basic element such as &lt;div&gt; or &lt;span&gt;. In another case,
+it is a custom component is created from the dynamically loaded asynchronously script.  
 
 -->
 
@@ -104,6 +123,6 @@ In particular the named sections translate their content as CML.
 <script src = "//markdocs.disqus.com/embed.js" async></script>
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="document.css" auto="1">');</script>
+<script>if(typeof $DOC==="undefined")document.write('<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="document.css" auto="1"><script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="document.css" auto="1"><script src="http://aplib.github.io/document.min.js"><'+'/script>');</script>
 </body>
 </html>
