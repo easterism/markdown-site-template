@@ -18,15 +18,15 @@
         'msdn-like-theme':'MSDN-like'
     };
     
-    if (!all_themes[$DOC.theme])
-        $DOC.theme = undefined;
+//    if (!all_themes[$DOC.theme])
+//        $DOC.theme = undefined;
     
-    // check browser support localStorage
+    // check the browser support localStorage
     if (typeof localStorage !== 'undefined') {
         if ($DOC.isLoaded)
             create_mods_dropdown();
         else
-            $DOC.events.load.addListener('load', create_mods_dropdown);
+            $DOC.onload(create_mods_dropdown);
     }
     
     // add Mods submenu
@@ -42,10 +42,11 @@
                 Object.keys(all_themes).forEach(function(theme)
                 {
                     modslist.add('li')
-                    .add('a', {$text:all_themes[theme]})
-                    .listen('click', function()
+                    .add('a', {$text:all_themes[theme], href:'#theme=default'})
+                    .listen('click', function(event)
                     {
                         $DOC.theme = theme;
+                        event.event.preventDefault();
                     });
                 });
                 

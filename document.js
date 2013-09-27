@@ -10985,24 +10985,25 @@ $ENV =
                     }
                 }
                 // for delete
-                else if (arguments.length > 1) {
-
-                    if (typeof(content) === 'function') {
-                        var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
-                        content = content.substr(asterpos + 1, lastpos - asterpos - 1);
-                    }
-                    // first '$' - var else section
-                    if (name[0] === '$')
-                        this.vars[name] = content;
-                    else
-                        this.addSection(name, content);
-
-                    found_content = true;
-                }
+//                else if (arguments.length > 1) {
+//
+//                    if (typeof(content) === 'function') {
+//                        var content = content.toString(), asterpos = content.indexOf('*'), lastpos = content.lastIndexOf('*');
+//                        content = content.substr(asterpos + 1, lastpos - asterpos - 1);
+//                    }
+//                    // first '$' - var else section
+//                    if (name[0] === '$')
+//                        this.vars[name] = content;
+//                    else
+//                        this.addSection(name, content);
+//
+//                    found_content = true;
+//                }
                 return found_content;
             },
 
         filters: [],
+        
         // append to head
         appendElement: function(id, tag, attributes) {
             try {
@@ -11111,12 +11112,14 @@ $ENV =
         }
     };
     
+    
     // Path
     // root - document folder root path, preferred relative
+    // executing - document.js path
     // index - document index file
-    // js - document.js path
-    // css - document.css path
     // components - codebase start path
+    
+    
     var nodes = document.head.childNodes, meta_root, meta_index, param_root, param_index, src_root, src_index;
     for(var i = 0, c = nodes.length; i < c && !meta_root; i++) {
         var node = nodes[i];
@@ -11181,10 +11184,34 @@ $ENV =
         components = js.split('/').slice(0, -1).concat(['components/']).join('/');
     }
     
+    // selected theme
     var theme = '', theme_confirmed;
     if (typeof localStorage !== 'undefined') {
+        
         theme = localStorage.getItem('primary-theme');
         theme_confirmed = localStorage.getItem('primary-theme-confirmed');
+        
+        if (hash) {
+            
+            // apply theme 'theme=' command
+            var apply_theme = location.hash.match(/^|;|,|&theme=(.*)$|;|,|&/)[1];
+            if (apply_theme && apply_theme !== theme) {
+                theme = apply_theme;
+                theme_confirmed = '';
+            }
+
+            // switch theme 'settheme=' command
+
+            var set_theme = location.hash.match(/^|;|,|&settheme=(.*)$|;|,|&/)[1];
+            if (set_theme) {
+                if (set_theme !== theme) {
+                    theme_confirmed = '';
+                    localStorage.setItem('primary-theme-confirmed', '');
+                }
+                localStorage.setItem('primary-theme', apply_theme);
+                theme = apply_theme;
+            }
+        }
     }
     
     Object.defineProperties($DOC, {
@@ -11292,19 +11319,19 @@ $ENV =
     { outline-color: silver; }');
 
     if (!theme) {
-        if ($DOC.root.indexOf('aplib.github.io') >= 0)
-                $DOC.appendCSS('bootstrap.css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css'); // load from CDN
-        else    $DOC.appendCSS('bootstrap.css', $DOC.root + 'bootstrap.css'); // load from root
+        // load css on default theme
+        $DOC.appendCSS('bootstrap.css', ($DOC.root.indexOf('aplib.github.io') >= 0)
+            ? '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' // load from CDN
+            : $DOC.root + 'bootstrap.css'); // load from root
     } else {
         
-        // load bootstrap.css if theme loading error
-        if (!theme_confirmed) {
-            
-            if ($DOC.root.indexOf('aplib.github.io') >= 0)
-                    $DOC.appendCSS('bootstrap.css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css'); // load from CDN
-            else    $DOC.appendCSS('bootstrap.css', $DOC.root + 'bootstrap.css'); // load from root
-        }
-        
+        // load bootstrap.css before theme loading if theme loading was error
+        if (!theme_confirmed)
+        $DOC.appendCSS('bootstrap.css', ($DOC.root.indexOf('aplib.github.io') >= 0)
+            ? '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' // load from CDN
+            : $DOC.root + 'bootstrap.css'); // load from root
+
+        // theme loading and confirmed flag
         $DOC.appendCSS('theme.css', $DOC.root + 'mods/' + theme + '/' + theme + '.css', function(state) {
             if (state < 0 && theme_confirmed)
                 localStorage.setItem('primary-theme-confirmed', '');
@@ -16485,7 +16512,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 
 
-//     controls.page-layout.js Page layout
+//     controls.page-layout.js Page layout manager
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
 // require controls.js

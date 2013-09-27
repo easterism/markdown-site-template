@@ -31,7 +31,10 @@
 <loc>http://aplib.github.io/markdown-site-template/components/controls.tabpanel.html</loc>
 </url>
 <url>
-<loc>http://aplib.github.io/markdown-site-template/components/controls.bs-carousel.html</loc>
+<loc>http://aplib.github.io/markdown-site-template/components/controls.carousel.html</loc>
+</url>
+<url>
+<loc>http://aplib.github.io/markdown-site-template/components/controls.page-layout.html</loc>
 </url>
 <url>
 <loc>http://aplib.github.io/markdown-site-template/components/GitHub.gemoji.html</loc>
@@ -50,5 +53,8 @@
 </url>
 <url>
 <loc>http://aplib.github.io/markdown-site-template/components/d3/d3.html</loc>
+</url>
+<url>
+<loc>http://aplib.github.io/markdown-site-template/customize-with-a-Bootstrap-theme.html</loc>
 </url>
 </urlset>

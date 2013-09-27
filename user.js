@@ -10,8 +10,10 @@ $DOC.parseContent(function(){/*
 ***
 * [Docs]({{=$DOC.root}}index.html)
  * [Blog]({{=$DOC.root}}blog.html)
- * [Layout]({{=$DOC.root}}layout.html)
- * [CML (Component Markdown Language)]({{=$DOC.root}}CML.html)
+ * [Layout]({{=$DOC.root}}docs/layout.html)
+ * [CML (Component Markdown Language)]({{=$DOC.root}}docs/CML.html)
+ * [URL parameters]({{=$DOC.root}}docs/url-parameters.html)
+ * [API]({{=$DOC.root}}docs/api.html)
 * [Components]({{=$DOC.root}}index.html)
  * [CSS]({{=$DOC.root}}components/controls.css.html)
  * [Alert]({{=$DOC.root}}components/controls.alert.html)
