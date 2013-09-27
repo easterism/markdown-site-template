@@ -10903,26 +10903,25 @@ $ENV =
                 
         // Document events - 'load'
         events: {},
-        
-        onload: function(handler) {
-            this.isLoaded = true;
+        forceEvent: function(name) {
             var events = this.events;
-            var event = events.load;
-            if (!event)
-                events.load = event = new controls.Event();
-            event.addListener(handler);
+            if (!events.hasOwnProperty(name))
+                events[name] = new controls.Event();
+            return events[name];
         },
+        onload: function(handler) { this.forceEvent('load').addListener(handler); },
                 
         // Document named sections content
         sections: {},
-        // Sections order
-        order: ['fixed-top-bar', 'fixed-top-panel',
+        // Sections constants
+        ORDER: ['fixed-top-bar', 'fixed-top-panel',
             'header-panel', 'header-panel',
             'left-side-bar', 'left-side-panel',
             'content-bar', 'content-panel',
             'right-side-panel', 'right-side-bar',
             'footer-panel', 'footer-bar',
             'fixed-bottom-panel', 'fixed-bottom-bar'],
+        COLUMNS: ['left-side-bar', 'left-side-panel', 'content-bar', 'content-panel', 'right-side-panel', 'right-side-bar'],
         addSection: function(name, value) {
             var sections = this.sections, exists = sections[name];
             if (exists) {
@@ -11230,39 +11229,67 @@ $ENV =
     { display: block; margin: 0; padding: 0; }\
 .footer-panel\
     { padding: 25px 37px; }\
-.fixed-bottom-bar, .fixed-bottom-panel { display: block; margin: 0; padding: 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030; }\
-.fixed-bottom-panel { padding: 0px 37px 0px 37px; margin-top: 25px; }\
-.fixed-bottom-panel > .navbar { margin: 0; }\
-.text-box { width:50%; padding:25px 37px 25px 37px; display: inline-block; }\
+.fixed-bottom-bar, .fixed-bottom-panel\
+    { display: block; margin: 0; padding: 0; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030; }\
+.fixed-bottom-panel\
+    { padding: 0px 37px 0px 37px; margin-top: 25px; }\
+.fixed-bottom-panel > .navbar\
+    { margin: 0; }\
+.text-box\
+    { width:50%; padding:25px 37px 25px 37px; display: inline-block; }\
 .fixed-left-side-bar, .fixed-left-side-panel\
     { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030; }\
 .fixed-left-side-panel\n\
     { width: auto; padding:25px 20px; }\
-.left-side-bar, .left-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 26%; min-width: 240px; }\
-.left-side-panel { padding:25px 9px 25px 37px; }\
-.content-bar, .content-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 60%; min-width: 250px; max-width: 73%; }\
-.content-panel { padding:25px 37px 25px 37px; }\
-.fixed-right-side-bar, .fixed-right-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030;}\
-.fixed-right-side-panel { width: auto; padding:25px 20px;}\
-.right-side-bar, .right-side-panel { display: table-cell; margin: 0; padding: 0; vertical-align: top; min-width: 240px; width: 28%;}\
-.right-side-panel { padding:25px 25px 25px 9px;}\
-@media (max-width: 1024px) { .right-side-bar, .right-side-panel { display: block; padding:25px 25px 25px 37px; width: 50%; }\
-.right-side-panel { padding:25px 25px 25px 37px; }\
+.left-side-bar, .left-side-panel\
+    { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 26%; min-width: 240px; }\
+.left-side-panel\
+    { padding:25px 9px 25px 37px; }\
+.content-bar, .content-panel\
+    { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: 60%; min-width: 250px; max-width: 73%; }\
+.content-panel\
+    { padding:25px 37px 25px 37px; }\
+.fixed-right-side-bar, .fixed-right-side-panel\
+    { display: table-cell; margin: 0; padding: 0; vertical-align: top; width: auto; position: fixed; top: 0; right: 0; bottom: 0; z-index: 1030;}\
+.fixed-right-side-panel\
+    { width: auto; padding:25px 20px;}\
+.right-side-bar, .right-side-panel\
+    { display: table-cell; margin: 0; padding: 0; vertical-align: top; min-width: 240px; width: 28%;}\
+.right-side-panel\
+    { padding:25px 25px 25px 9px;}\
+@media (max-width: 1024px) {\
+    .right-side-bar, .right-side-panel\
+        { display: block; padding:25px 25px 25px 37px; width: 50%; }\
+    .right-side-panel\
+        { padding:25px 25px 25px 37px; }\
 }\
-@media (max-width: 768px) { .left-side-bar, .left-side-panel { display: block; margin: 0; padding: 0; width: auto; }\
-.left-side-panel { padding:25px 25px 25px 25px; }\
-.content-bar, .content-panel { display: block; margin: 0; padding: 0; max-width: 100%; width: auto; }\
-.content-panel { padding:25px 25px 25px 25px; }\
-.right-side-bar, .right-side-panel { display: block; margin: 0; padding: 0; width: auto; }\
-.right-side-panel { padding:25px 25px 25px 25px; }\
+@media (max-width: 768px) {\
+    .left-side-bar, .left-side-panel\
+        { display: block; margin: 0; padding: 0; width: auto; }\
+    .left-side-panel\
+        { padding:25px 25px 25px 25px; }\
+    .content-bar, .content-panel\
+        { display: block; margin: 0; padding: 0; max-width: 100%; width: auto; }\
+    .content-panel\
+        { padding:25px 25px 25px 25px; }\
+    .right-side-bar, .right-side-panel\
+        { display: block; margin: 0; padding: 0; width: auto; }\
+    .right-side-panel\
+        { padding:25px 25px 25px 25px; }\
 }\
-.table-bordered { display: table-cell; }\
-.stub { display: inline-block; }\
-.stub-error { width:18px; height:18px; border: silver dotted 1px; border-radius: 2px; }\
-.stub-error:before { content: "?"; font-size: small; color: silver; margin: 4px; position: relative; top: -2px; }\
+.table-bordered\
+    { display: table-cell; }\
+.stub\
+    { display: inline-block; }\
+.stub-error\
+    { width:18px; height:18px; border: silver dotted 1px; border-radius: 2px; }\
+.stub-error:before\
+    { content: "?"; font-size: small; color: silver; margin: 4px; position: relative; top: -2px; }\
 \
-.tabpanel-body { padding-bottom: 5px; border-left: #DDD solid 1px; border-right: #DDD solid 1px; border-bottom: #DDD solid 1px;}\
-.nav-tabs > li > a:focus { outline-color: silver; }');
+.tabpanel-body\
+    { padding-bottom: 5px; border-left: #DDD solid 1px; border-right: #DDD solid 1px; border-bottom: #DDD solid 1px;}\
+.nav-tabs > li > a:focus\
+    { outline-color: silver; }');
 
     if (!theme) {
         if ($DOC.root.indexOf('aplib.github.io') >= 0)
@@ -16056,13 +16083,14 @@ if (!controls) throw new TypeError('controls.js not found!');
         for(var name in parameters) {
             if (name === 'origin' || name === 'transform-origin')
                 style += 'transform-origin:' + parameters.origin + ';-webkit-transform-origin:' + parameters.origin + ';-moz-transform-origin:' + parameters.origin + ';';
-            else if (transforms.indexOf(name.trim()) < 0)
-                style += name + ':' + parameters[name] + ';';
-            else {
+            else if (transforms.indexOf(name.trim()) >= 0) {
                 if (transform)
                     transform += ' ';
                 // translate=1,2 -> translate(1,2)
                 transform += name +'(' + parameters[name] + ')';
+            } else  {
+                if (name[0] !== '$')
+                    style += name + ':' + parameters[name] + ';';
             }
         }
         if (transform) {
@@ -16457,6 +16485,128 @@ if (!controls) throw new TypeError('controls.js not found!');
 
 
 
+//     controls.page-layout.js Page layout
+//     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     license: MIT
+// require controls.js
+
+(function() { "use strict"; // #604 >>
+var controls;
+if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
+    controls = require('controls');
+    module.exports = true;
+} else if (typeof define === 'function' && define.amd)
+    define(['controls'], function(c) { controls = c; return true; });
+else
+    controls = this.controls;
+if (!controls) throw new TypeError('controls.js not found!');
+// << #604
+
+
+    function PageLayout(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'page-layout', parameters, attributes);
+        
+        // media selector
+        var media = this.parameter('media');
+        var visible_columns = [], columnset_hash = '', out = [];
+        var padding = this.parameter('padding'); // padding parameter
+
+
+
+        switch(this.parameter('scheme')) {
+
+            // >> horizontal centered
+            case 'centered':
+
+                // default horizontal padding for 'centered' scheme
+                padding = padding || '16px';
+
+
+                var width = this.parameter('width') || '90%',
+                    min_width = this.parameter('min-width') || width,
+                    max_width = this.parameter('max-width') || width;
+                var _width_ = '';
+                if (width) _width_ += 'width:' + width + ';';
+                if (min_width) _width_ += 'min-width:' + min_width + ';';
+                if (max_width) _width_ += 'max-width:' + max_width + ';';
+
+
+                out.push((media) ? ('@media (' + media + '){') : '');
+                out.push(
+'', // placeholder for columns
+this.text(), // additional css
+'body{margin:0 auto;', _width_, ' }\
+.header-bar, .header-panel, .footer-bar, .footer-panel { padding-left: ' + padding + '; padding-right: ' + padding + '; }\
+.left-side-panel, .left-side-bar, .content-panel, .content-bar, .right-side-panel , .right-side-bar { display: inline-block; }');
+                if (media)
+                    out.push('}');
+
+                break;
+            // << horizontal centered
+        }
+       
+        
+        
+        var columns = this.parameter('columns');
+        if (columns) {
+            columns = columns.split(',');
+            var handler = setColumnsWidths.bind(this);
+            $(window).on('resize', handler);
+            $DOC.onload(handler);
+        }
+        
+        function setColumnsWidths() {
+            visible_columns = [];
+            var cbody = $DOC.body;
+            $DOC.COLUMNS.forEach(function(column) {
+                var ccol = cbody[column];
+                if (ccol) {
+                    var element = ccol._element;
+                    
+                    if (!element || (element && $(element).is(":visible")))
+                        visible_columns.push(column);
+                }
+            });
+            var hash = visible_columns.join(',');
+            if (hash !== columnset_hash) {
+                // changed the composition of visible columns
+                columnset_hash = hash;
+                var widths = '';
+                for(var i = 0, c = visible_columns.length; i < c; i++)
+                if (i < columns.length) {
+                    
+                    widths += '.' + visible_columns[i] + '{width:' + columns[i] + ';';
+                    
+                    // set horizontal padding
+                    if (i === 0)
+                        widths += 'padding-left:' + padding + ';';
+                    else if (i === c-1)
+                        widths += 'padding-right:' + padding + ';';
+                    
+                    widths += '}';
+                }
+                out[1] = widths;
+                this.refresh();
+            }
+        }
+        
+        
+        
+        this.template(function(it) { 
+            return '<style' + it.printAttributes() + '>' + out.join('') + '</style>'; });
+    };
+    PageLayout.prototype = controls.control_prototype;
+    controls.typeRegister('page-layout', PageLayout);
+
+
+}).call(this);
+
+
+
+
+
+
 //     markdown-site-template
 //     http://aplib.github.io/markdown-site-template/
 //     (c) 2013 vadim b.
@@ -16593,18 +16743,12 @@ if (!controls) throw new TypeError('controls.js not found!');
     
 
     var sections = $DOC.sections,
-        order = $DOC.order,
+        order = $DOC.ORDER,
         log_level = $ENV.log_level;
 
     // process found sections content
-    var processed_nodes = [];
-    function processSections() {
-        
-        // check body
-        if (!cbody._element && document.body)
-            cbody.attachAll();
-        if (!cbody._element)
-            return;
+    var processed_nodes = [], head_processed;
+    function processSections(process_head) {
         
         var translated_sections = [];
         
@@ -16614,12 +16758,32 @@ if (!controls) throw new TypeError('controls.js not found!');
         // <--sectionname ... -->
         // <--%[namespace.]cid[#parameters]( ... )%[namespace.]cid-->
         //
-        var iterator = document.createNodeIterator(document.body, 0x80, null, false),
+        var text_nodes = [],
+            iterator = document.createNodeIterator(process_head ? document.head : document.body, 0x80, null, false),
             text_node = iterator.nextNode(),
             fordelete = [];
-    
-        while(text_node)
-        try {
+
+        while(text_node) {
+            text_nodes.push(text_node);
+            text_node = iterator.nextNode();
+        }
+        
+        if (process_head && text_nodes.length)
+            head_processed = true;
+        
+//        // fix IE degradant:
+//        if (process_head && !text_nodes.length) {
+//            for(var nodes = document.head.childNodes, i = 0, c = nodes.length; i < c; i++) {
+//                var node = nodes[i];
+//                console.log("" + node.nodeValue);
+//                if (node.nodeType === 3)
+//                    text_nodes.push(node)
+//            }
+//        }
+            
+        for(var i = 0, c = text_nodes.length; i < c; i++) {
+            var text_node = text_nodes[i];
+            
             if (processed_nodes.indexOf(text_node) < 0) {
                 var control = undefined,  text = text_node.nodeValue, first_char = text[0];
                 if (' \n\t[@$&*#'.indexOf(first_char) < 0) {
@@ -16675,15 +16839,22 @@ if (!controls) throw new TypeError('controls.js not found!');
                 }
                 (control ? fordelete : processed_nodes).push(text_node);
             }
-        } finally {
-            text_node = iterator.nextNode();
         }
         
         for( var i = fordelete.length - 1; i >= 0; i--) {
             var node = fordelete[i], parent = node.parentNode;
             parent.removeChild(node);
         }
-            
+        
+        if (process_head)
+            return;
+        
+        
+        // check body
+        if (!cbody._element && document.body)
+            cbody.attachAll();
+        if (!cbody._element)
+            return;
         
         // process other named sections content, applied from controls or user.js
         //
@@ -16766,7 +16937,7 @@ if (!controls) throw new TypeError('controls.js not found!');
         if ($DOC.state > 0)
             return;
         
-        $DOC.state++;
+        $DOC.state = 1;
         
         chead.attachAll();
         cbody.attachAll();
@@ -16799,7 +16970,9 @@ if (!controls) throw new TypeError('controls.js not found!');
                     dom_loaded_handler();
 
                 // raise 'load' event
-                var load_event = $DOC.events.load;
+                $DOC.state = 2;
+                $DOC.isLoaded = true;
+                var load_event = $DOC.forceEvent('load');
                 load_event.raise();
                 load_event.clear();
 
@@ -16810,13 +16983,19 @@ if (!controls) throw new TypeError('controls.js not found!');
             
             // page transformation
             
+            processSections(true);
+            
             // delay first transformation -> timer
             var timer = setInterval(function() {
+                if (!head_processed)
+                    processSections(true);
                 processSections(); // sections may be inserted by components
                 onresize();
             }, 25);
         
             var dom_loaded_handler = function() {
+                if (!head_processed)
+                    processSections(true);
                 processSections();
                 document.body.setAttribute('data-generator', 'MST/embed-processed');
                 onresize();
@@ -16847,7 +17026,9 @@ if (!controls) throw new TypeError('controls.js not found!');
                 }
                 
                 // raise 'load' event
-                var load_event = $DOC.events.load;
+                $DOC.state = 2;
+                $DOC.isLoaded = true;
+                var load_event = $DOC.forceEvent('load');
                 load_event.raise();
                 load_event.clear();
 

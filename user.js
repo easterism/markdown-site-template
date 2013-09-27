@@ -19,6 +19,7 @@ $DOC.parseContent(function(){/*
  * [Collapse]({{=$DOC.root}}components/controls.collapse.html)
  * [Tabbed panel]({{=$DOC.root}}components/controls.tabpanel.html)
  * [Carousel]({{=$DOC.root}}components/controls.carousel.html)
+ * [Page layout]({{=$DOC.root}}components/controls.page-layout.html)
  * [Emoji]({{=$DOC.root}}components/GitHub.gemoji.html)
  * [YouTube Player]({{=$DOC.root}}components/YouTube.Player.html)
  * [Mediawiki markup]({{=$DOC.root}}components/wiki.instaview.html)

@@ -27,12 +27,12 @@ Define styles by using the &lt;style&gt;&lt;/style&gt; tag anywhere in the docum
 
 Use defined styles of specifying the name of the class when inserting component with a visual representation:  
 
-<code>
-*%*alert#warning;$class=m41(  
+<code>%off(
+%alert#warning;$class=m41(  
 &nbsp;*#*#*#* Markdown here  
 &nbsp;This is an example  
-)*%*alert
-</code>
+)%alert
+)%off</code>
 
 <style>
 .m41 { display:inline-block; padding-top:9px; box-shadow:1px 1px 4px #888888; }
@@ -47,8 +47,8 @@ This is an example
 To immediate insert style at a specific location you can use special component %block or %text:
 
 >syntax:  
-<code><span>%</span>block#parameters(marked text)<span>%</span>block</code>  
-<code><span>%</span>text#parameters(marked text)<span>%</span>text</code>  
+<code>%off(%block#parameters(marked text)%block  
+> %text#parameters(marked text)%text)%off</code>  
 >parameters:  
 >* $class=&lt;classnames&gt; - set class attribute value  
 >* &lt;css property name&gt;=&lt;property value&gt;; - set css property value  
@@ -57,9 +57,9 @@ To immediate insert style at a specific location you can use special component %
 >
 >location: built-in
 
-<code>*%*block#display=inline-block; rotate=13deg; padding=12px 15px; margin=4px; border-radius=4px; background-color=#fcf5b9; box-shadow=1px 1px 4px #888888(<br>
+<code>%off(%block#display=inline-block; rotate=13deg; padding=12px 15px; margin=4px; ... (<br>
 *#*#*#* Markdown here<br>
-This is an example)*%*block</code>
+This is an example)%block)%off</code>
 
 %block#display=inline-block; rotate=13deg; padding=12px 15px; margin=4px; border-radius=4px; background-color=#fcf5b9; box-shadow=1px 1px 4px #888888(
 ### Markdown here
@@ -68,6 +68,6 @@ This is an example)%block
 -->
 
 <noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
-<script>if(typeof $DOC==="undefined")document.write('<script src="http://aplib.github.io/document.min.js"><'+'/script><link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="document.css" auto="1">');</script>
+<script>if(typeof $DOC==="undefined")document.write('<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" id="bootstrap.css" auto="1"><script src="http://aplib.github.io/document.min.js"><'+'/script>');</script>
 </body>
 </html>

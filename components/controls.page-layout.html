@@ -2,22 +2,31 @@
 <html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>Simple Markdown site template - MSDN-like theme</title>
+    <title>Page layout component</title>
     <script src="../document.min.js"></script>
 </head>
 <body>
 
-
 <!--content-panel
 
-## MSDN-like theme
-<h3><a class="label label-default" href="http://aplib.github.io/markdown-site-template/mods/msdn-like-theme.zip">Download</a></h3>  
-location: mods/msdn-like-theme/
+## Page layout component
+Page layout manager
 
-initialization: script in user.js (globally) or script on the page
+>syntax:  
+><code>%off(%page-layout#parameters( additional css )%page-layout )%off</code>  
+>parameters:  
+>* media - optional, css media query
+>* scheme - layout scheme
+>* width - optional, layout width
+>* padding - optional, layout width
+>* columns - optional, columns widths
+>location: built-in  
 
-example:
-```$DOC.mod('primary-theme', 'msdn-like-theme');```
+### Schemes
+
+scheme | used parameters
+- | -
+centered | width, padding, columns
 
 -->
 
