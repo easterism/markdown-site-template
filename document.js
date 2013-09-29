@@ -16798,16 +16798,6 @@ this.text(), // additional css
         if (process_head && text_nodes.length)
             head_processed = true;
         
-//        // fix IE degradant:
-//        if (process_head && !text_nodes.length) {
-//            for(var nodes = document.head.childNodes, i = 0, c = nodes.length; i < c; i++) {
-//                var node = nodes[i];
-//                console.log("" + node.nodeValue);
-//                if (node.nodeType === 3)
-//                    text_nodes.push(node)
-//            }
-//        }
-            
         for(var i = 0, c = text_nodes.length; i < c; i++) {
             var text_node = text_nodes[i];
             
@@ -16827,16 +16817,26 @@ this.text(), // additional css
                             // <!--!sectionname--> - section remover
                             $DOC.removeSection(text.slice(1));
                         } else {
-                            // <--sectionname ... -->
-                            var namelen = text.indexOf(' ');
-                            var eol = text.indexOf('\n');
-                            
-                            if (namelen < 0 && eol < 0) {
+                            // <--sectionname...-->
+                            var namelen = text.indexOf(' '),
+                                eolpos = text.indexOf('\n'),
+                                move = text.indexOf('->');
+                            if (namelen < 0 && eolpos < 0 && move < 0) {
+                                // <--sectionname-->
                                 $DOC.sectionPlaceholder(text, text_node);
-                            }
-                            else {
-                                if (eol > 0 && (namelen < 0 || eol < namelen))
-                                    namelen = eol;
+                            } else if (namelen < 0 && move > 0) {
+                                // <--sectionname->newname-->
+                                var oldname = text.slice(0, move),
+                                    newname = text.slice(move + 2);
+                                if (oldname && newname) {
+                                    var sections = $DOC.sections;
+                                    sections[newname] = sections[oldname];
+                                    delete sections[oldname];
+                                }
+                            } else {
+                                // <--sectionname ...-->
+                                if (eolpos > 0 && (namelen < 0 || eolpos < namelen))
+                                    namelen = eolpos;
                                 if (namelen > 0 && namelen < 128) {
                                     var section_name = text.slice(0, namelen),
                                     // create section div
