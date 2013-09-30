@@ -1,20 +1,19 @@
 //     controls.math.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
-// require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict";
     
+if (typeof $ENV !== 'undefined')
+    initialize();
+else {
+    // queue component for loading
+    if (!this.clq12604)
+        this.clq12604 = [];
+    this.clq12604.push(initialize);
+}
+
+function initialize() {
     
     var load_controls = [],
         script_template = controls['controls.script'].outer_template,
@@ -70,5 +69,6 @@ if (!controls) throw new TypeError('controls.js not found!');
             load_controls = [];
         });
     }
+}
 
 }).call(this);
