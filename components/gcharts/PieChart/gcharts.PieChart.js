@@ -3,18 +3,18 @@
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict";
+    
+if (typeof $ENV !== 'undefined')
+    initialize();
+else {
+    // queue component for loading
+    if (!this.clq12604)
+        this.clq12604 = [];
+    this.clq12604.push(initialize);
+}
 
+function initialize() {
     
     var jsapi_state = 0, corechart_state = 0, not_drawn = [];
     $DOC.appendScript('www.google.com/jsapi', 'https://www.google.com/jsapi', function(state) {
@@ -83,6 +83,6 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     CPieChart.prototype = controls.control_prototype;
     controls.typeRegister('gcharts.PieChart', CPieChart);
-
+}
 
 }).call(this);

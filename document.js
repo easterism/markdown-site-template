@@ -10855,14 +10855,15 @@ $ENV =
     
     // initialize $ENV
     
+    // marked patches
     var marked = $ENV.marked;
     $ENV.markedPostProcess = function(text, options) {
         var formatted = marked(text, options);
         return formatted;
-        //return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
+        // experimental patch return (formatted.substr(0,3) === '<p>' && formatted.slice(-5) === '</p>\n') ? formatted.substr(3, formatted.length-8) : formatted;
     };
     
-    // default control templates:
+    // default control templates
     $ENV.default_template = function(it)
     {
         return '<div' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
@@ -10915,7 +10916,7 @@ $ENV =
         sections: {},
         // Sections constants
         ORDER: ['fixed-top-bar', 'fixed-top-panel',
-            'header-panel', 'header-panel',
+            'header-bar', 'header-panel',
             'left-side-bar', 'left-side-panel',
             'content-bar', 'content-panel',
             'right-side-panel', 'right-side-bar',
@@ -10940,15 +10941,37 @@ $ENV =
             }
         },
         // move section to placeholder location
-        sectionPlaceholder: function(name, element) {
-            var sections = this.sections;
-            var exists = sections[name];
+        sectionPlaceholder: function(name, text_node) {
+            var sections = this.sections,
+                exists = sections[name];
             // move exists node
-            if (exists && exists.nodeType && element && element.nodeType) {
-                document.insertBefore(exists, element);
-            // or put placeholder
+            if (exists) {
+                if (exists.__type) {
+                    var element = exists.element;
+                    if (element)
+                        document.insertBefore(element, text_node);
+                } else if (exists.nodeType) {
+                    document.insertBefore(exists, text_node);
+                }
+            }
+            sections[name] = {placeholder:text_node, content:exists};
+        },
+        // move section to other location
+        sectionMover: function(text_node, oldname, newname) {
+            var sections = this.sections,
+                exists = sections[oldname];
+            if (typeof exists === 'string') {
+                sections[newname] = exists;
+                delete sections[oldname];
             } else if (exists) {
-                sections[name] = {placeholder:element, content:exists};
+                if (exists.__type) {
+                    exists.class(newname, oldname);
+                    var element = exists.element;
+                    if (element)
+                        document.insertBefore(element, text_node);
+                } else if (exists.nodeType) {
+                    document.insertBefore(exists, text_node);
+                }
             }
         },
         // Texts and templates
@@ -11339,6 +11362,15 @@ $ENV =
                 localStorage.setItem('primary-theme-confirmed', true);
         });
         $DOC.appendScript('theme.js', $DOC.root + 'mods/' + theme + '/' + theme + '.js');
+    }
+    
+    
+    
+    // load queued components
+    if (window.clq12604) {
+        var q = window.clq12604;
+        for(var i = 0, c = q.length; i < c; i++)
+            q[i]();
     }
     
 }).call(this);
@@ -15977,17 +16009,7 @@ InstallDots.prototype.compileAll = function() {
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict"; var controls = $ENV.controls;
 
 
 
@@ -16070,25 +16092,12 @@ return '<div' + it.printAttributes() + '>\
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//     
 //     controls.css.js
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
-//
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict"; var controls = $ENV.controls;
     
     
     
@@ -16265,17 +16274,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 //     License: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = Collapse;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return Collapse; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict"; var controls = $ENV.controls;
 
 var bootstrap = controls.bootstrap;
     
@@ -16426,17 +16425,7 @@ var bootstrap = controls.bootstrap;
 //     License: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = CTabPanel;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return CTabPanel; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict"; var controls = $ENV.controls;
 
 
 
@@ -16517,17 +16506,7 @@ if (!controls) throw new TypeError('controls.js not found!');
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict"; var controls = $ENV.controls;
 
 
     function PageLayout(parameters, attributes) {
@@ -16563,8 +16542,8 @@ if (!controls) throw new TypeError('controls.js not found!');
                 out.push(
 '', // placeholder for columns
 this.text(), // additional css
-'body{margin:0 auto;', _width_, ' }\
-.header-bar, .header-panel, .footer-bar, .footer-panel { padding-left: ' + padding + '; padding-right: ' + padding + '; }\
+'body{margin:0 auto;', _width_, ' !important}\
+.header-bar, .header-panel, .footer-bar, .footer-panel { padding-left:' + padding + '; padding-right:' + padding + '; }\
 .left-side-panel, .left-side-bar, .content-panel, .content-bar, .right-side-panel , .right-side-bar { display: inline-block; }');
                 if (media)
                     out.push('}');
@@ -16777,6 +16756,9 @@ this.text(), // additional css
     var processed_nodes = [], head_processed;
     function processSections(process_head) {
         
+        if (!process_head && !document.body)
+            return;
+        
         var translated_sections = [];
         
         // process DOM
@@ -16826,13 +16808,7 @@ this.text(), // additional css
                                 $DOC.sectionPlaceholder(text, text_node);
                             } else if (namelen < 0 && move > 0) {
                                 // <--sectionname->newname-->
-                                var oldname = text.slice(0, move),
-                                    newname = text.slice(move + 2);
-                                if (oldname && newname) {
-                                    var sections = $DOC.sections;
-                                    sections[newname] = sections[oldname];
-                                    delete sections[oldname];
-                                }
+                                $DOC.sectionMover(text_node, text.slice(0, move), text.slice(move + 2));
                             } else {
                                 // <--sectionname ...-->
                                 if (eolpos > 0 && (namelen < 0 || eolpos < namelen))

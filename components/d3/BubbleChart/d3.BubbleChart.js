@@ -3,18 +3,18 @@
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; // #604 >>
-var controls;
-if (typeof module !== 'undefined' && typeof require !== 'undefined' && module.exports) {
-    controls = require('controls');
-    module.exports = true;
-} else if (typeof define === 'function' && define.amd)
-    define(['controls'], function(c) { controls = c; return true; });
-else
-    controls = this.controls;
-if (!controls) throw new TypeError('controls.js not found!');
-// << #604
+(function() { "use strict";
     
+if (typeof $ENV !== 'undefined')
+    initialize();
+else {
+    // queue component for loading
+    if (!this.clq12604)
+        this.clq12604 = [];
+    this.clq12604.push(initialize);
+}
+    
+function initialize() {
     
     var d3v3_state = 0, not_drawn = [];
     $DOC.appendScript('d3.v3', 'http://d3js.org/d3.v3.js', function(state) {
@@ -111,6 +111,6 @@ if (!controls) throw new TypeError('controls.js not found!');
     };
     CBubbleChart.prototype = controls.control_prototype;
     controls.typeRegister('d3.BubbleChart', CBubbleChart);
-
+}
 
 }).call(this);
