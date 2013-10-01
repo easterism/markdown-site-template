@@ -22,7 +22,7 @@ $DOC.parseContent(function(){/*
  * [Tabbed panel]({{=$DOC.root}}components/controls.tabpanel.html)
  * [Carousel]({{=$DOC.root}}components/controls.carousel.html)
  * [Page layout]({{=$DOC.root}}components/controls.page-layout.html)
- * [Emoji]({{=$DOC.root}}components/GitHub.gemoji.html)
+ * [Emoji]({{=$DOC.root}}components/controls.emoji.html)
  * [YouTube Player]({{=$DOC.root}}components/YouTube.Player.html)
  * [Mediawiki markup]({{=$DOC.root}}components/wiki.instaview.html)
  * [MathJax]({{=$DOC.root}}components/controls.math.html)
