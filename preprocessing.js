@@ -9,12 +9,17 @@ $ENV =
     'bootstrap.controls': require('./temp/bootstrap.controls.js')
 };
 
+
 (function() { 'use strict';
     
     // initialize $ENV
     
     // marked patches
     var marked = $ENV.marked;
+    // Set default options except highlight which has no default
+    marked.setOptions({
+      gfm: true, tables: true,  breaks: false,  pedantic: false,  sanitize: false,  smartLists: true,  smartypants: false,  langPrefix: 'lang-'
+    });
     $ENV.markedPostProcess = function(text, options) {
         var formatted = marked(text, options);
         return formatted;

@@ -44,20 +44,3 @@ $DOC.parseContent(function(){/*
 $DOC.sections['footer-panel'] =
 '* © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT\n\
 * [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)';
-
-
-
-
- // marked.js support GitHub Flavored Markdown see on https://github.com/chjj/marked/wiki
- // For enable GitHub Flavored Markdown uncommented next options code lines:
- // Set default options except highlight which has no default
- $ENV.marked.setOptions({
-   gfm: true,
- //  highlight: function (code, lang, callback) {
- //    pygmentize({ lang: lang, format: 'html' }, code, function (err, result) {
- //      if (err) return callback(err);
- //      callback(null, result.toString());
- //    });
- //  },
-   tables: true,  breaks: false,  pedantic: false,  sanitize: false,  smartLists: true,  smartypants: false,  langPrefix: 'lang-'
- });

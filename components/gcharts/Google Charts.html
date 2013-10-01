@@ -17,9 +17,9 @@
 
 ### <a class="label label-default" href="http://aplib.github.io/markdown-site-template/components/GoogleCharts.zip">Download</a>
 >syntax:  
-><code>*%*gcharts.PieChart#parameters(data)*%*gcharts.PieChart</code>  
-> * parameters - [Pie Chart configuration options](https://developers.google.com/chart/interactive/docs/gallery/piechart#Configuration_Options)
-> * data - json formatted data array  
+><code>%off(%gcharts.PieChart#parameters(data)%gcharts.PieChart)%off</code>  
+>* parameters - [Pie Chart configuration options](https://developers.google.com/chart/interactive/docs/gallery/piechart#Configuration_Options)
+>* data - json formatted data array  
 >
 > [Pie Chart on Google Developers](https://developers.google.com/chart/interactive/docs/gallery/piechart)  
 
@@ -36,16 +36,15 @@
 
  example markup:
 
-<code>
-*%*gcharts.PieChart#is3D;width=640;height=320([  
+<code>%off(%gcharts.PieChart#is3D;width=640;height=320([  
 &nbsp;["Task", "Hours per Day"],  
 &nbsp;["Work",     11],  
 &nbsp;["Eat",      2],  
 &nbsp;["Commute",  2],  
 &nbsp;["Watch TV", 2],  
 &nbsp;["Sleep",    7]  
-])*%*gcharts.PieChart
-</code>
+])%gcharts.PieChart
+)%off</code>
 
 -->
 
