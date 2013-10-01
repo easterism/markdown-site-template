@@ -1,7 +1,6 @@
 //     gcharts.PieChart.js control for displaying d3.BubbleChart
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
-// require controls.js
 
 (function() { "use strict";
     

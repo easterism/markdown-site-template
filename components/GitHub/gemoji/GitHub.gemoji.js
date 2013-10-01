@@ -3,7 +3,6 @@
 //     repacked by https://github.com/iamcal/emoji-data 
 //     control created (c) 2013 vadim baklanov https://github.com/aplib/common.controls
 //     GitHub.gemoji.js license: MIT
-// require document.js
 
 (function() { "use strict";
 

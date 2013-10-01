@@ -1,7 +1,6 @@
 //     gcharts.PieChart.js control for displaying Google Charts.Pie Chart
 //     control (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
 //     license: MIT
-// require controls.js
 
 (function() { "use strict";
     
