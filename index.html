@@ -65,15 +65,16 @@ If you create a panel with a unique name, the behavior you can assign using css.
 In the panels you can add marked text, components to display graphical elements or components for appearance or behavior of the site.
 
  example:
-<pre><code>%encode(%off(<!DOCTYPE html>&nbsp;
+<pre><code>%encode(%off(
+<!DOCTYPE html>
 <html lang="en-US">
 <head>
     <meta charset="utf-8">
-    <title>Example</title>
-    <script src="document.min.js" id='DOC' onerror="var l=document.createElement('link'),s=document.createElement('script');l.rel='stylesheet';l.href='http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css';l.id='bootstrap.css';l.auto='1';document.head.insertBefore(l,document.getElementById('DOC'));s.src='http://aplib.github.io/document.min.js';document.head.appendChild(s);"></script>
+    <title>Simple Markdown site template</title>
+    <script src="document.min.js" onerror="document.write('<link rel=\'stylesheet\' href=\'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css\' id=\'bootstrap.css\' auto=\'1\'><script src=\'http://aplib.github.io/document.min.js\'></script>');"></script>
 </head>
 <body>
-
+    
 &lt;!--fixed-top-bar
 %navbar(
 * [Home](index.html)
@@ -82,12 +83,25 @@ In the panels you can add marked text, components to display graphical elements 
 )%navbar
 --&gt;
 
-
-&lt;!--content-panel
-# Hello World!
+&lt;!--header-panel
+# Insert header here
+site description
 --&gt;
 
-<noscript> ...
+&lt;!--content-panel
+# content text
+## content text
+### content text
+#### content text
+--&gt;
+
+&lt;!--footer-panel
+footer here
+--&gt;
+
+<noscript><div class="alert alert-warning">This Website requires your browser to be JavaScript enabled.</div></noscript>
+</body>
+</html>
 )%off)%encode</code></pre>
 
 ## Customize site
