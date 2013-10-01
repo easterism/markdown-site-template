@@ -31,6 +31,10 @@ $ENV =
     {
         return '<div' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
     };
+    $ENV.default_inline_template = function(it)
+    {
+        return '<span' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</span>';
+    };
     $ENV.default_inner_template = function(it)
     {
         return $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") );

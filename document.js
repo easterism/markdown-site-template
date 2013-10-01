@@ -10873,6 +10873,10 @@ $ENV =
     {
         return '<div' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</div>';
     };
+    $ENV.default_inline_template = function(it)
+    {
+        return '<span' + it.printAttributes() + '>' + $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") ) + '</span>';
+    };
     $ENV.default_inner_template = function(it)
     {
         return $ENV.markedPostProcess( (it.attributes.$text || "") + it.controls.map(function(control) { return control.wrappedHTML(); }).join("") );
@@ -13813,6 +13817,8 @@ controls.typeRegister(__type, ' + name + ');';
         this.outer_template = doT.template('<div{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}</div>');
         // default inner html template
         this.inner_template = doT.template('{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}');
+        // default inline template
+        this.outer_inline_template = doT.template('<span{{=it.printAttributes()}}>{{? it.attributes.$text }}{{=it.attributes.$text}}{{?}}{{~it.controls :value:index}}{{=value.wrappedHTML()}}{{~}}</span>');
                 
         // snippets:
         // 

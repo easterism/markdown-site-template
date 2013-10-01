@@ -94,7 +94,7 @@ bfy.on('exit', function ()
             'components\\controls.carousel.html',
             'components\\controls.page-layout.html',
             
-            'components\\GitHub.gemoji.html',
+            'components\\controls.emoji.html',
             'components\\YouTube.Player.html',
             'components\\wiki.instaview.html',
             'components\\controls.math.html',
