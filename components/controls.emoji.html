@@ -18,7 +18,12 @@
 <h3><a class="label label-default" href="http://aplib.github.io/markdown-site-template/components/controls.emoji.zip">Download</a></h3>  
 
 >syntax:  
-><code>%off( %emoji#size=20( :zero: :one: :two: :three:  :four: :five: )%emoji )%off</code>  
+><code>%off( %emoji#parameters( :zero: :one: :two: :three:  :four: :five: )%emoji )%off</code>  
+>parameters:
+
+>* size - (16,20,32,64) symbols size in pixels, default value '20'
+>* type - (jpg,png) type of images, default value 'jpg'. Jpg better quality, smaller and loads faster, but does not have a transparency and is not suitable for inverse themes.
+
 >location: components/controls/emoji/  
 
 
@@ -26,10 +31,10 @@ Here is conveniently view http://www.emoji-cheat-sheet.com/
 [a catalog of the emoji data](http://unicodey.com/emoji-data/table.htm)
 
 some example:
-%emoji#size=16(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
-%emoji#size=20(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
-%emoji#size=32(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
-%emoji#size=64(
+%emoji#size=16;type=png(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
+%emoji#size=20;type=png(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
+%emoji#size=32;type=png(:zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```)%emoji
+%emoji#size=64;type=png(
 :zero:  ```:zero:``` :one:  ```:one:``` :two:  ```:two:``` :three:  ```:three:``` :four:  ```:four:``` :five:  ```:five:```
 :keycap_ten:  ```:keycap_ten:``` :arrow_forward:  ```:arrow_forward:``` :arrow_right:  ```:arrow_right:``` :arrow_upper_left:  ```:arrow_upper_left:``` :arrow_heading_down:  ```:arrow_heading_down:``` :arrow_up_down:  ```:arrow_up_down:``` :abc:  ```:abc:```  
 :+1:  ```:+1:``` :-1:  ```:-1:``` :clock10:  ```:clock10:``` :clock5:  ```:clock5:``` :smile:  ```:smile:``` :imp:  ```:imp:```  
