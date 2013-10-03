@@ -44,7 +44,6 @@ $DOC.parseContent(function(){/*
 $DOC.sections['footer-panel'] =
 '%footer-layout#scheme=line(\
 * © 2013 [aplib on GitHub](https://github.com/aplib/markdown-site-template) MIT\n\
-* [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)\n\
 ***\n\
 * [Free download template from GitHub](http://aplib.github.io/markdown-site-template/markdown-site-template.zip)\
 )%footer-layout';
