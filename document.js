@@ -11405,7 +11405,7 @@ function Bootstrap(controls)
 {
     var bootstrap = this;
     var doT = controls.doT;
-    bootstrap.VERSION = '0.6.7';
+    bootstrap.VERSION = '0.6.8';
     controls.bootstrap = bootstrap;
     
     var control_prototype = (function()
@@ -13182,7 +13182,7 @@ if (typeof exports === 'object') {
 //
 // require doT.js
 
-(function() { "use strict"; var VERSION = '0.6.7';
+(function() { "use strict"; var VERSION = '0.6.8';
 
 function Controls(doT)
 {
@@ -16018,9 +16018,8 @@ InstallDots.prototype.compileAll = function() {
 
     function NavBar(parameters, attributes) {
         
-        controls.controlInitialize(this, 'navbar', parameters, attributes);
+        controls.controlInitialize(this, 'navbar', parameters, attributes, nav_template, $ENV.default_inner_template);
         this.class('navbar navbar-default');
-        this.template(nav_template, $ENV.default_inner_template);
 
         // text contains two parts separated by '***', first part non togglable, second part is togglable
         var parts = (this.text() || '').split(/^\*\*\*/m);
@@ -16509,19 +16508,17 @@ var bootstrap = controls.bootstrap;
 //     license: MIT
 // require controls.js
 
-(function() { "use strict"; var controls = $ENV.controls;
-
+(function() { "use strict";
+    var controls = $ENV.controls;
 
     function PageLayout(parameters, attributes) {
         
         controls.controlInitialize(this, 'page-layout', parameters, attributes);
         
         // media selector
-        var media = this.parameter('media');
-        var visible_columns = [], columnset_hash = '', out = [];
-        var padding = this.parameter('padding'); // padding parameter
-
-
+        var media = this.parameter('media'),
+            visible_columns = [], columnset_hash = '', out = [],
+            padding = this.parameter('padding'); // padding parameter
 
         switch(this.parameter('scheme')) {
 
@@ -16551,7 +16548,7 @@ this.text(), // additional css
                 if (media)
                     out.push('}');
 
-                break;
+            break;
             // << horizontal centered
         }
        
@@ -16607,6 +16604,78 @@ this.text(), // additional css
     };
     PageLayout.prototype = controls.control_prototype;
     controls.typeRegister('page-layout', PageLayout);
+
+
+}).call(this);
+
+
+
+
+
+
+//     controls.layout.js
+//     (c) 2013 vadim b. http://aplib.github.io/markdown-site-template
+//     license: MIT
+
+(function() { "use strict";
+    var controls = $ENV.controls;
+
+    function FooterLayout(parameters, attributes) {
+        
+        controls.controlInitialize(this, 'footer-layout', parameters, attributes, $ENV.default_template, $ENV.default_inner_template);
+        
+        var media = this.parameter('media'),        // media selector
+            padding = this.parameter('padding'),    // padding parameter
+            scheme = this.parameter('scheme') || 'line';
+            
+        $DOC.processContent(this, this.text());
+        this.text('');
+
+        switch(this.parameter('scheme')) {
+
+            // >> horizontal centered
+            case 'line':
+
+                this.listen('element', function() {
+                    this.lineParseDOM();
+                });
+                
+                $DOC.appendCSS('controls.footer-layout.line',
+'.cfl-line-container { margin:0; padding:0; float:left; }\
+.cfl-line-container > li { line-height:32px; list-style:none; float:left; padding:12px 24px 12px 0px; }\
+.cfl-line-item { line-height:32px; list-style:none; float:left; padding:12px 24px 12px 0px; }\
+.cfl-line-container:last-child, .cfl-line-item:last-child { float:right; padding-right:0; }\
+.cfl-line-container:first-child, .cfl-line-item:first-child { float:left; }\
+');
+        
+                this.lineParseDOM = function() {
+                    var element = this._element;
+                    if (element) {
+
+                        var nodes = element.childNodes;
+                        for(var i = nodes.length - 1; i >= 0; i--) {
+                            var node = nodes[i];
+                            if (node.nodeType === 1) {
+                                var tag = node.tagName.toUpperCase();
+                                switch(tag) {
+                                    case 'UL':
+                                        $(node).addClass('cfl-line-container');
+                                    break;
+                                    case 'HR':
+                                        element.removeChild(node);
+                                    break;
+                                    default:
+                                        $(node).addClass('cfl-line-item');
+                                }
+                            }
+                        }
+                    }
+                };
+            break;
+        }
+    };
+    FooterLayout.prototype = controls.control_prototype;
+    controls.typeRegister('footer-layout', FooterLayout);
 
 
 }).call(this);

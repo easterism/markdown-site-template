@@ -37,6 +37,7 @@ bfy.on('exit', function ()
         'components/controls/panels/controls.panels.js',
         'components/controls/tabpanel/controls.tabpanel.js',
         'components/controls/page-layout/controls.page-layout.js',
+        'components/controls/footer-layout/controls.footer-layout.js',
         // << built-in components
         'index.js',
         'postprocessing.js'],
